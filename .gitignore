@@ -1,5 +1,11 @@
-*/.vs/
-*/bin/*
-*/obj/*
-*.pubxml
-TrackItApp-BackEnd/TrackItApp.API/Properties/PublishProfiles/FolderProfile.pubxml.user
+# Visual Studio
+.vs/
+
+# Build outputs
+bin/
+obj/
+
+# User-specific files
+*.user
+*.rsuser
+*.suo
