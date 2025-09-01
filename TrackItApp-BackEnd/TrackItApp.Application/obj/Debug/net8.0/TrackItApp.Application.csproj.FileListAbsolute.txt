@@ -1,0 +1,16 @@
+C:\Users\Dell\Desktop\Projects\TrackItApp\TrackItApp BackEnd\TrackItApp.Application\bin\Debug\net8.0\TrackItApp.Application.deps.json
+C:\Users\Dell\Desktop\Projects\TrackItApp\TrackItApp BackEnd\TrackItApp.Application\bin\Debug\net8.0\TrackItApp.Application.dll
+C:\Users\Dell\Desktop\Projects\TrackItApp\TrackItApp BackEnd\TrackItApp.Application\bin\Debug\net8.0\TrackItApp.Application.pdb
+C:\Users\Dell\Desktop\Projects\TrackItApp\TrackItApp BackEnd\TrackItApp.Application\obj\Debug\net8.0\TrackItApp.Application.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Dell\Desktop\Projects\TrackItApp\TrackItApp BackEnd\TrackItApp.Application\obj\Debug\net8.0\TrackItApp.Application.AssemblyInfoInputs.cache
+C:\Users\Dell\Desktop\Projects\TrackItApp\TrackItApp BackEnd\TrackItApp.Application\obj\Debug\net8.0\TrackItApp.Application.AssemblyInfo.cs
+C:\Users\Dell\Desktop\Projects\TrackItApp\TrackItApp BackEnd\TrackItApp.Application\obj\Debug\net8.0\TrackItApp.Application.csproj.CoreCompileInputs.cache
+C:\Users\Dell\Desktop\Projects\TrackItApp\TrackItApp BackEnd\TrackItApp.Application\obj\Debug\net8.0\TrackItApp.Application.sourcelink.json
+C:\Users\Dell\Desktop\Projects\TrackItApp\TrackItApp BackEnd\TrackItApp.Application\obj\Debug\net8.0\TrackItApp.Application.dll
+C:\Users\Dell\Desktop\Projects\TrackItApp\TrackItApp BackEnd\TrackItApp.Application\obj\Debug\net8.0\refint\TrackItApp.Application.dll
+C:\Users\Dell\Desktop\Projects\TrackItApp\TrackItApp BackEnd\TrackItApp.Application\obj\Debug\net8.0\TrackItApp.Application.pdb
+C:\Users\Dell\Desktop\Projects\TrackItApp\TrackItApp BackEnd\TrackItApp.Application\obj\Debug\net8.0\ref\TrackItApp.Application.dll
+C:\Users\Dell\Desktop\Projects\TrackItApp\TrackItApp BackEnd\TrackItApp.Application\bin\Debug\net8.0\TrackItApp.Domain.dll
+C:\Users\Dell\Desktop\Projects\TrackItApp\TrackItApp BackEnd\TrackItApp.Application\bin\Debug\net8.0\TrackItApp.Domain.pdb
+C:\Users\Dell\Desktop\Projects\TrackItApp\TrackItApp BackEnd\TrackItApp.Application\obj\Debug\net8.0\TrackItApp.Application.csproj.AssemblyReference.cache
+C:\Users\Dell\Desktop\Projects\TrackItApp\TrackItApp BackEnd\TrackItApp.Application\obj\Debug\net8.0\TrackItA.F2451CF8.Up2Date

@@ -1,0 +1,5 @@
+*/.vs/
+*/bin/
+*/obj/
+*.pubxml
+TrackItApp-BackEnd/TrackItApp.API/Properties/PublishProfiles/FolderProfile.pubxml.user

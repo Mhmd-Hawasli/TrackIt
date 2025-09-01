@@ -1,0 +1,12 @@
+C:\Users\Dell\Desktop\Projects\TrackItApp\TrackItApp BackEnd\TrackItApp.Domain\bin\Debug\net8.0\TrackItApp.Domain.deps.json
+C:\Users\Dell\Desktop\Projects\TrackItApp\TrackItApp BackEnd\TrackItApp.Domain\bin\Debug\net8.0\TrackItApp.Domain.dll
+C:\Users\Dell\Desktop\Projects\TrackItApp\TrackItApp BackEnd\TrackItApp.Domain\bin\Debug\net8.0\TrackItApp.Domain.pdb
+C:\Users\Dell\Desktop\Projects\TrackItApp\TrackItApp BackEnd\TrackItApp.Domain\obj\Debug\net8.0\TrackItApp.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Dell\Desktop\Projects\TrackItApp\TrackItApp BackEnd\TrackItApp.Domain\obj\Debug\net8.0\TrackItApp.Domain.AssemblyInfoInputs.cache
+C:\Users\Dell\Desktop\Projects\TrackItApp\TrackItApp BackEnd\TrackItApp.Domain\obj\Debug\net8.0\TrackItApp.Domain.AssemblyInfo.cs
+C:\Users\Dell\Desktop\Projects\TrackItApp\TrackItApp BackEnd\TrackItApp.Domain\obj\Debug\net8.0\TrackItApp.Domain.csproj.CoreCompileInputs.cache
+C:\Users\Dell\Desktop\Projects\TrackItApp\TrackItApp BackEnd\TrackItApp.Domain\obj\Debug\net8.0\TrackItApp.Domain.sourcelink.json
+C:\Users\Dell\Desktop\Projects\TrackItApp\TrackItApp BackEnd\TrackItApp.Domain\obj\Debug\net8.0\TrackItApp.Domain.dll
+C:\Users\Dell\Desktop\Projects\TrackItApp\TrackItApp BackEnd\TrackItApp.Domain\obj\Debug\net8.0\refint\TrackItApp.Domain.dll
+C:\Users\Dell\Desktop\Projects\TrackItApp\TrackItApp BackEnd\TrackItApp.Domain\obj\Debug\net8.0\TrackItApp.Domain.pdb
+C:\Users\Dell\Desktop\Projects\TrackItApp\TrackItApp BackEnd\TrackItApp.Domain\obj\Debug\net8.0\ref\TrackItApp.Domain.dll
