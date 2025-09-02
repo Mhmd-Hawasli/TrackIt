@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace TrackItApp.Domain.Repositories
 {
-    public interface IRepositoryBase
+    public interface IRepositoryBase<T> where T : class
     {
+
     }
 }
