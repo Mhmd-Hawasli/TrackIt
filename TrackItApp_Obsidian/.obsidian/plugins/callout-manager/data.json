@@ -1,0 +1,53 @@
+{
+  "callouts": {
+    "custom": [
+      "recovery",
+      "time-scheduler",
+      "achievement"
+    ],
+    "settings": {
+      "recovery": [
+        {
+          "changes": {
+            "icon": "lucide-refresh-ccw-dot"
+          }
+        },
+        {
+          "condition": {
+            "colorScheme": "light"
+          },
+          "changes": {}
+        },
+        {
+          "condition": {
+            "colorScheme": "dark"
+          },
+          "changes": {
+            "color": "68, 207, 110"
+          }
+        }
+      ],
+      "time-scheduler": [
+        {
+          "changes": {
+            "icon": "lucide-timer-reset",
+            "color": "168, 130, 255"
+          }
+        }
+      ],
+      "achievement": [
+        {
+          "changes": {
+            "icon": "lucide-check-circle-2",
+            "color": "83, 223, 221"
+          }
+        }
+      ]
+    }
+  },
+  "calloutDetection": {
+    "obsidian": true,
+    "theme": true,
+    "snippet": true
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "calendarSources": [
+    {
+      "type": "local",
+      "color": "#4a8387",
+      "directory": "01-Journals/Daily"
+    }
+  ],
+  "defaultCalendar": 0,
+  "firstDay": 6,
+  "initialView": {
+    "desktop": "dayGridMonth",
+    "mobile": "timeGrid3Days"
+  },
+  "timeFormat24h": false
+}

@@ -1,0 +1,9 @@
+{
+  "alwaysUpdateLinks": true,
+  "trashOption": "system",
+  "promptDelete": false,
+  "showLineNumber": false,
+  "livePreview": true,
+  "rightToLeft": false,
+  "spellcheck": false
+}

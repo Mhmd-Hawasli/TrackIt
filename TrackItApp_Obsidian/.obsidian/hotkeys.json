@@ -1,0 +1,53 @@
+{
+  "tag-pane:open": [
+    {
+      "modifiers": [
+        "Mod"
+      ],
+      "key": "Q"
+    }
+  ],
+  "editor:toggle-source": [
+    {
+      "modifiers": [
+        "Mod",
+        "Shift"
+      ],
+      "key": "E"
+    }
+  ],
+  "execute-code:code-execute-open-manage-executors": [
+    {
+      "modifiers": [
+        "Mod",
+        "Shift"
+      ],
+      "key": "Q"
+    }
+  ],
+  "execute-code:run-all-code-blocks-in-file": [
+    {
+      "modifiers": [
+        "Mod",
+        "Shift"
+      ],
+      "key": "A"
+    }
+  ],
+  "app:toggle-right-sidebar": [
+    {
+      "modifiers": [
+        "Alt"
+      ],
+      "key": "B"
+    }
+  ],
+  "app:toggle-left-sidebar": [
+    {
+      "modifiers": [
+        "Alt"
+      ],
+      "key": "V"
+    }
+  ]
+}
