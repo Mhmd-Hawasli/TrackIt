@@ -24,48 +24,14 @@ namespace TrackItApp.Infrastructure.Implementations.Repositories
         }
 
 
-        //Get Operation
-        #region GetAllAsync (Dynamic)
-        public virtual async Task<List<T>> GetAllAsync(QueryParameters filterModel, params string[] includes)
-        {
-            throw new NotImplementedException();
-        }
-        #endregion
-
-        #region CountAsync
-        public virtual async Task<int> CountAsync(Expression<Func<T, bool>> predicate)
-        {
-            return await _dbSet.CountAsync(predicate);
-        }
-        #endregion
-
+        //--------------------
+        //Get One Operation
+        //--------------------
         #region GetByIdAsync
         public virtual async Task<T?> GetByIdAsync(int id)
         {
             return await _dbSet.FindAsync(id);
         }
-        #endregion
-
-        #region FindAsync
-        public virtual async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
-        {
-            return await _dbSet.Where(predicate).ToListAsync();
-        }
-        #endregion
-
-        #region GetAllAsync
-        public virtual async Task<IEnumerable<T>> GetAllAsync()
-        {
-            return await _dbSet.ToListAsync();
-        }
-        #endregion
-
-        #region GetAllAsQueryable
-        public virtual IQueryable<T> GetAllAsQueryable()
-        {
-            return _dbSet.AsQueryable();
-        }
-
         #endregion
 
         #region FirstOrDefaultAsync
@@ -76,13 +42,15 @@ namespace TrackItApp.Infrastructure.Implementations.Repositories
         #endregion
 
         #region FirstOrDefaultWithIncludesAsync
-        public virtual async Task<T?> FirstOrDefaultWithIncludesAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
+        public virtual async Task<T?> FirstOrDefaultWithIncludesAsync(Expression<Func<T, bool>> predicate, params string[] includes)
         {
             IQueryable<T> query = _dbSet;
+
             foreach (var include in includes)
             {
                 query = query.Include(include);
             }
+
             return await query.FirstOrDefaultAsync(predicate);
         }
 
@@ -112,6 +80,38 @@ namespace TrackItApp.Infrastructure.Implementations.Repositories
         }
         #endregion
 
+        //--------------------
+        //Get All Operation
+        //--------------------
+        #region WhereAsync
+        public virtual async Task<IEnumerable<T>> WhereAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _dbSet.Where(predicate).ToListAsync();
+        }
+        #endregion
+
+        #region GetAllAsync (Dynamic)
+        public virtual async Task<List<T>> GetAllAsync(QueryParameters filterModel, params string[] includes)
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
+
+        #region GetAllAsync
+        public virtual async Task<IEnumerable<T>> GetAllAsync()
+        {
+            return await _dbSet.ToListAsync();
+        }
+        #endregion
+
+        #region GetAllAsQueryable
+        public virtual IQueryable<T> GetAllAsQueryable()
+        {
+            return _dbSet.AsQueryable();
+        }
+
+        #endregion
+
         #region GetAllWithFilterAsync
         public virtual async Task<IEnumerable<T>> GetAllWithFilterAsync(Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes)
         {
@@ -133,7 +133,21 @@ namespace TrackItApp.Infrastructure.Implementations.Repositories
         }
         #endregion
 
+
+        //--------------------
+        //Check Operation
+        //--------------------
+        #region CountAsync
+        public virtual async Task<int> CountAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _dbSet.CountAsync(predicate);
+        }
+        #endregion
+
+
+        //--------------------
         //Add Operations
+        //--------------------
         #region AddAsync 
         public virtual async Task AddAsync(T entity)
         {
@@ -148,7 +162,10 @@ namespace TrackItApp.Infrastructure.Implementations.Repositories
         }
         #endregion
 
+
+        //--------------------
         //Update Operations
+        //--------------------
         #region Update
         public virtual void Update(T entity)
         {
@@ -156,7 +173,10 @@ namespace TrackItApp.Infrastructure.Implementations.Repositories
         }
         #endregion
 
+
+        //--------------------
         //Remove Operations
+        //--------------------
         #region Remove
         public virtual void Remove(T entity)
         {
