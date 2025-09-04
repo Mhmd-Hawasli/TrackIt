@@ -27,9 +27,10 @@ namespace TrackItApp.Domain.Entities
     {
         public int VerificationCodeID { get; set; }
         public string Code { get; set; }
-        public CodeType Purpose { get; set; }
+        public CodeType CodeType { get; set; }
         public DateTime ExpiresAt { get; set; }
         public string Email { get; set; }
+        public string DeviceID { get; set; }
 
         //Relations
         public int UserID { get; set; }

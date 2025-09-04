@@ -11,17 +11,20 @@ namespace TrackItApp.Infrastructure.Implementations.Persistence
     public class UnitOfWork : IUnitOfWork
     {
         private readonly AppDbContext _context;
+        public IUserTypeRepository UserTypeRepository { get; private set; }
         public IUserRepository UserRepository { get; private set; }
 
         public UnitOfWork
                 (
                     AppDbContext context,
-                    IUserRepository userRepository
+                    IUserRepository userRepository,
+                    IUserTypeRepository userTypeRepository
                 )
 
         {
             _context = context;
             UserRepository = userRepository;
+            UserTypeRepository = userTypeRepository;
         }
 
         //--------------------

@@ -11,6 +11,7 @@ namespace TrackItApp.Application.Interfaces
     public interface IUnitOfWork : IDisposable
     {
         IUserRepository UserRepository { get; }
+        IUserTypeRepository UserTypeRepository { get; }
         //Method
         Task<int> CompleteAsync();
         Task BeginTransactionAsync();
