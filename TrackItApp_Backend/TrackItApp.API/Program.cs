@@ -1,9 +1,11 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Text;
 using TrackItApp.Application.Interfaces;
 using TrackItApp.Application.Interfaces.Repositories;
 using TrackItApp.Application.Interfaces.Services;
+using TrackItApp.Application.Mapping;
 using TrackItApp.Application.Services;
 using TrackItApp.Domain.Repositories;
 using TrackItApp.Infrastructure.Implementations.Persistence;
@@ -32,8 +34,11 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IUserTypeRepository, UserTypeRepository>();
 #endregion 
 
-
-
+//Auto Mapper
+builder.Services.AddAutoMapper(cfg =>
+{
+    cfg.AddMaps(typeof(UserProfile).Assembly);
+});
 
 var app = builder.Build();
 

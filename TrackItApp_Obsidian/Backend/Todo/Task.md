@@ -1,0 +1,24 @@
+- [ ] Learn about email 
+- [ ] Auth controller 
+	- [ ] register
+	- [ ] verify-code
+	- [ ] login
+	- [ ] forget-passwrod
+	- [ ] verify-code (make it work for forget password)
+	- [ ] update token 
+	- [ ] logout
+	- [ ] delete-all-session
+- [ ] MyAccount Controller
+	- [ ] get (info)
+	- [ ] update
+	- [ ] delete (soft delete)
+- [ ] Admin
+	- [ ] Create-admin
+	- [ ] get-all-admin
+	- [ ] delete-admin
+- [ ] AdminMangement
+	- [ ] get-by-id
+	- [ ] get-all-user
+	- [ ] update-user-by-id
+	- [ ] de-actived-user (soft delete)
+	- [ ] delete-user (hard delete)

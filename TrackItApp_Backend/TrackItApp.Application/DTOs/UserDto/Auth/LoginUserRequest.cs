@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TrackItApp.Application.DTOs.Auth
+namespace TrackItApp.Application.DTOs.User.Auth
 {
     public class LoginUserRequest
     {

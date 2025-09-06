@@ -7,24 +7,49 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace TrackItApp.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class Create02 : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<DateTime>(
-                name: "CreatedAt",
-                table: "Users",
-                type: "timestamp with time zone",
-                nullable: false,
-                defaultValue: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
+            migrationBuilder.CreateTable(
+                name: "userTypes",
+                columns: table => new
+                {
+                    UserTypeID = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    UserTypeName = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_userTypes", x => x.UserTypeID);
+                });
 
-            migrationBuilder.AddColumn<int>(
-                name: "UserTypeID",
-                table: "Users",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0);
+            migrationBuilder.CreateTable(
+                name: "Users",
+                columns: table => new
+                {
+                    UserID = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Name = table.Column<string>(type: "text", nullable: false),
+                    Email = table.Column<string>(type: "text", nullable: false),
+                    BackupEmail = table.Column<string>(type: "text", nullable: true),
+                    PasswordHash = table.Column<string>(type: "text", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    IsVerified = table.Column<bool>(type: "boolean", nullable: false),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    UserTypeID = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.UserID);
+                    table.ForeignKey(
+                        name: "FK_Users_userTypes_UserTypeID",
+                        column: x => x.UserTypeID,
+                        principalTable: "userTypes",
+                        principalColumn: "UserTypeID",
+                        onDelete: ReferentialAction.Cascade);
+                });
 
             migrationBuilder.CreateTable(
                 name: "UserSessions",
@@ -50,28 +75,16 @@ namespace TrackItApp.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "userTypes",
-                columns: table => new
-                {
-                    UserTypeID = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    UserTypeName = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_userTypes", x => x.UserTypeID);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "verificationCodes",
                 columns: table => new
                 {
                     VerificationCodeID = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Code = table.Column<string>(type: "text", nullable: false),
-                    Purpose = table.Column<int>(type: "integer", nullable: false),
+                    CodeType = table.Column<int>(type: "integer", nullable: false),
                     ExpiresAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Email = table.Column<string>(type: "text", nullable: false),
+                    DeviceID = table.Column<string>(type: "text", nullable: false),
                     UserID = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
@@ -99,43 +112,22 @@ namespace TrackItApp.Infrastructure.Migrations
                 name: "IX_verificationCodes_UserID",
                 table: "verificationCodes",
                 column: "UserID");
-
-            migrationBuilder.AddForeignKey(
-                name: "FK_Users_userTypes_UserTypeID",
-                table: "Users",
-                column: "UserTypeID",
-                principalTable: "userTypes",
-                principalColumn: "UserTypeID",
-                onDelete: ReferentialAction.Cascade);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropForeignKey(
-                name: "FK_Users_userTypes_UserTypeID",
-                table: "Users");
-
             migrationBuilder.DropTable(
                 name: "UserSessions");
 
             migrationBuilder.DropTable(
-                name: "userTypes");
-
-            migrationBuilder.DropTable(
                 name: "verificationCodes");
 
-            migrationBuilder.DropIndex(
-                name: "IX_Users_UserTypeID",
-                table: "Users");
+            migrationBuilder.DropTable(
+                name: "Users");
 
-            migrationBuilder.DropColumn(
-                name: "CreatedAt",
-                table: "Users");
-
-            migrationBuilder.DropColumn(
-                name: "UserTypeID",
-                table: "Users");
+            migrationBuilder.DropTable(
+                name: "userTypes");
         }
     }
 }

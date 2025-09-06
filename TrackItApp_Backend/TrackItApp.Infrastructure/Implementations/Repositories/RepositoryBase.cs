@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc.ApplicationModels;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,24 +36,10 @@ namespace TrackItApp.Infrastructure.Implementations.Repositories
         }
         #endregion
 
-        //FirstOrDefaultAsync
+
+        //FirstOrDefaultAsync (with includes)
         #region FirstOrDefaultAsync
-        public virtual async Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate)
-        {
-            return await _dbSet.FirstOrDefaultAsync(predicate);
-        }
-        #endregion
-        #region FirstOrDefaultAsNoTrackingAsync
-        public virtual async Task<T?> FirstOrDefaultAsNoTrackingAsync(Expression<Func<T, bool>> predicate)
-        {
-            return await _dbSet.AsNoTracking().FirstOrDefaultAsync(predicate);
-        }
-        #endregion
-
-
-        //FirstOrDefaultWithIncludesAsync
-        #region FirstOrDefaultWithIncludesAsync
-        public virtual async Task<T?> FirstOrDefaultWithIncludesAsync(Expression<Func<T, bool>> predicate, params string[] includes)
+        public virtual async Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate, params string[] includes)
         {
             IQueryable<T> query = _dbSet;
 
@@ -64,8 +51,8 @@ namespace TrackItApp.Infrastructure.Implementations.Repositories
             return await query.FirstOrDefaultAsync(predicate);
         }
         #endregion  
-        #region FirstOrDefaultWithIncludesAsNoTrackingAsync
-        public virtual async Task<T?> FirstOrDefaultWithIncludesAsNoTrackingAsync(Expression<Func<T, bool>> predicate, params string[] includes)
+        #region FirstOrDefaultAsNoTrackingAsync
+        public virtual async Task<T?> FirstOrDefaultAsNoTrackingAsync(Expression<Func<T, bool>> predicate, params string[] includes)
         {
             IQueryable<T> query = _dbSet;
 
@@ -76,67 +63,112 @@ namespace TrackItApp.Infrastructure.Implementations.Repositories
 
             return await query.AsNoTracking().FirstOrDefaultAsync(predicate);
         }
-        #endregion  
+        #endregion
+        #region FirstOrDefaultWithSoftDeleteAsync
+        public virtual async Task<T?> FirstOrDefaultWithSoftDeleteAsync(Expression<Func<T, bool>> predicate, params string[] includes)
+        {
+            IQueryable<T> query = _dbSet;
+
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+
+            return await query.AsNoTracking().FirstOrDefaultAsync(predicate);
+        }
+        #endregion 
 
 
 
         //--------------------
         //Get All Operation
         //--------------------
-        //WhereAsync
-        #region WhereAsync
-        public virtual async Task<IEnumerable<T>> WhereAsync(Expression<Func<T, bool>> predicate)
+        //FindAsync
+        #region FindAsync
+        public virtual async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, params string[] includes)
         {
-            return await _dbSet.Where(predicate).ToListAsync();
+            IQueryable<T> query = _dbSet;
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+            return await query.Where(predicate).ToListAsync();
         }
         #endregion
-        #region WhereAsNoTrackingAsync
-        public virtual async Task<IEnumerable<T>> WhereAsNoTrackingAsync(Expression<Func<T, bool>> predicate)
+        #region FindAsNoTrackingAsync
+        public virtual async Task<IEnumerable<T>> FindAsNoTrackingAsync(Expression<Func<T, bool>> predicate, params string[] includes)
         {
-            return await _dbSet.AsNoTracking().Where(predicate).ToListAsync();
+            IQueryable<T> query = _dbSet;
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+            return await query.AsNoTracking().Where(predicate).ToListAsync();
+        }
+        #endregion
+        #region FindWithSoftDeleteAsync
+        public virtual async Task<IEnumerable<T>> FindWithSoftDeleteAsync(Expression<Func<T, bool>> predicate, params string[] includes)
+        {
+            IQueryable<T> query = _dbSet;
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+            return await query.AsNoTracking().Where(predicate).ToListAsync();
         }
         #endregion
 
-
-        //GetAllWithFilterAsync 
-        #region GetAllWithFilterAsync 
-        public virtual async Task<List<T>> GetAllWithFilterAsync(Expression<Func<T, bool>> predicate, QueryParameters filterModel, params string[] includes)
-        {
-            throw new NotImplementedException();
-        }
-        #endregion
-        #region GetAllWithFilterAsNoTrackingAsync 
-        public virtual async Task<List<T>> GetAllWithFilterAsNoTrackingAsync(Expression<Func<T, bool>> predicate, QueryParameters filterModel, params string[] includes)
-        {
-            throw new NotImplementedException();
-        }
-        #endregion  
 
         //GetAllAsync
         #region GetAllAsync
-        public virtual async Task<IEnumerable<T>> GetAllAsync()
+        public virtual async Task<IEnumerable<T>> GetAllAsync(QueryParameters? filterModel =null, params string[] includes)
         {
-            return await _dbSet.ToListAsync();
+            IQueryable<T> query = _dbSet;
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+            
+            //apply filter
+            if(filterModel != null)
+            { 
+                //filter logic
+            }
+            return await query.ToListAsync();
         }
         #endregion
         #region GetAllAsNoTrackingAsync
-        public virtual async Task<IEnumerable<T>> GetAllAsNoTrackingAsync()
+        public virtual async Task<IEnumerable<T>> GetAllAsNoTrackingAsync(QueryParameters? filterModel = null, params string[] includes)
         {
-            return await _dbSet.AsNoTracking().ToListAsync();
-        }
-        #endregion
+            IQueryable<T> query = _dbSet;
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
 
-        //GetAllAsQueryable
-        #region GetAllAsQueryable
-        public virtual IQueryable<T> GetAllAsQueryable()
-        {
-            return _dbSet.AsQueryable();
+            //apply filter
+            if (filterModel != null)
+            {
+                //filter logic
+            }
+            return await query.AsNoTracking().ToListAsync();
         }
         #endregion
-        #region GetAllAsNoTrackingAsQueryable
-        public virtual IQueryable<T> GetAllAsNoTrackingAsQueryable()
+        #region GetAllWithSoftDeleteAsync
+        public virtual async Task<IEnumerable<T>> GetAllWithSoftDeleteAsync(QueryParameters? filterModel = null, params string[] includes)
         {
-            return _dbSet.AsNoTracking().AsQueryable();
+            IQueryable<T> query = _dbSet;
+            foreach (var include in includes)
+            {
+                query = query.Include(include);
+            }
+
+            //apply filter
+            if (filterModel != null)
+            {
+                //filter logic
+            }
+            return await query.ToListAsync();
         }
         #endregion
 
@@ -158,7 +190,12 @@ namespace TrackItApp.Infrastructure.Implementations.Repositories
             return await _dbSet.AsNoTracking().CountAsync(predicate);
         }
         #endregion
-
+        #region CountWithSoftDeleteAsync
+        public virtual async Task<int> CountWithSoftDeleteAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _dbSet.CountAsync(predicate);
+        }
+        #endregion
 
 
         //--------------------
@@ -193,6 +230,14 @@ namespace TrackItApp.Infrastructure.Implementations.Repositories
         }
         #endregion
 
+        //UpdateRange
+        #region UpdateRange
+        public virtual void UpdateRange(IEnumerable<T> entities)
+        {
+            _dbSet.UpdateRange(entities);
+        }
+        #endregion
+
 
 
         //--------------------
@@ -213,8 +258,6 @@ namespace TrackItApp.Infrastructure.Implementations.Repositories
             _dbSet.RemoveRange(entities);
         }
         #endregion
-
-
 
     }
 }

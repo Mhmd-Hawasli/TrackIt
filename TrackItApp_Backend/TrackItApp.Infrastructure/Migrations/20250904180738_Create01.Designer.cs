@@ -12,8 +12,8 @@ using TrackItApp.Infrastructure.Implementations.Persistence;
 namespace TrackItApp.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250902100440_Create02")]
-    partial class Create02
+    [Migration("20250904180738_Create01")]
+    partial class Create01
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -43,9 +43,6 @@ namespace TrackItApp.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean");
-
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
@@ -62,6 +59,10 @@ namespace TrackItApp.Infrastructure.Migrations
 
                     b.Property<int>("UserTypeID")
                         .HasColumnType("integer");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.HasKey("UserID");
 
@@ -131,15 +132,19 @@ namespace TrackItApp.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<int>("CodeType")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("DeviceID")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("ExpiresAt")
                         .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("Purpose")
-                        .HasColumnType("integer");
 
                     b.Property<int>("UserID")
                         .HasColumnType("integer");

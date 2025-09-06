@@ -11,12 +11,12 @@ namespace TrackItApp.Domain.Entities
     {
         public int UserID { get; set; }
         public string Name { get; set; }
+        public string Username { get; set; }
         public string Email { get; set; }
         public string? BackupEmail { get; set; }
         public string PasswordHash { get; set; }
         public DateTime CreatedAt { get; set; }
         public bool IsVerified { get; set; }
-        public bool IsActive { get; set; }
         public bool IsDeleted { get; set; }
 
         //Relations

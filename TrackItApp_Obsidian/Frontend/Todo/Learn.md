@@ -1,0 +1,5 @@
+- [ ]  clean achitecture فهم + تطبيق
+	- [ ] w
+- [ ] Dio with http call
+- [ ] Bloc
+- [ ] 

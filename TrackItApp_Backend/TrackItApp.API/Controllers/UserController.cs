@@ -2,6 +2,7 @@
 using TrackItApp.Application.DTOs.User;
 using TrackItApp.Application.Interfaces.Services;
 using TrackItApp.Application.Common;
+using TrackItApp.Application.DTOs.UserDto.User;
 
 namespace TrackItApp.API.Controllers
 {
