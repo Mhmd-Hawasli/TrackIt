@@ -11,5 +11,8 @@ namespace TrackItApp.Application.Interfaces.Repositories
     public interface IAuthService
     {
         Task<ApiResponse<RegisterResponse>> RegisterAsync(RegisterRequest request, string currentDeviceId);
+        Task<ApiResponse<LoginResponse>> LoginAsync(LoginRequest request, string currentDeviceId);
+        Task<ApiResponse<VerifyAccountResponse>> VerifyAccountCodeAsync(VerifyAccountRequest request, string currentDeviceId);
+        Task<ApiResponse<object>> ResendCodeAsync(ResendCodeRequest request, string currentDeviceId);
     }
 }

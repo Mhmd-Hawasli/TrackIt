@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TrackItApp.Application.DTOs.User.Auth
+namespace TrackItApp.Application.DTOs.UserDto.Auth
 {
-    public class LoginUserRequest
+    public class LoginRequest
     {
     }
 }

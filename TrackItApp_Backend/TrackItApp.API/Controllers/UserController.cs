@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using TrackItApp.Application.DTOs.User;
 using TrackItApp.Application.Interfaces.Services;
 
 namespace TrackItApp.API.Controllers

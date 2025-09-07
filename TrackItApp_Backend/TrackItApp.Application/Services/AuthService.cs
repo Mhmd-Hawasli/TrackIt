@@ -83,5 +83,24 @@ namespace TrackItApp.Application.Services
             }
         }
         #endregion
+
+        #region LoginAsync
+        public Task<ApiResponse<LoginResponse>> LoginAsync(LoginRequest request, string currentDeviceId)
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
+
+        #region VerifyAccountCodeAsync
+        public Task<ApiResponse<VerifyAccountResponse>> VerifyAccountCodeAsync(VerifyAccountRequest request, string currentDeviceId)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+        public Task<ApiResponse<object>> ResendCodeAsync(ResendCodeRequest request, string currentDeviceId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
