@@ -12,8 +12,8 @@ using TrackItApp.Infrastructure.Implementations.Persistence;
 namespace TrackItApp.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250904180738_Create01")]
-    partial class Create01
+    [Migration("20250907114224_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

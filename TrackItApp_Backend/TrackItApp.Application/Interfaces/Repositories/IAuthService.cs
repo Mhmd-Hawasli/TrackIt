@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 using TrackItApp.Application.Common;
 using TrackItApp.Application.DTOs.UserDto.Auth;
 
-namespace TrackItApp.Application.Interfaces.Services
+namespace TrackItApp.Application.Interfaces.Repositories
 {
-    public interface IUserService
+    public interface IAuthService
     {
-
+        Task<ApiResponse<RegisterResponse>> RegisterAsync(RegisterRequest request, string currentDeviceId);
     }
 }

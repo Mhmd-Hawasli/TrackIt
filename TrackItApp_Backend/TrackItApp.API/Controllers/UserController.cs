@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TrackItApp.Application.DTOs.User;
 using TrackItApp.Application.Interfaces.Services;
-using TrackItApp.Application.Common;
-using TrackItApp.Application.DTOs.UserDto.User;
 
 namespace TrackItApp.API.Controllers
 {
@@ -17,22 +15,6 @@ namespace TrackItApp.API.Controllers
         }
 
 
-        #region create-user
-        [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest request)
-        {
-            try
-            {
-                var result = await _userService.CreateUserAsync(request);
-                if (result.Succeeded)
-                    return Ok(result);
-                return BadRequest(result);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ApiResponse<object>(ex.Message));
-            }
-        }
-        #endregion
+        
     }
 }

@@ -13,12 +13,17 @@
 	<ItemGroup>
 		<PackageReference Include="AutoMapper" Version="15.0.1" />
 		<PackageReference Include="Mailjet.Api" Version="3.0.0" />
+		<PackageReference Include="MailKit" Version="4.13.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.19" />
 		<PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.8" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\TrackItApp.Domain\TrackItApp.Domain.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="DTOs\UserDto\User\" />
 	</ItemGroup>
 
 </Project>
