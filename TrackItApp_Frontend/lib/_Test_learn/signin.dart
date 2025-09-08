@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../common/bloc/button/button_state.dart';
-import '../../home/pages/home.dart';
+import 'package:track_it/presentation//home/pages/home.dart';
 import 'signup.dart';
 
 class SigninPage extends StatelessWidget {
