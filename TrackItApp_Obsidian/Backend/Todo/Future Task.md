@@ -1,8 +1,8 @@
 - [ ] Learn about email 
 - [ ] Auth controller 
-	- [ ] register
-	- [ ] verify-code
-	- [ ] login
+	- [x] register
+	- [x] verify-code
+	- [x] login
 	- [ ] forget-passwrod
 	- [ ] verify-code (make it work for forget password)
 	- [ ] update token 

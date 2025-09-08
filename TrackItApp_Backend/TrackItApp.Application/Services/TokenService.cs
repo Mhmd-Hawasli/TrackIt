@@ -30,8 +30,6 @@ namespace TrackItApp.Application.Services
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString()),
-                // Add role, IsActive and IsVerified claims
-                new Claim("IsVerified", user.IsVerified.ToString()),
                 new Claim("role", user.UserType.UserTypeName.ToString().ToLower())
             };
 
@@ -42,7 +40,7 @@ namespace TrackItApp.Application.Services
             var TokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.Now.AddDays(15),
+                Expires = DateTime.Now.AddMinutes(30),
                 SigningCredentials = Creds,
                 Issuer = _config["JWT:Issuer"],
                 Audience = _config["JWT:Audience"]

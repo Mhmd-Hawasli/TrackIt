@@ -9,7 +9,6 @@ namespace TrackItApp.Application.DTOs.UserDto.Auth
     public class RegisterResponse
     {
         public int UserID { get; set; }
-        public string Name { get; set; }
         public string Username { get; set; }
         public string Email { get; set; }
     }

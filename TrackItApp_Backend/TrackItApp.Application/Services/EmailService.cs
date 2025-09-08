@@ -75,34 +75,36 @@ namespace TrackItApp.Application.Services
         /// <param name="userId">The user's ID.</param>
         /// <param name="email">The email address to send the code to.</param>
         /// <returns>The generated verification code.</returns>
-        public async Task<string> SendEmailVerificationCode(User userModel, string deviceId, CodeType codeType)
+        public async Task<string> SendEmailVerificationCode(int userID, string email, string deviceId, CodeType codeType)
         {
             var verificationCode = new Random().Next(100000, 999999).ToString();
             var verificationEntity = new VerificationCode
             {
-                User = userModel,
+                UserID = userID,
                 Code = verificationCode,
                 ExpiresAt = DateTime.UtcNow.AddHours(1),
                 CodeType = codeType,
-                Email = userModel.Email,
+                Email = email.ToLower(),
                 DeviceID = deviceId
             };
 
             // Check for an existing, un-expired verification code and remove it before adding a new one
-            var existingCode = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => vc.User == userModel && vc.DeviceID == deviceId);
+            var existingCode = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => vc.UserID == userID && vc.DeviceID == deviceId);
             if (existingCode != null)
             {
-                _unitOfWork.VerificationCodeRepository.Remove(existingCode);
-                await _unitOfWork.CompleteAsync();
+                existingCode.Code = verificationCode;
+                existingCode.ExpiresAt = DateTime.UtcNow.AddHours(1);
+                existingCode.CodeType = codeType;
+                existingCode.Email = email.ToLower();
             }
-
-            await _unitOfWork.VerificationCodeRepository.AddAsync(verificationEntity);
-            await _unitOfWork.CompleteAsync();
-
+            else if (existingCode == null)
+            {
+                await _unitOfWork.VerificationCodeRepository.AddAsync(verificationEntity);
+            }
             var subject = "Your Verification Code";
             var body = $"<html><body><h1>Hello,</h1><p>Your verification code is: <strong>{verificationCode}</strong></p></body></html>";
 
-            await SendEmailAsync(userModel.Email, subject, body);
+            await SendEmailAsync(email, subject, body);
 
             return verificationCode;
         }

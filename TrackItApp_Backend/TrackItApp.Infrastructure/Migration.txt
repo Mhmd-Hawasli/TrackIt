@@ -1,0 +1,4 @@
+dotnet ef migrations add Create01 --project TrackItApp.Infrastructure/TrackItApp.Infrastructure.csproj --startup-project TrackItApp.API
+
+
+dotnet ef database update --project TrackItApp.Infrastructure/TrackItApp.Infrastructure.csproj --startup-project TrackItApp.API/TrackItApp.API.csproj

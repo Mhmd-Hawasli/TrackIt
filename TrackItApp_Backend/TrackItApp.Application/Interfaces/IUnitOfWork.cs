@@ -13,6 +13,8 @@ namespace TrackItApp.Application.Interfaces
         IUserRepository UserRepository { get; }
         IUserTypeRepository UserTypeRepository { get; }
         IVerificationCodeRepository VerificationCodeRepository { get; }
+        IUserSessionRepository UserSessionRepository { get; }
+
         //Method
         Task<int> CompleteAsync();
         Task BeginTransactionAsync();

@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Backend/Todo/Task.md",
+                "file": "Backend/Notes/Today.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Task"
+              "title": "Today"
             }
           }
         ]
@@ -393,7 +393,6 @@
   },
   "left-ribbon": {
     "hiddenItems": {
-      "bases:Create new base": false,
       "daily-notes:Open today's daily note": false,
       "switcher:Open quick switcher": false,
       "canvas:Create new canvas": false,
@@ -406,12 +405,14 @@
   },
   "active": "0fd6d5399acb717d",
   "lastOpenFiles": [
+    "Backend/Notes/Future.md",
+    "Backend/Notes/Today.md",
+    "Backend/Todo/Today Task.md",
+    "Backend/Todo/Future Task.md",
     "Frontend/Todo/Learn.md",
-    "Backend/Todo/Task.md",
     "Backend/Todo",
     "Frontend/Notes/01.md",
     "Frontend/Todo",
-    "Backend/Notes/Future.md",
     "Untitled.md",
     "Backend/Notes",
     "Backend",
@@ -438,8 +439,6 @@
     "01-Journals/2025/05/2025-05-07.md",
     "01-Journals/2025/05/2025-05-06.md",
     "01-Journals/2025/05/2025-05-03.md",
-    "01-Journals/2025/05/2025-05-13.md",
-    "01-Journals/2025/05/2025-05-11 (conflict 2025-07-26-10-20-04).md",
     "01-Journals/2025/08",
     "01-Journals/2025/07",
     "Untitled.canvas"

@@ -4,12 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TrackItApp.Domain.Entities;
+using TrackItApp.Domain.Repositories;
 
-namespace TrackItApp.Application.Interfaces.Services
+namespace TrackItApp.Application.Interfaces.Repositories
 {
-    public interface ITokenService
+    public interface IUserSessionRepository : IRepositoryBase<UserSession>
     {
-        string CreateToken(User user);
-        string GenerateRefreshToken();
     }
 }

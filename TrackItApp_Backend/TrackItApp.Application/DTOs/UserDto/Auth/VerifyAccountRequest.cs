@@ -8,5 +8,7 @@ namespace TrackItApp.Application.DTOs.UserDto.Auth
 {
     public class VerifyAccountRequest
     {
+        public string Email { get; set; }
+        public string Code { get; set; }
     }
 }

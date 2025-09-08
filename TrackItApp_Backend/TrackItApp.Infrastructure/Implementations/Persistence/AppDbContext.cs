@@ -37,7 +37,10 @@ namespace TrackItApp.Infrastructure.Implementations.Persistence
                 .HasKey(vc => vc.VerificationCodeID);
             #endregion
 
-            #region OneToMany Relations
+            #region Unique Constraints
+            modelBuilder.Entity<VerificationCode>()
+                .HasIndex(vc => new { vc.UserID, vc.DeviceID })
+                .IsUnique();
             #endregion
         }
     }

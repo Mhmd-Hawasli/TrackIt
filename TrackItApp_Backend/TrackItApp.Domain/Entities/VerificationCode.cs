@@ -12,17 +12,15 @@ namespace TrackItApp.Domain.Entities
         // Account related
         ActivateAccount = 1,
         ResetPassword = 2,
-        TwoFactorAuthentication = 3,
 
         // Primary email
-        RemoveEmail = 4,
-        AddEmail = 5,
+        RemoveEmail = 3,
+        AddEmail = 4,
 
         // Backup email
-        AddBackupEmail = 6,
-        RemoveBackupEmail = 7,
-        RecoverWithBackupEmail = 8
-
+        AddBackupEmail = 5,
+        RemoveBackupEmail = 6,
+        RecoverWithBackupEmail = 7
     }
     public class VerificationCode
     {

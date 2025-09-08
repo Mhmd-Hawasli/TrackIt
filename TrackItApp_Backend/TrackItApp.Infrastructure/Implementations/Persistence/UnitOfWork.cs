@@ -14,18 +14,21 @@ namespace TrackItApp.Infrastructure.Implementations.Persistence
         public IUserTypeRepository UserTypeRepository { get; private set; }
         public IUserRepository UserRepository { get; private set; }
         public IVerificationCodeRepository VerificationCodeRepository { get; private set; }
+        public IUserSessionRepository UserSessionRepository { get; private set; }
 
         public UnitOfWork(
             AppDbContext context,
             IUserRepository userRepository,
             IUserTypeRepository userTypeRepository,
-            IVerificationCodeRepository verificationCodeRepository
+            IVerificationCodeRepository verificationCodeRepository,
+            IUserSessionRepository userSessionRepository
             )
         {
             _context = context;
             UserRepository = userRepository;
             UserTypeRepository = userTypeRepository;
             VerificationCodeRepository = verificationCodeRepository;
+            UserSessionRepository = userSessionRepository;
         }
 
         //--------------------

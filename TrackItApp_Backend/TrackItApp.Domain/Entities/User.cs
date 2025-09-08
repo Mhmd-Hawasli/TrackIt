@@ -16,6 +16,7 @@ namespace TrackItApp.Domain.Entities
         public string? BackupEmail { get; set; }
         public string PasswordHash { get; set; }
         public DateTime CreatedAt { get; set; }
+        public bool IsTwoFactorEnabled { get; set; }
         public bool IsVerified { get; set; }
         public bool IsDeleted { get; set; }
 

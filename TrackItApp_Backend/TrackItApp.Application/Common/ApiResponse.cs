@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -39,6 +40,18 @@ namespace TrackItApp.Application.Common
             Data = data ?? default;
             Message = message ?? alternativeMessage;
             Errors = errors ?? null;
+        }
+
+        //ModelState error response 
+        public ApiResponse(ModelStateDictionary modelState)
+        {
+            Succeeded = false;
+            Data = default;
+            Message = "Validation Failed";
+            Errors = modelState.Values
+                .SelectMany(v => v.Errors)
+                .Select(e => e.ErrorMessage)
+                .ToList();
         }
     }
 }
