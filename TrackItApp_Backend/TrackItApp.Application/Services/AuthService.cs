@@ -1,17 +1,9 @@
 ﻿using AutoMapper;
-using Microsoft.AspNetCore.Identity.UI.Services;
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using TrackItApp.Application.Common;
 using TrackItApp.Application.DTOs.UserDto.Auth;
 using TrackItApp.Application.Interfaces;
 using TrackItApp.Application.Interfaces.Services;
 using TrackItApp.Domain.Entities;
-using static Org.BouncyCastle.Crypto.Engines.SM2Engine;
 
 namespace TrackItApp.Application.Services
 {
@@ -33,15 +25,12 @@ namespace TrackItApp.Application.Services
         #region RegisterAsync
         public async Task<ApiResponse<RegisterResponse>> RegisterAsync(RegisterRequest request, string currentDeviceId)
         {
+            //we used transaction to 
+            //1- save user in database
+            //2- send email and save code in database
             await _unitOfWork.BeginTransactionAsync();
             try
             {
-                // check if user enter email address
-                if (string.IsNullOrEmpty(request.Email))
-                {
-                    await _unitOfWork.RollbackAsync();
-                    return new ApiResponse<RegisterResponse>("Please enter email address.");
-                }
 
                 //get userType from database
                 var existUserType = await _unitOfWork.UserTypeRepository.FirstOrDefaultAsync(ut => ut.UserTypeName == "user");
@@ -51,7 +40,7 @@ namespace TrackItApp.Application.Services
                 }
 
                 //check if email is available
-                var existEmail = await _unitOfWork.UserRepository.FirstOrDefaultWithSoftDeleteAsync(u => u.Email == request.Email.ToLower());
+                var existEmail = await _unitOfWork.UserRepository.FirstOrDefaultWithSoftDeleteAsync(u => u.Email.Equals(request.Email, StringComparison.CurrentCultureIgnoreCase));
                 if (existEmail != null)
                 {
                     await _unitOfWork.RollbackAsync();
@@ -98,23 +87,14 @@ namespace TrackItApp.Application.Services
         #region LoginAsync
         public async Task<ApiResponse<LoginResponse>> LoginAsync(LoginRequest request, string currentDeviceId)
         {
-            await _unitOfWork.BeginTransactionAsync();
             try
             {
-                // check if user enter email address
-                if (string.IsNullOrEmpty(request.Input))
-                {
-                    await _unitOfWork.RollbackAsync();
-                    return new ApiResponse<LoginResponse>("Please enter your email or username.");
-                }
-
                 // get user info 
                 var user = await _unitOfWork.UserRepository.FirstOrDefaultWithSoftDeleteAsync(
-                    u => u.Username == request.Input || u.Email == request.Input.ToLower(),
+                    u => u.Username == request.Input || u.Email.Equals(request.Input, StringComparison.CurrentCultureIgnoreCase),
                     "UserType");
                 if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
                 {
-                    await _unitOfWork.RollbackAsync();
                     return new ApiResponse<LoginResponse>("The login details are incorrect.");
                 }
 
@@ -123,7 +103,6 @@ namespace TrackItApp.Application.Services
                 {
                     await _emailService.SendEmailVerificationCode(user.UserID, user.Email, currentDeviceId, CodeType.ActivateAccount);
                     await _unitOfWork.CompleteAsync();
-                    await _unitOfWork.CommitAsync();
                     string message = user.IsVerified == false
                         ? "Your account has not been verified. Please check your email."
                         : "Two-factor authentication is enabled. Please check your email.";
@@ -140,7 +119,6 @@ namespace TrackItApp.Application.Services
                     }
                     await _emailService.SendEmailVerificationCode(user.UserID, user.Email, currentDeviceId, CodeType.ActivateAccount);
                     await _unitOfWork.CompleteAsync();
-                    await _unitOfWork.CommitAsync();
                     return new ApiResponse<LoginResponse>(true, null, "No active session found on this device. Please check your email.", null);
                 }
                 //generate accessToken and refreshToken
@@ -152,33 +130,21 @@ namespace TrackItApp.Application.Services
                 response.AccessToken = accessToken;
                 response.RefreshToken = refreshToken;
                 return new ApiResponse<LoginResponse>(response, "You have logged in successfully.");
-
             }
             catch
             {
-                await _unitOfWork.RollbackAsync();
                 throw;
             }
         }
         #endregion
 
-
-
         #region ResendCodeAsync
         public async Task<ApiResponse<object>> ResendCodeAsync(ResendCodeRequest request, string currentDeviceId)
         {
-
             try
             {
-                // check if user enter email address
-                if (string.IsNullOrEmpty(request.Email))
-                {
-                    await _unitOfWork.RollbackAsync();
-                    return new ApiResponse<object>("Please enter your email.");
-                }
-
-
-                var verificationCode = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => vc.Email == request.Email.ToLower() && vc.DeviceID == currentDeviceId);
+                //get code record from database via Email and DeviceID
+                var verificationCode = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => vc.Email.Equals(request.Email, StringComparison.CurrentCultureIgnoreCase) && vc.DeviceID == currentDeviceId);
                 if (verificationCode == null || verificationCode.CodeType != request.CodeType)
                 {
                     return new ApiResponse<object>("You don’t have any expired code to resend.");
@@ -191,7 +157,6 @@ namespace TrackItApp.Application.Services
             }
             catch
             {
-
                 throw;
             }
 
@@ -201,30 +166,26 @@ namespace TrackItApp.Application.Services
         #region VerifyAccountCodeAsync
         public async Task<ApiResponse<LoginResponse>> VerifyAccountCodeAsync(VerifyAccountRequest request, string currentDeviceId)
         {
-            await _unitOfWork.BeginTransactionAsync();
             try
             {
                 // check if user enter email address
                 if (string.IsNullOrEmpty(request.Email))
                 {
-                    await _unitOfWork.RollbackAsync();
                     return new ApiResponse<LoginResponse>("Please enter your email.");
                 }
 
                 //get verification code record from database
                 var code = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(
-                    vc => vc.DeviceID == currentDeviceId && vc.Email == request.Email.ToLower(),
+                    vc => vc.DeviceID == currentDeviceId && vc.Email.Equals(request.Email, StringComparison.CurrentCultureIgnoreCase),
                     "User.UserSessions", "User.UserType");
                 if (code == null)
                 {
-                    await _unitOfWork.RollbackAsync();
                     return new ApiResponse<LoginResponse>("There is no active code for this device.");
                 }
 
                 //check if code is correct and it has the same type
                 if (code.Code != request.Code && code.CodeType != CodeType.ActivateAccount)
                 {
-                    await _unitOfWork.RollbackAsync();
                     return new ApiResponse<LoginResponse>("The verification code you entered is invalid.");
                 }
 
@@ -233,20 +194,23 @@ namespace TrackItApp.Application.Services
                 {
                     await _emailService.SendEmailVerificationCode(code.UserID, request.Email, currentDeviceId, CodeType.ActivateAccount);
                     await _unitOfWork.CompleteAsync();
-                    await _unitOfWork.CommitAsync();
                     return new ApiResponse<LoginResponse>("Your code has expired. Please check your email address.");
                 }
 
                 //remove the code form database if everything is ok 
                 _unitOfWork.VerificationCodeRepository.Remove(code);
 
-                //save user session to database
+                //generate accessToken and refreshToken
+                var accessToken = _tokenService.CreateToken(code.User);
+                var refreshToken = _tokenService.GenerateRefreshToken();
+
+                //save or update user session in database
                 UserSession? userSession = code.User.UserSessions.FirstOrDefault(us => us.DeviceID == currentDeviceId);
                 if (userSession == null)
                 {
                     userSession = new UserSession()
                     {
-                        RefreshToken = _tokenService.GenerateRefreshToken(),
+                        RefreshToken = refreshToken,
                         DeviceID = currentDeviceId,
                         CreatedAt = DateTime.UtcNow,
                         LastUpdatedAt = DateTime.UtcNow,
@@ -256,7 +220,7 @@ namespace TrackItApp.Application.Services
                 }
                 else
                 {
-                    userSession.RefreshToken = _tokenService.GenerateRefreshToken();
+                    userSession.RefreshToken = refreshToken;
                     userSession.LastUpdatedAt = DateTime.UtcNow;
 
                     _unitOfWork.UserSessionRepository.Update(userSession);
@@ -267,11 +231,6 @@ namespace TrackItApp.Application.Services
 
                 //save change to database
                 await _unitOfWork.CompleteAsync();
-                await _unitOfWork.CommitAsync();
-
-                //generate accessToken and refreshToken
-                var accessToken = _tokenService.CreateToken(code.User);
-                var refreshToken = _tokenService.GenerateRefreshToken();
 
                 //return response
                 var response = _mapper.Map<LoginResponse>(code.User);
@@ -281,7 +240,6 @@ namespace TrackItApp.Application.Services
             }
             catch
             {
-                await _unitOfWork.RollbackAsync();
                 throw;
             }
         }

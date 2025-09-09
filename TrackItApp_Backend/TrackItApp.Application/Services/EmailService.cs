@@ -1,13 +1,11 @@
-﻿using AutoMapper;
+﻿using MimeKit;
+using AutoMapper;
 using MailKit.Net.Smtp;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using MimeKit;
-using System;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using TrackItApp.Domain.Entities;
 using TrackItApp.Application.Interfaces;
 using TrackItApp.Application.Interfaces.Services;
-using TrackItApp.Domain.Entities;
 
 namespace TrackItApp.Application.Services
 {
@@ -30,43 +28,7 @@ namespace TrackItApp.Application.Services
             _logger = logger;
         }
 
-        private async Task SendEmailAsync(string toEmail, string subject, string body)
-        {
-            try
-            {
-                // Read email settings from appsettings.json
-                var emailSettings = _configuration.GetSection("EmailSettings");
-                string smtpServer = emailSettings["SmtpServer"]!;
-                int port = int.Parse(emailSettings["Port"]!);
-                string senderName = emailSettings["SenderName"]!;
-                string senderEmail = emailSettings["SenderEmail"]!;
-                string password = emailSettings["Password"]!;
-
-                // Create the email message using MimeKit
-                var message = new MimeMessage();
-                message.From.Add(new MailboxAddress(senderName, senderEmail)); // Set sender
-                message.To.Add(new MailboxAddress("", toEmail));               // Set recipient
-                message.Subject = subject;                                     // Set email subject
-                message.Body = new TextPart("html") { Text = body };           // Set email body in HTML format
-
-                // Connect to SMTP server and send the email using MailKit
-                using var client = new SmtpClient();
-                await client.ConnectAsync(smtpServer, port, MailKit.Security.SecureSocketOptions.StartTls); // Connect with TLS
-                await client.AuthenticateAsync(senderEmail, password);                                      // Authenticate sender
-                await client.SendAsync(message);                                                            // Send email
-                await client.DisconnectAsync(true);                                                         // Disconnect from SMTP server
-
-                // Log success
-                _logger.LogInformation($"Email sent to {toEmail} with subject: {subject}");
-            }
-            catch (Exception ex)
-            {
-                // Log any errors and rethrow
-                _logger.LogError(ex, $"Failed to send email to {toEmail}");
-                throw;
-            }
-
-        }
+        
 
 
         /// <summary>
@@ -107,6 +69,43 @@ namespace TrackItApp.Application.Services
             await SendEmailAsync(email, subject, body);
 
             return verificationCode;
+        }
+
+        private async Task SendEmailAsync(string toEmail, string subject, string body)
+        {
+            try
+            {
+                // Read email settings from appsettings.json
+                var emailSettings = _configuration.GetSection("EmailSettings");
+                string smtpServer = emailSettings["SmtpServer"]!;
+                int port = int.Parse(emailSettings["Port"]!);
+                string senderName = emailSettings["SenderName"]!;
+                string senderEmail = emailSettings["SenderEmail"]!;
+                string password = emailSettings["Password"]!;
+
+                // Create the email message using MimeKit
+                var message = new MimeMessage();
+                message.From.Add(new MailboxAddress(senderName, senderEmail)); // Set sender
+                message.To.Add(new MailboxAddress("", toEmail));               // Set recipient
+                message.Subject = subject;                                     // Set email subject
+                message.Body = new TextPart("html") { Text = body };           // Set email body in HTML format
+
+                // Connect to SMTP server and send the email using MailKit
+                using var client = new SmtpClient();
+                await client.ConnectAsync(smtpServer, port, MailKit.Security.SecureSocketOptions.StartTls); // Connect with TLS
+                await client.AuthenticateAsync(senderEmail, password);                                      // Authenticate sender
+                await client.SendAsync(message);                                                            // Send email
+                await client.DisconnectAsync(true);                                                         // Disconnect from SMTP server
+
+                // Log success
+                _logger.LogInformation($"Email sent to {toEmail} with subject: {subject}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Failed to send email to {toEmail}");
+                throw;
+            }
+
         }
     }
 }

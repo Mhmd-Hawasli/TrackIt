@@ -26,6 +26,12 @@ namespace TrackItApp.API.Controllers
         {
             try
             {
+                // print validation error
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new ApiResponse<object>(ModelState));
+                }
+
                 //get DeviceID form request header
                 var currentDeviceId = _contextAccessor.HttpContext?.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
                 if (string.IsNullOrEmpty(currentDeviceId))
@@ -78,12 +84,18 @@ namespace TrackItApp.API.Controllers
         #endregion
 
         //resend-code
-        #region
+        #region resend-code
         [HttpPost("resend-code")]
         public async Task<IActionResult> ResendCode([FromBody] ResendCodeRequest request)
         {
             try
             {
+                // print validation error
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new ApiResponse<object>(ModelState));
+                }
+
                 //get DeviceID form request header
                 var currentDeviceId = _contextAccessor.HttpContext?.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
                 if (string.IsNullOrEmpty(currentDeviceId))
@@ -101,7 +113,7 @@ namespace TrackItApp.API.Controllers
                 return BadRequest(new ApiResponse<object>(ex.Message));
             }
         }
-        #endregion
+        #endregion 
 
         //verify-account-code
         #region verify-account-code
