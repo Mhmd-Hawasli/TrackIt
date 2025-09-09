@@ -21,7 +21,10 @@ namespace TrackItApp.API.Controllers
 
         //register
         #region register
+
         [HttpPost("register")]
+        [ProducesResponseType(typeof(ApiResponse<RegisterResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
             try
@@ -46,6 +49,7 @@ namespace TrackItApp.API.Controllers
             }
             catch (Exception ex)
             {
+
                 return BadRequest(new ApiResponse<object>(ex.Message));
             }
         }
@@ -144,10 +148,18 @@ namespace TrackItApp.API.Controllers
         //logout
         #region logout
         [HttpPost("logout")]
-        public async Task<IActionResult> Logout([FromBody] VerifyAccountRequest request)
+        public async Task<IActionResult> Logout()
         {
             try
             {
+
+
+                //get DeviceID form request header
+                var currentDeviceId = _contextAccessor.HttpContext?.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
+                if (string.IsNullOrEmpty(currentDeviceId))
+                {
+                    return BadRequest(new ApiResponse<object>("Request header 'Device-Id' is missing."));
+                }
                 return Ok();
             }
             catch (Exception ex)
@@ -175,7 +187,7 @@ namespace TrackItApp.API.Controllers
 
 
 
-     
+
 
 
 

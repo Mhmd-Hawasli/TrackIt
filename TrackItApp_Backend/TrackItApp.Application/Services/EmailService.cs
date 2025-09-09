@@ -28,7 +28,7 @@ namespace TrackItApp.Application.Services
             _logger = logger;
         }
 
-        
+
 
 
         /// <summary>
@@ -46,7 +46,6 @@ namespace TrackItApp.Application.Services
                 Code = verificationCode,
                 ExpiresAt = DateTime.UtcNow.AddHours(1),
                 CodeType = codeType,
-                Email = email.ToLower(),
                 DeviceID = deviceId
             };
 
@@ -57,7 +56,6 @@ namespace TrackItApp.Application.Services
                 existingCode.Code = verificationCode;
                 existingCode.ExpiresAt = DateTime.UtcNow.AddHours(1);
                 existingCode.CodeType = codeType;
-                existingCode.Email = email.ToLower();
             }
             else if (existingCode == null)
             {

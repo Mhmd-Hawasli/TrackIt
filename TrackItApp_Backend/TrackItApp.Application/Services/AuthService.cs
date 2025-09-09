@@ -144,7 +144,7 @@ namespace TrackItApp.Application.Services
             try
             {
                 //get code record from database via Email and DeviceID
-                var verificationCode = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => vc.Email.Equals(request.Email, StringComparison.CurrentCultureIgnoreCase) && vc.DeviceID == currentDeviceId);
+                var verificationCode = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => vc.User.Email.Equals(request.Email, StringComparison.CurrentCultureIgnoreCase) && vc.DeviceID == currentDeviceId, "User");
                 if (verificationCode == null || verificationCode.CodeType != request.CodeType)
                 {
                     return new ApiResponse<object>("You don’t have any expired code to resend.");
@@ -176,7 +176,7 @@ namespace TrackItApp.Application.Services
 
                 //get verification code record from database
                 var code = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(
-                    vc => vc.DeviceID == currentDeviceId && vc.Email.Equals(request.Email, StringComparison.CurrentCultureIgnoreCase),
+                    vc => vc.DeviceID == currentDeviceId && vc.User.Email.Equals(request.Email, StringComparison.CurrentCultureIgnoreCase),
                     "User.UserSessions", "User.UserType");
                 if (code == null)
                 {
