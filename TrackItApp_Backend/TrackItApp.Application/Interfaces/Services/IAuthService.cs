@@ -18,5 +18,10 @@ namespace TrackItApp.Application.Interfaces.Services
         Task<ApiResponse<LoginResponse>> VerifyAccountCodeAsync(VerifyAccountDto request, string currentDeviceId);
         Task<ApiResponse<object>> LogoutAsync(int userId, string currentDeviceId);
         Task<ApiResponse<UpdateTokenResponse>> UpdateTokenAsync(UpdateTokenRequest request, string currentDeviceId);
+
+        //--------------------
+        //Change password
+        //--------------------
+        Task<ApiResponse<object>> ForgetPasswordRequestAsync(ForgetPasswordRequestDto request, string currentDeviceId);
     }
 }

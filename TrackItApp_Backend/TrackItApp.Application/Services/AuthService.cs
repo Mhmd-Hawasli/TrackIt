@@ -351,6 +351,33 @@ namespace TrackItApp.Application.Services
         }
         #endregion
 
+        //--------------------
+        //Change password
+        //--------------------
+
+        #region ForgetPasswordRequestAsync
+        public async Task<ApiResponse<object>> ForgetPasswordRequestAsync(ForgetPasswordRequestDto request, string currentDeviceId)
+        {
+            try
+            {
+                //get user info
+                var user = await _unitOfWork.UserRepository.FirstOrDefaultAsync(u => u.Email == request.Email.ToLower(), "UserType");
+                if (user == null)
+                {
+                    return new ApiResponse<object>("User not found.");
+                }
+                await _emailService.SendEmailVerificationCode(user.UserID, user.Email, currentDeviceId, CodeType.ResetPassword);
+                await _unitOfWork.CompleteAsync();
+
+                return new ApiResponse<object>(true, null, "An email has been sent to your address. Please check your inbox.", null);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+        #endregion
+
 
     }
 }
