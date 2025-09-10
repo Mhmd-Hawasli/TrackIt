@@ -19,6 +19,34 @@ namespace TrackItApp.Application.Services
             _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT:SigningKey"]!));
         }
 
+        #region ValidateExpiredAccessToken
+        public ClaimsPrincipal? ValidateExpiredAccessToken(string accessToken)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            var validationParameters = new TokenValidationParameters
+            {
+                ValidateLifetime = false,       // ⚠️ تجاهل انتهاء الصلاحية
+                ValidateIssuer = false,
+                ValidateAudience = false,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = _key
+            };
+
+            try
+            {
+                var principal = tokenHandler.ValidateToken(accessToken, validationParameters, out SecurityToken validatedToken);
+
+                // ✅ signature صالح
+                return principal;
+            }
+            catch (SecurityTokenException)
+            {
+                // التوكن غير صالح (signature خطأ)
+                return null;
+            }
+        }
+        #endregion
 
         #region CreateToken
         public string CreateToken(User user)
@@ -49,11 +77,11 @@ namespace TrackItApp.Application.Services
         #endregion
 
         #region GenerateRefreshToken
-        public string GenerateRefreshToken()
+        public (string refreshToken, string hashedRefreshToken) GenerateRefreshToken()
         {
-            //Generate New refresh Token
-            const int length = 64;
-            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*,.?";
+            // generate random Refresh Token 
+            const int length = 72;
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
             var random = new Random();
 
             var rawChars = new char[length];
@@ -64,7 +92,11 @@ namespace TrackItApp.Application.Services
 
             string refreshToken = new string(rawChars);
 
-            return refreshToken;
+            // Hash with BCrypt
+            string hashedRefreshToken = BCrypt.Net.BCrypt.HashPassword(refreshToken);
+
+            // return before and after hashed
+            return (refreshToken, hashedRefreshToken);
         }
         #endregion 
     }

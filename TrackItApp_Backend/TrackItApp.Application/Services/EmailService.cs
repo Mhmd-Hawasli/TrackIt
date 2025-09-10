@@ -31,6 +31,7 @@ namespace TrackItApp.Application.Services
 
 
 
+        #region SendEmailVerificationCode
         /// <summary>
         /// Sends a 6-digit verification code to the user's email address.
         /// </summary>
@@ -68,7 +69,9 @@ namespace TrackItApp.Application.Services
 
             return verificationCode;
         }
+        #endregion
 
+        #region (private) SendEmailAsync
         private async Task SendEmailAsync(string toEmail, string subject, string body)
         {
             try
@@ -105,5 +108,6 @@ namespace TrackItApp.Application.Services
             }
 
         }
+        #endregion
     }
 }

@@ -41,6 +41,18 @@ namespace TrackItApp.Infrastructure.Implementations.Persistence
             modelBuilder.Entity<VerificationCode>()
                 .HasIndex(vc => new { vc.UserID, vc.DeviceID })
                 .IsUnique();
+
+            modelBuilder.Entity<UserSession>()
+                .HasIndex(us => new { us.UserID, us.DeviceID })
+                .IsUnique();
+
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Username)
+                .IsUnique();
+
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
             #endregion
         }
     }

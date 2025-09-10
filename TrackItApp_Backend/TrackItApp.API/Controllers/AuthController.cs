@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using TrackItApp.Application.Common;
 using TrackItApp.Application.DTOs.UserDto.Auth;
 using TrackItApp.Application.Interfaces.Services;
@@ -19,7 +20,6 @@ namespace TrackItApp.API.Controllers
         }
 
 
-        //register
         #region register
 
         [HttpPost("register")]
@@ -36,16 +36,18 @@ namespace TrackItApp.API.Controllers
                 }
 
                 //get DeviceID form request header
-                var currentDeviceId = _contextAccessor.HttpContext?.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
+                string? currentDeviceId = _contextAccessor.HttpContext?.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
                 if (string.IsNullOrEmpty(currentDeviceId))
                 {
                     return BadRequest(new ApiResponse<object>("Request header 'Device-Id' is missing."));
                 }
 
                 var result = await _authService.RegisterAsync(request, currentDeviceId);
-                if (result.Succeeded)
-                    return Ok(result);
-                return BadRequest(result);
+                if (!result.Succeeded)
+                {
+                    return BadRequest(result);
+                }
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -55,9 +57,10 @@ namespace TrackItApp.API.Controllers
         }
         #endregion
 
-        //login
         #region login
         [HttpPost("login")]
+        [ProducesResponseType(typeof(ApiResponse<LoginResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
             try
@@ -69,16 +72,18 @@ namespace TrackItApp.API.Controllers
                 }
 
                 //get DeviceID form request header
-                var currentDeviceId = _contextAccessor.HttpContext?.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
+                string? currentDeviceId = _contextAccessor.HttpContext?.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
                 if (string.IsNullOrEmpty(currentDeviceId))
                 {
                     return BadRequest(new ApiResponse<object>("Request header 'Device-Id' is missing."));
                 }
 
                 var result = await _authService.LoginAsync(request, currentDeviceId);
-                if (result.Succeeded)
-                    return Ok(result);
-                return BadRequest(result);
+                if (!result.Succeeded)
+                {
+                    return BadRequest(result);
+                }
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -87,10 +92,11 @@ namespace TrackItApp.API.Controllers
         }
         #endregion
 
-        //resend-code
         #region resend-code
         [HttpPost("resend-code")]
-        public async Task<IActionResult> ResendCode([FromBody] ResendCodeRequest request)
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> ResendCode([FromBody] ResendCodeDto request)
         {
             try
             {
@@ -101,16 +107,18 @@ namespace TrackItApp.API.Controllers
                 }
 
                 //get DeviceID form request header
-                var currentDeviceId = _contextAccessor.HttpContext?.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
+                string? currentDeviceId = _contextAccessor.HttpContext?.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
                 if (string.IsNullOrEmpty(currentDeviceId))
                 {
                     return BadRequest(new ApiResponse<object>("Request header 'Device-Id' is missing."));
                 }
 
                 var result = await _authService.ResendCodeAsync(request, currentDeviceId);
-                if (result.Succeeded)
-                    return Ok(result);
-                return BadRequest(result);
+                if (!result.Succeeded)
+                {
+                    return BadRequest(result);
+                }
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -119,24 +127,33 @@ namespace TrackItApp.API.Controllers
         }
         #endregion 
 
-        //verify-account-code
         #region verify-account-code
         [HttpPost("verify-account-code")]
-        public async Task<IActionResult> VerifyAccountCode([FromBody] VerifyAccountRequest request)
+        [ProducesResponseType(typeof(ApiResponse<LoginResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> VerifyAccountCode([FromBody] VerifyAccountDto request)
         {
             try
             {
+                // print validation error
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new ApiResponse<object>(ModelState));
+                }
+
                 //get DeviceID form request header
-                var currentDeviceId = _contextAccessor.HttpContext?.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
+                string? currentDeviceId = _contextAccessor.HttpContext?.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
                 if (string.IsNullOrEmpty(currentDeviceId))
                 {
                     return BadRequest(new ApiResponse<object>("Request header 'Device-Id' is missing."));
                 }
 
                 var result = await _authService.VerifyAccountCodeAsync(request, currentDeviceId);
-                if (result.Succeeded)
-                    return Ok(result);
-                return BadRequest(result);
+                if (!result.Succeeded)
+                {
+                    return BadRequest(result);
+                }
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -145,22 +162,36 @@ namespace TrackItApp.API.Controllers
         }
         #endregion
 
-        //logout
         #region logout
         [HttpPost("logout")]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Logout()
         {
             try
             {
-
+                //get UserID form token
+                var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+                {
+                    return Unauthorized("User is not authenticated or not found.");
+                }
 
                 //get DeviceID form request header
-                var currentDeviceId = _contextAccessor.HttpContext?.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
+                string? currentDeviceId = _contextAccessor.HttpContext?.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
                 if (string.IsNullOrEmpty(currentDeviceId))
                 {
                     return BadRequest(new ApiResponse<object>("Request header 'Device-Id' is missing."));
                 }
-                return Ok();
+                var result = await _authService.LogoutAsync(userId, currentDeviceId);
+                if (!result.Succeeded)
+                {
+                    if (result.Message == "User Not Found.")
+                        return NotFound(result);
+                    return BadRequest(result);
+                }
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -169,10 +200,42 @@ namespace TrackItApp.API.Controllers
         }
         #endregion
 
-        //update-token
         #region update-token
         [HttpPost("update-token")]
-        public async Task<IActionResult> UpdateToken([FromBody] VerifyAccountRequest request)
+        [ProducesResponseType(typeof(ApiResponse<UpdateTokenResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> UpdateToken([FromBody] UpdateTokenRequest request)
+        {
+            try
+            {
+                //get DeviceID form request header
+                string? currentDeviceId = _contextAccessor.HttpContext?.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
+                if (string.IsNullOrEmpty(currentDeviceId))
+                {
+                    return BadRequest(new ApiResponse<object>("Request header 'Device-Id' is missing."));
+                }
+
+
+                var result = await _authService.UpdateTokenAsync(request, currentDeviceId);
+                if (!result.Succeeded)
+                {
+                    if (result.Message == "Your access token is invalid. Please log in again.")
+                        return Unauthorized(result);
+                    return BadRequest(result);
+                }
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse<object>(ex.Message));
+            }
+        }
+        #endregion
+
+        #region forgot-password/request
+        [HttpPost("forgot-password/request")]
+        public async Task<IActionResult> RequestForgetPassword([FromBody] VerifyAccountDto request)
         {
             try
             {
@@ -185,11 +248,35 @@ namespace TrackItApp.API.Controllers
         }
         #endregion
 
+        #region forgot-password/verify
+        [HttpPost("forgot-password/verify")]
+        public async Task<IActionResult> VerifyForgetPassword([FromBody] VerifyAccountDto request)
+        {
+            try
+            {
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse<object>(ex.Message));
+            }
+        }
+        #endregion
 
-
-
-
-
+        #region forgot-password/reset
+        [HttpPost("forgot-password/reset")]
+        public async Task<IActionResult> ResestPassword([FromBody] VerifyAccountDto request)
+        {
+            try
+            {
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse<object>(ex.Message));
+            }
+        }
+        #endregion
 
     }
 }

@@ -11,6 +11,7 @@ namespace TrackItApp.Domain.Entities
         public int UserSessionID { get; set; }
         public string RefreshToken { get; set; }
         public string DeviceID { get; set; }
+        public bool IsRevoked { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime LastUpdatedAt { get; set; }
 
