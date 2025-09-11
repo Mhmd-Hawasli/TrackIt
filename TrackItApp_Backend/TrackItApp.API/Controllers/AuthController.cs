@@ -24,6 +24,7 @@ namespace TrackItApp.API.Controllers
         #region register
 
         [HttpPost("register")]
+        [AllowAnonymous]
         [ProducesResponseType(typeof(ApiResponse<RegisterResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
@@ -96,6 +97,7 @@ namespace TrackItApp.API.Controllers
 
         #region resend-code
         [HttpPost("resend-code")]
+        [AllowAnonymous]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> ResendCode([FromBody] ResendCodeDto request)
@@ -131,6 +133,7 @@ namespace TrackItApp.API.Controllers
 
         #region verify-account-code
         [HttpPost("verify-account-code")]
+        [AllowAnonymous]
         [ProducesResponseType(typeof(ApiResponse<LoginResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> VerifyAccountCode([FromBody] VerifyAccountDto request)
@@ -204,6 +207,7 @@ namespace TrackItApp.API.Controllers
 
         #region update-token
         [HttpPost("update-token")]
+        [AllowAnonymous]
         [ProducesResponseType(typeof(ApiResponse<UpdateTokenResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
@@ -237,6 +241,7 @@ namespace TrackItApp.API.Controllers
 
         #region forgot-password/request
         [HttpPost("forgot-password/request")]
+        [AllowAnonymous]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -276,6 +281,7 @@ namespace TrackItApp.API.Controllers
 
         #region forgot-password/verify
         [HttpPost("forgot-password/verify")]
+        [AllowAnonymous]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
@@ -313,6 +319,10 @@ namespace TrackItApp.API.Controllers
 
         #region forgot-password/reset
         [HttpPost("forgot-password/reset")]
+        [AllowAnonymous]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ForgetPasswordResetPassword([FromBody] ForgetPasswordResetPasswordDto request)
         {
             try

@@ -30,6 +30,7 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connect
 
 // JWT Auth
 #region JWT Auth
+
 //builder.Services.AddAuthentication(options =>
 //{
 //    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -89,8 +90,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
+//app.UseAuthentication();
 app.UseMiddleware<AuthenticationMiddleware>();
+
+app.UseAuthorization();
 
 app.MapControllers();
 

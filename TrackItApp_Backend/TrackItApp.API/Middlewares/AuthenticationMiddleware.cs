@@ -1,10 +1,11 @@
-﻿using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.IdentityModel.Tokens;
+using Org.BouncyCastle.Crypto.Parameters;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using TrackItApp.Application.Common;
-using Microsoft.AspNetCore.Authorization;
 
 namespace TrackItApp.API.Middlewares
 {
@@ -53,20 +54,21 @@ namespace TrackItApp.API.Middlewares
                     return;
                 }
 
-                var token = authHeader.ToString()["Bearer ".Length..].Trim();
-                await WriteErrorResponse(context, 401, token, 1);
-
+                var token = authHeader.ToString().Substring("Bearer ".Length).Trim();
+                //var token = authHeader.ToString()["Bearer ".Length..].Trim();
+                //await WriteErrorResponse(context, 401, token, 1);
+                //return;
                 // 4️⃣ التحقق من JWT واستخراج Claims
-                var claimsPrincipal = ValidateToken(token);
+                var claimsPrincipal = ValidateToken(context, token);
 
                 // 5️⃣ إضافة DeviceId كـ Claim
-                if (claimsPrincipal.Identity is ClaimsIdentity identity)
-                {
-                    identity.AddClaim(new Claim("DeviceId", deviceId));
-                }
+                //if (claimsPrincipal.Identity is ClaimsIdentity identity)
+                //{
+                //    identity.AddClaim(new Claim("DeviceId", deviceId));
+                //}
 
                 // 6️⃣ ربط ClaimsPrincipal بـ HttpContext.User
-                context.User = claimsPrincipal;
+                //context.User = claimsPrincipal;
 
                 // ✅ كل شيء تمام
                 await _next(context);
@@ -77,32 +79,99 @@ namespace TrackItApp.API.Middlewares
             }
             catch (Exception ex)
             {
-                await WriteErrorResponse(context, 401, ex.Message, 2);
+                await WriteErrorResponse(context, 401, ex.Message);
                 //await WriteErrorResponse(context, 401, "Invalid token", 2);
             }
         }
         #endregion
 
         #region (private) ValidateToken
-        private ClaimsPrincipal ValidateToken(string token)
-        {
-            var signingKey = _configuration["JWT:SigningKey"]
-                             ?? throw new InvalidOperationException("JWT:SigningKey is missing");
-            var key = Encoding.UTF8.GetBytes(signingKey);
+        //private ClaimsPrincipal ValidateToken(string token)
+        //{
+        //    var signingKey = _configuration["JWT:SigningKey"]
+        //                     ?? throw new InvalidOperationException("JWT:SigningKey is missing");
+        //    var key = Encoding.UTF8.GetBytes(signingKey);
 
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var validationParams = new TokenValidationParameters
+        //    var tokenHandler = new JwtSecurityTokenHandler();
+        //    var validationParams = new TokenValidationParameters
+        //    {
+        //        ClockSkew = TimeSpan.Zero,
+        //        ValidateIssuerSigningKey = true,
+        //        IssuerSigningKey = new SymmetricSecurityKey(key),
+        //        ValidateIssuer = false,
+        //        //ValidIssuer = _configuration["JWT:Issuer"],
+        //        ValidateAudience = false,
+        //        //ValidAudience = _configuration["JWT:Audience"],
+        //        ValidateLifetime = false,
+        //    };
+        //    var principal = tokenHandler.ValidateToken(token, validationParams, out SecurityToken validatedToken);
+
+        //    // ✅ signature صالح
+        //    return principal;
+        //}
+        private async Task<ClaimsPrincipal?> ValidateToken(HttpContext context, string token)
+        {
+            try
             {
-                ClockSkew = TimeSpan.Zero,
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(key),
-                ValidateIssuer = true,
-                ValidIssuer = _configuration["JWT:Issuer"],
-                ValidateAudience = true,
-                ValidAudience = _configuration["JWT:Audience"],
-                ValidateLifetime = true,
-            };
-            return tokenHandler.ValidateToken(token, validationParams, out SecurityToken validatedToken);
+                var signingKey = _configuration["JWT:SigningKey"]
+                                 ?? throw new InvalidOperationException("JWT:SigningKey is missing");
+
+                var key = Encoding.UTF8.GetBytes(signingKey);
+                var symmetricKey = new SymmetricSecurityKey(key);
+
+                var tokenHandler = new JwtSecurityTokenHandler();
+
+                // ⚡ إعدادات التحقق
+                var validationParams = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = symmetricKey,
+
+                    ValidateIssuer = true,
+                    ValidIssuer = _configuration["JWT:Issuer"],
+
+                    ValidateAudience = true,
+                    ValidAudience = _configuration["JWT:Audience"],
+
+                    ValidateLifetime = true,
+                    //ClockSkew = TimeSpan.Zero, // بدون سماحية زمنية
+                };
+
+                var principal = tokenHandler.ValidateToken(token, validationParams, out SecurityToken validatedToken);
+
+                // ✅ التوكن صالح
+                return principal;
+            }
+            catch (SecurityTokenExpiredException)
+            {
+                await WriteErrorResponse(context, 401, "Unauthorized: Token expired.");
+                return null;
+            }
+            catch (SecurityTokenInvalidSignatureException)
+            {
+                await WriteErrorResponse(context, 401, "Unauthorized: Token signature invalid.");
+                return null;
+            }
+            catch (SecurityTokenInvalidLifetimeException)
+            {
+                await WriteErrorResponse(context, 401, "Unauthorized: Token lifetime invalid (exp/nbf).");
+                return null;
+            }
+            catch (SecurityTokenInvalidAudienceException)
+            {
+                await WriteErrorResponse(context, 401, "Unauthorized: Token audience invalid.");
+                return null;
+            }
+            catch (SecurityTokenInvalidIssuerException)
+            {
+                await WriteErrorResponse(context, 401, "Unauthorized: Token issuer invalid.");
+                return null;
+            }
+            catch (Exception)
+            {
+                await WriteErrorResponse(context, 401, "Unauthorized: Token invalid.");
+                return null;
+            }
         }
         #endregion
 

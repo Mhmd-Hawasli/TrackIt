@@ -55,6 +55,7 @@ namespace TrackItApp.Application.Services
             {
                 new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString()),
                 new Claim("role", user.UserType.UserTypeName.ToString().ToLower())
+
             };
 
 
@@ -64,7 +65,7 @@ namespace TrackItApp.Application.Services
             var TokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.Now.AddMinutes(30),
+                Expires = DateTime.UtcNow.AddMinutes(30),
                 SigningCredentials = Creds,
                 Issuer = _config["JWT:Issuer"],
                 Audience = _config["JWT:Audience"]

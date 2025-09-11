@@ -12,8 +12,8 @@ using TrackItApp.Infrastructure.Implementations.Persistence;
 namespace TrackItApp.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250909070727_Create02")]
-    partial class Create02
+    [Migration("20250911174431_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -69,7 +69,13 @@ namespace TrackItApp.Infrastructure.Migrations
 
                     b.HasKey("UserID");
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
                     b.HasIndex("UserTypeID");
+
+                    b.HasIndex("Username")
+                        .IsUnique();
 
                     b.ToTable("Users");
                 });
@@ -89,6 +95,9 @@ namespace TrackItApp.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<bool>("IsRevoked")
+                        .HasColumnType("boolean");
+
                     b.Property<DateTime>("LastUpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -101,7 +110,8 @@ namespace TrackItApp.Infrastructure.Migrations
 
                     b.HasKey("UserSessionID");
 
-                    b.HasIndex("UserID");
+                    b.HasIndex("UserID", "DeviceID")
+                        .IsUnique();
 
                     b.ToTable("UserSessions");
                 });

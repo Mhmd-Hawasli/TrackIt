@@ -37,6 +37,7 @@ namespace TrackItApp.Infrastructure.Migrations
                     BackupEmail = table.Column<string>(type: "text", nullable: true),
                     PasswordHash = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    IsTwoFactorEnabled = table.Column<bool>(type: "boolean", nullable: false),
                     IsVerified = table.Column<bool>(type: "boolean", nullable: false),
                     IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     UserTypeID = table.Column<int>(type: "integer", nullable: false)
@@ -60,6 +61,7 @@ namespace TrackItApp.Infrastructure.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     RefreshToken = table.Column<string>(type: "text", nullable: false),
                     DeviceID = table.Column<string>(type: "text", nullable: false),
+                    IsRevoked = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     LastUpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UserID = table.Column<int>(type: "integer", nullable: false)
@@ -84,7 +86,6 @@ namespace TrackItApp.Infrastructure.Migrations
                     Code = table.Column<string>(type: "text", nullable: false),
                     CodeType = table.Column<int>(type: "integer", nullable: false),
                     ExpiresAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    Email = table.Column<string>(type: "text", nullable: false),
                     DeviceID = table.Column<string>(type: "text", nullable: false),
                     UserID = table.Column<int>(type: "integer", nullable: false)
                 },
@@ -100,19 +101,33 @@ namespace TrackItApp.Infrastructure.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Users_Email",
+                table: "Users",
+                column: "Email",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Username",
+                table: "Users",
+                column: "Username",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Users_UserTypeID",
                 table: "Users",
                 column: "UserTypeID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserSessions_UserID",
+                name: "IX_UserSessions_UserID_DeviceID",
                 table: "UserSessions",
-                column: "UserID");
+                columns: new[] { "UserID", "DeviceID" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_verificationCodes_UserID",
+                name: "IX_verificationCodes_UserID_DeviceID",
                 table: "verificationCodes",
-                column: "UserID");
+                columns: new[] { "UserID", "DeviceID" },
+                unique: true);
         }
 
         /// <inheritdoc />
