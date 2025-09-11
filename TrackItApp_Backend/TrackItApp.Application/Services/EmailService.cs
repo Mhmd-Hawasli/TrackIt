@@ -44,7 +44,7 @@ namespace TrackItApp.Application.Services
             var verificationEntity = new VerificationCode
             {
                 UserID = userID,
-                Code = verificationCode,
+                Code = BCrypt.Net.BCrypt.HashPassword(verificationCode),
                 ExpiresAt = DateTime.UtcNow.AddHours(1),
                 CodeType = codeType,
                 DeviceID = deviceId
@@ -54,7 +54,7 @@ namespace TrackItApp.Application.Services
             var existingCode = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => vc.UserID == userID && vc.DeviceID == deviceId);
             if (existingCode != null)
             {
-                existingCode.Code = verificationCode;
+                existingCode.Code = BCrypt.Net.BCrypt.HashPassword(verificationCode);
                 existingCode.ExpiresAt = DateTime.UtcNow.AddHours(1);
                 existingCode.CodeType = codeType;
             }

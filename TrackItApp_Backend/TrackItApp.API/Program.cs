@@ -13,6 +13,7 @@ using TrackItApp.Application.Services;
 using TrackItApp.Domain.Repositories;
 using TrackItApp.Infrastructure.Implementations.Persistence;
 using TrackItApp.Infrastructure.Implementations.Repositories;
+using TrackItApp.API.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
@@ -29,28 +30,28 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connect
 
 // JWT Auth
 #region JWT Auth
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    var signingKey = builder.Configuration["JWT:SigningKey"]
-        ?? throw new InvalidOperationException("JWT:SigningKey is missing");
+//builder.Services.AddAuthentication(options =>
+//{
+//    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+//    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+//})
+//.AddJwtBearer(options =>
+//{
+//    var signingKey = builder.Configuration["JWT:SigningKey"]
+//        ?? throw new InvalidOperationException("JWT:SigningKey is missing");
 
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ClockSkew = TimeSpan.Zero,
-        ValidateLifetime = true,
-        ValidateIssuer = true,
-        ValidIssuer = builder.Configuration["JWT:Issuer"],
-        ValidateAudience = true,
-        ValidAudience = builder.Configuration["JWT:Audience"],
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(signingKey))
-    };
-});
+//    options.TokenValidationParameters = new TokenValidationParameters
+//    {
+//        ClockSkew = TimeSpan.Zero,
+//        ValidateLifetime = true,
+//        ValidateIssuer = true,
+//        ValidIssuer = builder.Configuration["JWT:Issuer"],
+//        ValidateAudience = true,
+//        ValidAudience = builder.Configuration["JWT:Audience"],
+//        ValidateIssuerSigningKey = true,
+//        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(signingKey))
+//    };
+//});
 #endregion
 
 //DI
@@ -89,6 +90,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+app.UseMiddleware<AuthenticationMiddleware>();
 
 app.MapControllers();
 

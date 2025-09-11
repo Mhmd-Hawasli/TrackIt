@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using TrackItApp.Application.Common;
 using TrackItApp.Application.DTOs.UserDto.Auth;
@@ -59,6 +60,7 @@ namespace TrackItApp.API.Controllers
 
         #region login
         [HttpPost("login")]
+        [AllowAnonymous]
         [ProducesResponseType(typeof(ApiResponse<LoginResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
@@ -274,11 +276,33 @@ namespace TrackItApp.API.Controllers
 
         #region forgot-password/verify
         [HttpPost("forgot-password/verify")]
-        public async Task<IActionResult> VerifyForgetPassword([FromBody] VerifyAccountDto request)
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ForgetPasswordVerifyCode([FromBody] ForgetPasswordVerifyCodeDto request)
         {
             try
             {
-                return Ok();
+                // print validation error
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new ApiResponse<object>(ModelState));
+                }
+
+                //get DeviceID form request header
+                string? currentDeviceId = _contextAccessor.HttpContext?.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
+                if (string.IsNullOrEmpty(currentDeviceId))
+                {
+                    return BadRequest(new ApiResponse<object>("Request header 'Device-Id' is missing."));
+                }
+                var result = await _authService.ForgetPasswordVerifyCodeAsync(request, currentDeviceId);
+                if (!result.Succeeded)
+                {
+                    if (result.Message == "User not found.")
+                        return NotFound(result);
+                    return BadRequest(result);
+                }
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -289,11 +313,30 @@ namespace TrackItApp.API.Controllers
 
         #region forgot-password/reset
         [HttpPost("forgot-password/reset")]
-        public async Task<IActionResult> ResestPassword([FromBody] VerifyAccountDto request)
+        public async Task<IActionResult> ForgetPasswordResetPassword([FromBody] ForgetPasswordResetPasswordDto request)
         {
             try
             {
-                return Ok();
+                // print validation error
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new ApiResponse<object>(ModelState));
+                }
+
+                //get DeviceID form request header
+                string? currentDeviceId = _contextAccessor.HttpContext?.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
+                if (string.IsNullOrEmpty(currentDeviceId))
+                {
+                    return BadRequest(new ApiResponse<object>("Request header 'Device-Id' is missing."));
+                }
+                var result = await _authService.ForgetPasswordResetPasswordAsync(request, currentDeviceId);
+                if (!result.Succeeded)
+                {
+                    if (result.Message == "User not found.")
+                        return NotFound(result);
+                    return BadRequest(result);
+                }
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -301,6 +344,7 @@ namespace TrackItApp.API.Controllers
             }
         }
         #endregion
-
     }
+
 }
+

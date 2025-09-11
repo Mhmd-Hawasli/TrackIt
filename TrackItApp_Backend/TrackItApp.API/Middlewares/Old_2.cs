@@ -4,11 +4,10 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
 using TrackItApp.Application.Common;
-using Microsoft.AspNetCore.Authorization;
 
-namespace TrackItApp.API.Middlewares
+namespace TrackItApp.API.Middleware
 {
-    public class AuthenticationMiddleware
+    public class Old_2
     {
         private readonly RequestDelegate _next;
         private readonly IConfiguration _configuration;
@@ -17,30 +16,30 @@ namespace TrackItApp.API.Middlewares
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase
         };
 
-        public AuthenticationMiddleware(RequestDelegate next, IConfiguration configuration)
+        public Old_2(RequestDelegate next, IConfiguration configuration)
         {
             _next = next;
             _configuration = configuration;
         }
 
-        #region InvokeAsync
         public async Task InvokeAsync(HttpContext context)
         {
             try
             {
-                // Get DeviceId and save it
+                // 1️⃣ التحقق من Device-Id
                 if (!context.Request.Headers.TryGetValue("Device-Id", out var deviceIds) || string.IsNullOrWhiteSpace(deviceIds))
                 {
                     await WriteErrorResponse(context, 400, "Request header 'Device-Id' is missing.");
                     return;
                 }
                 var deviceId = deviceIds.ToString().ToLower();
-                context.Items["DeviceId"] = deviceId;
 
-                // pass [AllowAnonymous] from this middleware
+                // 2️⃣ السماح للحالات AllowAnonymous
                 var endpoint = context.GetEndpoint();
-                if (endpoint?.Metadata?.GetMetadata<IAllowAnonymous>() != null)
+                if (endpoint?.Metadata?.GetMetadata<Microsoft.AspNetCore.Authorization.IAllowAnonymous>() != null)
                 {
+                    // للحالات بدون توكن
+                    context.Items["DeviceId"] = deviceId;
                     await _next(context);
                     return;
                 }
@@ -54,7 +53,6 @@ namespace TrackItApp.API.Middlewares
                 }
 
                 var token = authHeader.ToString()["Bearer ".Length..].Trim();
-                await WriteErrorResponse(context, 401, token, 1);
 
                 // 4️⃣ التحقق من JWT واستخراج Claims
                 var claimsPrincipal = ValidateToken(token);
@@ -75,15 +73,12 @@ namespace TrackItApp.API.Middlewares
             {
                 await WriteErrorResponse(context, 401, "Token is expired", 1);
             }
-            catch (Exception ex)
+            catch
             {
-                await WriteErrorResponse(context, 401, ex.Message, 2);
-                //await WriteErrorResponse(context, 401, "Invalid token", 2);
+                await WriteErrorResponse(context, 401, "Invalid token", 2);
             }
         }
-        #endregion
 
-        #region (private) ValidateToken
         private ClaimsPrincipal ValidateToken(string token)
         {
             var signingKey = _configuration["JWT:SigningKey"]
@@ -93,7 +88,6 @@ namespace TrackItApp.API.Middlewares
             var tokenHandler = new JwtSecurityTokenHandler();
             var validationParams = new TokenValidationParameters
             {
-                ClockSkew = TimeSpan.Zero,
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(key),
                 ValidateIssuer = true,
@@ -101,20 +95,19 @@ namespace TrackItApp.API.Middlewares
                 ValidateAudience = true,
                 ValidAudience = _configuration["JWT:Audience"],
                 ValidateLifetime = true,
+                ClockSkew = TimeSpan.Zero
             };
+
             return tokenHandler.ValidateToken(token, validationParams, out SecurityToken validatedToken);
         }
-        #endregion
 
-        #region (private) WriteErrorResponse
-        private static async Task WriteErrorResponse(HttpContext context, int statusCode, string message, int? data = null)
+        private static async Task WriteErrorResponse(HttpContext context, int statusCode, string message, int? errorCode = null)
         {
             context.Response.StatusCode = statusCode;
             context.Response.ContentType = "application/json";
 
-            var response = new ApiResponse<int?>(false, data, message, null);
+            var response = new ApiResponse<int?>(false, errorCode, message, null);
             await context.Response.WriteAsync(JsonSerializer.Serialize(response, _jsonOptions));
         }
-        #endregion
     }
 }

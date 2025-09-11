@@ -23,5 +23,7 @@ namespace TrackItApp.Application.Interfaces.Services
         //Change password
         //--------------------
         Task<ApiResponse<object>> ForgetPasswordRequestAsync(ForgetPasswordRequestDto request, string currentDeviceId);
+        Task<ApiResponse<object>> ForgetPasswordVerifyCodeAsync(ForgetPasswordVerifyCodeDto request, string currentDeviceId);
+        Task<ApiResponse<object>> ForgetPasswordResetPasswordAsync(ForgetPasswordResetPasswordDto request, string currentDeviceId);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Localization;
 using System.Security.Claims;
 using TrackItApp.Application.Common;
 using TrackItApp.Application.DTOs.UserDto.Auth;
@@ -28,7 +29,7 @@ namespace TrackItApp.Application.Services
         {
             //we used transaction to 
             //1- save user in database
-            //2- send email and save code in database
+            //2- send email and save codeModel in database
             await _unitOfWork.BeginTransactionAsync();
             try
             {
@@ -153,7 +154,7 @@ namespace TrackItApp.Application.Services
         {
             try
             {
-                //get code record from database via Email and DeviceID
+                //get codeModel record from database via Email and DeviceID
                 var verificationCode = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => vc.User.Email == request.Email.ToLower() && vc.DeviceID == currentDeviceId, "User");
                 if (verificationCode == null || verificationCode.CodeType != request.CodeType)
                 {
@@ -179,37 +180,38 @@ namespace TrackItApp.Application.Services
             try
             {
                 //get verification code record from database
-                var code = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(
+                var codeModel = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(
                     vc => vc.DeviceID == currentDeviceId && vc.User.Email == request.Email.ToLower(),
                     "User.UserSessions", "User.UserType");
-                if (code == null)
+                if (codeModel == null)
                 {
                     return new ApiResponse<LoginResponse>("There is no active code for this device.");
                 }
 
-                //check if code is correct and it has the same type
-                if (code.Code != request.Code && code.CodeType != CodeType.ActivateAccount)
+                //check if codeModel is correct and it has the same type
+                if (codeModel.CodeType != CodeType.ActivateAccount
+                        || !BCrypt.Net.BCrypt.Verify(request.Code, codeModel.Code))
                 {
                     return new ApiResponse<LoginResponse>("The verification code you entered is invalid.");
                 }
 
-                //check if code is expired and new email
-                if (code.ExpiresAt < DateTime.UtcNow)
+                //check if codeModel is expired and new email
+                if (codeModel.ExpiresAt < DateTime.UtcNow)
                 {
-                    await _emailService.SendEmailVerificationCode(code.UserID, request.Email, currentDeviceId, CodeType.ActivateAccount);
+                    await _emailService.SendEmailVerificationCode(codeModel.UserID, request.Email, currentDeviceId, CodeType.ActivateAccount);
                     await _unitOfWork.CompleteAsync();
                     return new ApiResponse<LoginResponse>("Your code has expired. Please check your email address.");
                 }
 
-                //remove the code form database if everything is ok 
-                _unitOfWork.VerificationCodeRepository.Remove(code);
+                //remove the codeModel form database if everything is ok 
+                _unitOfWork.VerificationCodeRepository.Remove(codeModel);
 
                 //generate accessToken and refreshToken
-                var accessToken = _tokenService.CreateToken(code.User);
+                var accessToken = _tokenService.CreateToken(codeModel.User);
                 (string refreshToken, string hashedRefreshToken) = _tokenService.GenerateRefreshToken();
 
                 //save or update user session in database
-                UserSession? userSession = code.User.UserSessions.FirstOrDefault(us => us.DeviceID == currentDeviceId);
+                UserSession? userSession = codeModel.User.UserSessions.FirstOrDefault(us => us.DeviceID == currentDeviceId);
                 if (userSession == null)
                 {
                     userSession = new UserSession()
@@ -218,7 +220,7 @@ namespace TrackItApp.Application.Services
                         DeviceID = currentDeviceId,
                         CreatedAt = DateTime.UtcNow,
                         LastUpdatedAt = DateTime.UtcNow,
-                        UserID = code.UserID,
+                        UserID = codeModel.UserID,
                         IsRevoked = false,
                     };
                     await _unitOfWork.UserSessionRepository.AddAsync(userSession);
@@ -233,13 +235,13 @@ namespace TrackItApp.Application.Services
                 }
 
                 //mark user as verified
-                code.User.IsVerified = true;
+                codeModel.User.IsVerified = true;
 
                 //save change to database
                 await _unitOfWork.CompleteAsync();
 
                 //return response
-                var response = _mapper.Map<LoginResponse>(code.User);
+                var response = _mapper.Map<LoginResponse>(codeModel.User);
                 response.AccessToken = accessToken;
                 response.RefreshToken = refreshToken;
                 return new ApiResponse<LoginResponse>(response);
@@ -370,6 +372,95 @@ namespace TrackItApp.Application.Services
                 await _unitOfWork.CompleteAsync();
 
                 return new ApiResponse<object>(true, null, "An email has been sent to your address. Please check your inbox.", null);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region ForgetPasswordVerifyCodeAsync
+        public async Task<ApiResponse<object>> ForgetPasswordVerifyCodeAsync(ForgetPasswordVerifyCodeDto request, string currentDeviceId)
+        {
+            try
+            {
+                //get codeModel info and user info
+                var codeModel = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => vc.User.Email == request.Email.ToLower() && vc.DeviceID == currentDeviceId, "User");
+                if (codeModel == null)
+                {
+                    return new ApiResponse<object>("Verification record not found. Please submit the request again.");
+                }
+                if (codeModel.User == null)
+                {
+                    return new ApiResponse<object>("User not found.");
+                }
+                if (codeModel.ExpiresAt < DateTime.UtcNow
+                        || codeModel.CodeType != CodeType.ResetPassword
+                        || !BCrypt.Net.BCrypt.Verify(request.Code, codeModel.Code))
+                {
+                    return new ApiResponse<object>("Your Verification code is not valid");
+                }
+                //We haven’t deleted the verification code because it’s needed for the next step.
+
+                return new ApiResponse<object>(true, null, "Email verification successful. Please proceed to the next step.", null);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region ForgetPasswordResetPasswordAsync
+        public async Task<ApiResponse<object>> ForgetPasswordResetPasswordAsync(ForgetPasswordResetPasswordDto request, string currentDeviceId)
+        {
+            try
+            {
+                //get codeModel info and user info
+                var codeModel = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => vc.User.Email == request.Email.ToLower() && vc.DeviceID == currentDeviceId, "User.UserSessions");
+                if (codeModel == null)
+                {
+                    return new ApiResponse<object>("Verification record not found. Please submit the request again.");
+                }
+                if (codeModel.User == null)
+                {
+                    return new ApiResponse<object>("User not found.");
+                }
+                if (codeModel.ExpiresAt < DateTime.UtcNow
+                        || codeModel.CodeType != CodeType.ResetPassword
+                        || !BCrypt.Net.BCrypt.Verify(request.Code, codeModel.Code))
+                {
+                    return new ApiResponse<object>("Your Verification code is not valid");
+                }
+                //check if request newPassword is null or empty
+                if (string.IsNullOrEmpty(request.NewPassword))
+                {
+                    return new ApiResponse<object>("The new password cannot be empty.");
+                }
+
+                //check if new password is the same of the old password
+                if (BCrypt.Net.BCrypt.Verify(request.NewPassword, codeModel.User.PasswordHash))
+                {
+                    return new ApiResponse<object>("New password must be different from the old password.");
+                }
+
+                //update user password
+                codeModel.User.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+                codeModel.User.IsVerified = true;
+                _unitOfWork.UserRepository.Update(codeModel.User);
+
+                //remove session form other device
+                var sessions = codeModel.User.UserSessions.Where(us => us.DeviceID != currentDeviceId).ToList();
+                _unitOfWork.UserSessionRepository.RemoveRange(sessions);
+
+                //remove verification code record
+                _unitOfWork.VerificationCodeRepository.Remove(codeModel);
+
+                //save change to database 
+                await _unitOfWork.CompleteAsync();
+
+                return new ApiResponse<object>(true, null, "Your password has been successfully reset.", null);
             }
             catch
             {
