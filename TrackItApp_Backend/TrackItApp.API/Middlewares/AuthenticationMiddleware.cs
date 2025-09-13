@@ -38,6 +38,7 @@ namespace TrackItApp.API.Middlewares
                 var deviceId = deviceIds.ToString().ToLower();
                 context.Items["DeviceId"] = deviceId;
 
+
                 // pass [AllowAnonymous] from this middleware
                 var endpoint = context.GetEndpoint();
                 if (endpoint?.Metadata?.GetMetadata<IAllowAnonymous>() != null)
@@ -46,7 +47,8 @@ namespace TrackItApp.API.Middlewares
                     return;
                 }
 
-                // 3️⃣ التحقق من Authorization header
+
+                //get token form header
                 if (!context.Request.Headers.TryGetValue("Authorization", out var authHeader) ||
                     !authHeader.ToString().StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
                 {
@@ -54,33 +56,33 @@ namespace TrackItApp.API.Middlewares
                     return;
                 }
 
-                var token = authHeader.ToString().Substring("Bearer ".Length).Trim();
-                //var token = authHeader.ToString()["Bearer ".Length..].Trim();
-                //await WriteErrorResponse(context, 401, token, 1);
-                //return;
-                // 4️⃣ التحقق من JWT واستخراج Claims
-                var claimsPrincipal = ValidateToken(context, token);
 
-                // 5️⃣ إضافة DeviceId كـ Claim
-                //if (claimsPrincipal.Identity is ClaimsIdentity identity)
-                //{
-                //    identity.AddClaim(new Claim("DeviceId", deviceId));
-                //}
+                //verify token and get user id form it 
+                var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
 
-                // 6️⃣ ربط ClaimsPrincipal بـ HttpContext.User
-                //context.User = claimsPrincipal;
+                var token2 = authHeader.ToString().Substring("Bearer ".Length).Trim();
+                var handler = new JwtSecurityTokenHandler();
+                var jwtToken = handler.ReadJwtToken(token);
+                var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+                {
+                    await WriteErrorResponse(context, 401, "Unauthorized: Invalid token.");
+                    return;
+                }
 
-                // ✅ كل شيء تمام
+
+                //every thing is ok continue 
                 await _next(context);
             }
             catch (SecurityTokenExpiredException)
             {
                 await WriteErrorResponse(context, 401, "Token is expired", 1);
+                return;
             }
             catch (Exception ex)
             {
-                await WriteErrorResponse(context, 401, ex.Message);
-                //await WriteErrorResponse(context, 401, "Invalid token", 2);
+                await WriteErrorResponse(context, 401, $"Unauthorized: {ex.Message}");
+                return;
             }
         }
         #endregion
