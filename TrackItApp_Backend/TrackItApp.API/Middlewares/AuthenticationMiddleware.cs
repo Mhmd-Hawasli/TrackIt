@@ -1,11 +1,17 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.IdentityModel.Tokens;
-using Org.BouncyCastle.Crypto.Parameters;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
-using System.Text.Json;
-using TrackItApp.Application.Common;
+﻿using System.Text.Json;                        // JsonSerializer
+using TrackItApp.Application.Common;           // ApiResponse
+using Microsoft.AspNetCore.Http;               // HttpContext, RequestDelegate
+using Microsoft.AspNetCore.Authorization;     // IAllowAnonymous
+using Microsoft.AspNetCore.Routing;           // Endpoint, GetEndpoint()
+using Microsoft.IdentityModel.Tokens;         // SecurityTokenExpiredException, SymmetricSecurityKey
+using Microsoft.Extensions.Configuration;      // IConfiguration
+using System.IdentityModel.Tokens.Jwt;        // JwtSecurityTokenHandler, JwtSecurityToken
+using System.Security.Claims;                  // ClaimTypes
+using System.Text;                             // Encoding.UTF8
+using System.Threading.Tasks;                  // Task
+using System.Linq;                             // FirstOrDefault(), Last()
+using System;
+using TrackItApp.Application.Interfaces;                                  // Exception, InvalidOperationException
 
 namespace TrackItApp.API.Middlewares
 {
@@ -25,7 +31,7 @@ namespace TrackItApp.API.Middlewares
         }
 
         #region InvokeAsync
-        public async Task InvokeAsync(HttpContext context)
+        public async Task InvokeAsync(HttpContext context, IUnitOfWork _unitOfWork)
         {
             try
             {
@@ -57,18 +63,32 @@ namespace TrackItApp.API.Middlewares
                 }
 
 
-                //verify token and get user id form it 
-                var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-
-                var token2 = authHeader.ToString().Substring("Bearer ".Length).Trim();
-                var handler = new JwtSecurityTokenHandler();
-                var jwtToken = handler.ReadJwtToken(token);
-                var userIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
-                if (string.IsNullOrEmpty(userIdClaim) || !int.TryParse(userIdClaim, out int userId))
+                // check token's valid and get user id
+                var userIdString = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
                 {
                     await WriteErrorResponse(context, 401, "Unauthorized: Invalid token.");
                     return;
+
                 }
+
+
+                //get user session base on user id 
+                var session = await _unitOfWork.UserSessionRepository.FirstOrDefaultAsNoTrackingAsync(us => us.UserID == userId && us.DeviceID == deviceId);
+                if (session == null)
+                {
+                    await WriteErrorResponse(context, 401, "Unauthorized: No active session found.");
+                    return;
+                }
+
+
+                //check session is valid
+                if (session.IsRevoked == false || session.LastUpdatedAt < DateTime.UtcNow.AddMonths(-2))
+                {
+                    await WriteErrorResponse(context, 401, "Unauthorized: Invalid session.");
+                    return;
+                }
+
 
 
                 //every thing is ok continue 

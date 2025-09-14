@@ -24,7 +24,8 @@ namespace TrackItApp.API.Controllers
 
 
         [HttpGet("AllowAnonymous")]
-        [AllowAnonymous]
+        [Authorize]
+        //[AllowAnonymous]
         public IActionResult GetAllowAnonymous()
         {
             var deviceId = HttpContext.Items["DeviceId"]?.ToString();
