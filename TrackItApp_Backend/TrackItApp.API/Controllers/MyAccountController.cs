@@ -10,10 +10,10 @@ namespace TrackItApp.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class UserController : ControllerBase
+    public class MyAccountController : ControllerBase
     {
         private readonly IUserService _userService;
-        public UserController(IUserService userService)
+        public MyAccountController(IUserService userService)
         {
             _userService = userService;
         }
