@@ -13,11 +13,9 @@ namespace TrackItApp.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
-        private readonly IHttpContextAccessor _contextAccessor;
-        public AuthController(IAuthService authService, IHttpContextAccessor contextAccessor)
+        public AuthController(IAuthService authService)
         {
             _authService = authService;
-            _contextAccessor = contextAccessor;
         }
 
 
@@ -38,7 +36,8 @@ namespace TrackItApp.API.Controllers
                 }
 
                 //get DeviceID form request header
-                string? currentDeviceId = _contextAccessor.HttpContext?.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
+                var deviceId = HttpContext.Items["DeviceId"]!.ToString();
+                string? currentDeviceId = HttpContext.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
                 if (string.IsNullOrEmpty(currentDeviceId))
                 {
                     return BadRequest(new ApiResponse<object>("Request header 'Device-Id' is missing."));
@@ -75,7 +74,7 @@ namespace TrackItApp.API.Controllers
                 }
 
                 //get DeviceID form request header
-                string? currentDeviceId = _contextAccessor.HttpContext?.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
+                string? currentDeviceId = HttpContext.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
                 if (string.IsNullOrEmpty(currentDeviceId))
                 {
                     return BadRequest(new ApiResponse<object>("Request header 'Device-Id' is missing."));
@@ -111,7 +110,7 @@ namespace TrackItApp.API.Controllers
                 }
 
                 //get DeviceID form request header
-                string? currentDeviceId = _contextAccessor.HttpContext?.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
+                string? currentDeviceId = HttpContext.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
                 if (string.IsNullOrEmpty(currentDeviceId))
                 {
                     return BadRequest(new ApiResponse<object>("Request header 'Device-Id' is missing."));
@@ -147,7 +146,7 @@ namespace TrackItApp.API.Controllers
                 }
 
                 //get DeviceID form request header
-                string? currentDeviceId = _contextAccessor.HttpContext?.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
+                string? currentDeviceId = HttpContext.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
                 if (string.IsNullOrEmpty(currentDeviceId))
                 {
                     return BadRequest(new ApiResponse<object>("Request header 'Device-Id' is missing."));
@@ -184,7 +183,7 @@ namespace TrackItApp.API.Controllers
                 }
 
                 //get DeviceID form request header
-                string? currentDeviceId = _contextAccessor.HttpContext?.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
+                string? currentDeviceId = HttpContext.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
                 if (string.IsNullOrEmpty(currentDeviceId))
                 {
                     return BadRequest(new ApiResponse<object>("Request header 'Device-Id' is missing."));
@@ -216,7 +215,7 @@ namespace TrackItApp.API.Controllers
             try
             {
                 //get DeviceID form request header
-                string? currentDeviceId = _contextAccessor.HttpContext?.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
+                string? currentDeviceId = HttpContext.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
                 if (string.IsNullOrEmpty(currentDeviceId))
                 {
                     return BadRequest(new ApiResponse<object>("Request header 'Device-Id' is missing."));
@@ -256,7 +255,7 @@ namespace TrackItApp.API.Controllers
                 }
 
                 //get DeviceID form request header
-                string? currentDeviceId = _contextAccessor.HttpContext?.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
+                string? currentDeviceId = HttpContext.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
                 if (string.IsNullOrEmpty(currentDeviceId))
                 {
                     return BadRequest(new ApiResponse<object>("Request header 'Device-Id' is missing."));
@@ -296,7 +295,7 @@ namespace TrackItApp.API.Controllers
                 }
 
                 //get DeviceID form request header
-                string? currentDeviceId = _contextAccessor.HttpContext?.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
+                string? currentDeviceId = HttpContext.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
                 if (string.IsNullOrEmpty(currentDeviceId))
                 {
                     return BadRequest(new ApiResponse<object>("Request header 'Device-Id' is missing."));
@@ -334,7 +333,7 @@ namespace TrackItApp.API.Controllers
                 }
 
                 //get DeviceID form request header
-                string? currentDeviceId = _contextAccessor.HttpContext?.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
+                string? currentDeviceId = HttpContext.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
                 if (string.IsNullOrEmpty(currentDeviceId))
                 {
                     return BadRequest(new ApiResponse<object>("Request header 'Device-Id' is missing."));

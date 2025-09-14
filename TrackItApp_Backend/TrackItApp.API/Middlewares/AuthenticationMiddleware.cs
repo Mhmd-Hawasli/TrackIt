@@ -1,17 +1,17 @@
-﻿using System.Text.Json;                        // JsonSerializer
-using TrackItApp.Application.Common;           // ApiResponse
-using Microsoft.AspNetCore.Http;               // HttpContext, RequestDelegate
-using Microsoft.AspNetCore.Authorization;     // IAllowAnonymous
-using Microsoft.AspNetCore.Routing;           // Endpoint, GetEndpoint()
-using Microsoft.IdentityModel.Tokens;         // SecurityTokenExpiredException, SymmetricSecurityKey
-using Microsoft.Extensions.Configuration;      // IConfiguration
-using System.IdentityModel.Tokens.Jwt;        // JwtSecurityTokenHandler, JwtSecurityToken
-using System.Security.Claims;                  // ClaimTypes
-using System.Text;                             // Encoding.UTF8
-using System.Threading.Tasks;                  // Task
-using System.Linq;                             // FirstOrDefault(), Last()
+﻿using System.Text.Json;                       
+using TrackItApp.Application.Common;        
+using Microsoft.AspNetCore.Http;               
+using Microsoft.AspNetCore.Authorization;    
+using Microsoft.AspNetCore.Routing;          
+using Microsoft.IdentityModel.Tokens;         
+using Microsoft.Extensions.Configuration;    
+using System.IdentityModel.Tokens.Jwt;        
+using System.Security.Claims;                 
+using System.Text;                            
+using System.Threading.Tasks;                  
+using System.Linq;                             
 using System;
-using TrackItApp.Application.Interfaces;                                  // Exception, InvalidOperationException
+using TrackItApp.Application.Interfaces;                                  
 
 namespace TrackItApp.API.Middlewares
 {
@@ -69,13 +69,13 @@ namespace TrackItApp.API.Middlewares
                 {
                     await WriteErrorResponse(context, 401, "Unauthorized: Invalid token.");
                     return;
-
                 }
+                context.Items["UserId"]=userId;
 
 
                 //get user session base on user id 
-                var session = await _unitOfWork.UserSessionRepository.FirstOrDefaultAsNoTrackingAsync(us => us.UserID == userId && us.DeviceID == deviceId);
-                if (session == null)
+                var session = await _unitOfWork.UserSessionRepository.FirstOrDefaultAsNoTrackingAsync(us => us.UserID == userId && us.DeviceID == deviceId,"User");
+                if (session == null || session.User == null)
                 {
                     await WriteErrorResponse(context, 401, "Unauthorized: No active session found.");
                     return;
@@ -90,9 +90,30 @@ namespace TrackItApp.API.Middlewares
                 }
 
 
+                //check if user not valid
+                if (session.User.IsVerified == false)
+                {
+                    await WriteErrorResponse(context, 401, "Unauthorized: User not verified.");
+                    return;
+                }
 
+
+                //check if user not valid
+                if (session.User.IsVerified == false || session.User.IsDeleted == true)
+                {
+                    var message = session.User.IsDeleted 
+                        ? "Unauthorized: User account is deleted."
+                        : "Unauthorized: User not verified.";
+                    await WriteErrorResponse(context, 401, message);
+                    return;
+                }
+
+
+                ////////////////////////////
                 //every thing is ok continue 
                 await _next(context);
+                ////////////////////////////
+                return;
             }
             catch (SecurityTokenExpiredException)
             {
@@ -106,8 +127,20 @@ namespace TrackItApp.API.Middlewares
             }
         }
         #endregion
+        
 
-        #region (private) ValidateToken
+        #region (private) WriteErrorResponse
+        private static async Task WriteErrorResponse(HttpContext context, int statusCode, string message, int? data = null)
+        {
+            context.Response.StatusCode = statusCode;
+            context.Response.ContentType = "application/json";
+
+            var response = new ApiResponse<int?>(false, data, message, null);
+            await context.Response.WriteAsync(JsonSerializer.Serialize(response, _jsonOptions));
+        }
+        #endregion
+
+        //#region (private) ValidateToken
         //private ClaimsPrincipal ValidateToken(string token)
         //{
         //    var signingKey = _configuration["JWT:SigningKey"]
@@ -131,81 +164,7 @@ namespace TrackItApp.API.Middlewares
         //    // ✅ signature صالح
         //    return principal;
         //}
-        private async Task<ClaimsPrincipal?> ValidateToken(HttpContext context, string token)
-        {
-            try
-            {
-                var signingKey = _configuration["JWT:SigningKey"]
-                                 ?? throw new InvalidOperationException("JWT:SigningKey is missing");
+        //#endregion
 
-                var key = Encoding.UTF8.GetBytes(signingKey);
-                var symmetricKey = new SymmetricSecurityKey(key);
-
-                var tokenHandler = new JwtSecurityTokenHandler();
-
-                // ⚡ إعدادات التحقق
-                var validationParams = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = symmetricKey,
-
-                    ValidateIssuer = true,
-                    ValidIssuer = _configuration["JWT:Issuer"],
-
-                    ValidateAudience = true,
-                    ValidAudience = _configuration["JWT:Audience"],
-
-                    ValidateLifetime = true,
-                    //ClockSkew = TimeSpan.Zero, // بدون سماحية زمنية
-                };
-
-                var principal = tokenHandler.ValidateToken(token, validationParams, out SecurityToken validatedToken);
-
-                // ✅ التوكن صالح
-                return principal;
-            }
-            catch (SecurityTokenExpiredException)
-            {
-                await WriteErrorResponse(context, 401, "Unauthorized: Token expired.");
-                return null;
-            }
-            catch (SecurityTokenInvalidSignatureException)
-            {
-                await WriteErrorResponse(context, 401, "Unauthorized: Token signature invalid.");
-                return null;
-            }
-            catch (SecurityTokenInvalidLifetimeException)
-            {
-                await WriteErrorResponse(context, 401, "Unauthorized: Token lifetime invalid (exp/nbf).");
-                return null;
-            }
-            catch (SecurityTokenInvalidAudienceException)
-            {
-                await WriteErrorResponse(context, 401, "Unauthorized: Token audience invalid.");
-                return null;
-            }
-            catch (SecurityTokenInvalidIssuerException)
-            {
-                await WriteErrorResponse(context, 401, "Unauthorized: Token issuer invalid.");
-                return null;
-            }
-            catch (Exception)
-            {
-                await WriteErrorResponse(context, 401, "Unauthorized: Token invalid.");
-                return null;
-            }
-        }
-        #endregion
-
-        #region (private) WriteErrorResponse
-        private static async Task WriteErrorResponse(HttpContext context, int statusCode, string message, int? data = null)
-        {
-            context.Response.StatusCode = statusCode;
-            context.Response.ContentType = "application/json";
-
-            var response = new ApiResponse<int?>(false, data, message, null);
-            await context.Response.WriteAsync(JsonSerializer.Serialize(response, _jsonOptions));
-        }
-        #endregion
     }
 }
