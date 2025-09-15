@@ -32,7 +32,7 @@ namespace TrackItApp.API.Middlewares
 
         #region InvokeAsync
         public async Task InvokeAsync(HttpContext context, IUnitOfWork _unitOfWork)
-        {
+            {
             try
             {
                 // Get DeviceId and save it
@@ -83,17 +83,9 @@ namespace TrackItApp.API.Middlewares
 
 
                 //check session is valid
-                if (session.IsRevoked == false || session.LastUpdatedAt < DateTime.UtcNow.AddMonths(-2))
+                if (session.IsRevoked == true || session.LastUpdatedAt < DateTime.UtcNow.AddMonths(-2))
                 {
                     await WriteErrorResponse(context, 401, "Unauthorized: Invalid session.");
-                    return;
-                }
-
-
-                //check if user not valid
-                if (session.User.IsVerified == false)
-                {
-                    await WriteErrorResponse(context, 401, "Unauthorized: User not verified.");
                     return;
                 }
 
