@@ -14,6 +14,7 @@ using TrackItApp.Domain.Repositories;
 using TrackItApp.Infrastructure.Implementations.Persistence;
 using TrackItApp.Infrastructure.Implementations.Repositories;
 using TrackItApp.API.Middlewares;
+using TrackItApp.Application.Common;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
@@ -52,6 +53,21 @@ builder.Services.AddAuthentication(options =>
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(signingKey))
     };
+    options.Events = new JwtBearerEvents
+    {
+        OnAuthenticationFailed = context =>
+        {
+            if (context.Exception is SecurityTokenExpiredException)
+            {
+                context.Response.StatusCode = 401;
+                context.Response.ContentType = "application/json";
+                var result = System.Text.Json.JsonSerializer.Serialize(
+                    new ApiResponse<int>(false, 1, "Unauthorized: Token is expired", null));
+                return context.Response.WriteAsync(result);
+            }
+            return Task.CompletedTask;
+        }
+    };
 });
 #endregion
 
@@ -68,6 +84,7 @@ builder.Services.AddScoped<IUserTypeRepository, UserTypeRepository>();
 builder.Services.AddScoped<IVerificationCodeRepository, VerificationCodeRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserSessionRepository, UserSessionRepository>();
+builder.Services.AddScoped<IUserAsOwnerService, UserAsOwnerService>();
 #endregion 
 
 //Auto Mapper

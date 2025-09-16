@@ -1,37 +1,34 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
+﻿using Microsoft.AspNetCore.Mvc;
 using TrackItApp.Application.Common;
 using TrackItApp.Application.DTOs.UserDto.Auth;
 using TrackItApp.Application.DTOs.UserDto.User;
 using TrackItApp.Application.Interfaces.Services;
 using TrackItApp.Application.Services;
+using TrackItApp.Domain.Common;
 
 namespace TrackItApp.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class MyAccountController : ControllerBase
+    public class OwnerManagementController : ControllerBase
     {
+        private readonly IUserAsOwnerService _ownerService;
         private readonly IUserService _userService;
-        public MyAccountController(IUserService userService)
+        public OwnerManagementController(IUserAsOwnerService ownerService, IUserService userService)
         {
+            _ownerService = ownerService;
             _userService = userService;
         }
 
-
-        #region GetUserInfo
-        [HttpGet]
+        #region GetUserById
+        [HttpGet("{id}")]
         [ProducesResponseType(typeof(ApiResponse<RegisterResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> GetUserInfo()
+        public async Task<IActionResult> GetUserById([FromRoute] int id)
         {
             try
             {
-                //get userId from token 
-                int userId = int.Parse(HttpContext.Items["UserId"]!.ToString()!);
-
-                var result = await _userService.GetUserInfoAsync(userId);
+                var result = await _userService.GetUserInfoAsync(id);
                 if (!result.Succeeded)
                 {
                     if (result.Message == "User Not Found.")
@@ -47,18 +44,59 @@ namespace TrackItApp.API.Controllers
         }
         #endregion
 
-        #region UpdateUser
-        [HttpPut]
-        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        #region GetAllUser
+        [HttpPost("getall")]
+        [ProducesResponseType(typeof(ApiResponse<UsersResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> UpdateUser([FromBody] UpdateUserRequest request)
+        public async Task<IActionResult> GetAllUser([FromBody] QueryParameters query)
         {
             try
             {
-                //get userId from token 
-                int userId = int.Parse(HttpContext.Items["UserId"]!.ToString()!);
+                var result = await _ownerService.GetAllUserAsync(query);
+                if (!result.Succeeded)
+                {
+                    return BadRequest(result);
+                }
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse<object>(ex.Message));
+            }
+        }
+        #endregion
 
-                var result = await _userService.UpdateUserAsync(request, userId);
+        #region GetAllUserWithSoftDelete
+        [HttpPost("softDelete/getall")]
+        [ProducesResponseType(typeof(ApiResponse<UsersWithSoftDeleteResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> GetAllUserWithSoftDelete([FromBody] QueryParameters query)
+        {
+            try
+            {
+                var result = await _ownerService.GetAllUserWithSoftDeleteAsync(query);
+                if (!result.Succeeded)
+                {
+                    return BadRequest(result);
+                }
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ApiResponse<object>(ex.Message));
+            }
+        }
+        #endregion
+
+        #region UpdateUser
+        [HttpPut("{id}")]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UpdateUser([FromBody] UpdateUserRequest request, [FromRoute] int id)
+        {
+            try
+            {
+                var result = await _userService.UpdateUserAsync(request, id);
                 if (!result.Succeeded)
                 {
                     if (result.Message == "User Not Found.")
@@ -100,6 +138,5 @@ namespace TrackItApp.API.Controllers
             }
         }
         #endregion
-
     }
 }

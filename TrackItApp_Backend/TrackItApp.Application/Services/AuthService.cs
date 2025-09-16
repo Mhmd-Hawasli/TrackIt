@@ -95,7 +95,7 @@ namespace TrackItApp.Application.Services
                 var user = await _unitOfWork.UserRepository.FirstOrDefaultWithSoftDeleteAsync(
                     u => u.Username == request.Input || u.Email == request.Input.ToLower(),
                     "UserType");
-                if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+                if (user == null || user.IsDeleted == true || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
                 {
                     return new ApiResponse<LoginResponse>("The login details are incorrect.");
                 }

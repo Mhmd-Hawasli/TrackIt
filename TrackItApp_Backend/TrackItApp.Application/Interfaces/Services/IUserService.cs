@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Org.BouncyCastle.Asn1.Ocsp;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,8 @@ namespace TrackItApp.Application.Interfaces.Services
 {
     public interface IUserService
     {
-       Task<ApiResponse<GetUserResponse>> GetUserInfoAsync(int userId);
+        Task<ApiResponse<UserGetByIdResponse>> GetUserInfoAsync(int userId);
+        Task<ApiResponse<object>> UpdateUserAsync(UpdateUserRequest request, int userId);
+        Task<ApiResponse<object>> DeactivateUserAsync(int userId);
     }
 }

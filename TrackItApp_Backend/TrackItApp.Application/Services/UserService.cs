@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Org.BouncyCastle.Tls.Crypto;
 using TrackItApp.Application.Common;
 using TrackItApp.Application.DTOs.UserDto.User;
 using TrackItApp.Application.Interfaces;
@@ -16,8 +17,10 @@ namespace TrackItApp.Application.Services
             _mapper = mapper;
         }
 
+
+
         #region GetUserInfoAsync
-        public async Task<ApiResponse<GetUserResponse>> GetUserInfoAsync(int userId)
+        public async Task<ApiResponse<UserGetByIdResponse>> GetUserInfoAsync(int userId)
         {
             try
             {
@@ -25,18 +28,92 @@ namespace TrackItApp.Application.Services
                 var user = await _unitOfWork.UserRepository.FirstOrDefaultAsNoTrackingAsync(u => u.UserID == userId);
                 if (user == null)
                 {
-                    return new ApiResponse<GetUserResponse>("User Not Found.");
+                    return new ApiResponse<UserGetByIdResponse>("User Not Found.");
                 }
 
-                
-                var response = _mapper.Map<GetUserResponse>(user);
-                return new ApiResponse<GetUserResponse>(response);
+
+                var response = _mapper.Map<UserGetByIdResponse>(user);
+                return new ApiResponse<UserGetByIdResponse>(response);
             }
-            catch 
+            catch
             {
                 throw;
             }
-        } 
+        }
+        #endregion
+
+        #region UpdateUserAsync
+        public async Task<ApiResponse<object>> UpdateUserAsync(UpdateUserRequest request, int userId)
+        {
+            try
+            {
+                //check if user is in database 
+                var user = await _unitOfWork.UserRepository.FirstOrDefaultAsync(u => u.UserID == userId);
+                if (user == null)
+                {
+                    return new ApiResponse<object>("User Not Found.");
+                }
+
+                //check if username available
+                if (!string.IsNullOrEmpty(request.Username) && request.Username != user.Username)
+                {
+                    var existUsername = await _unitOfWork.UserRepository.FirstOrDefaultWithSoftDeleteAsync(u => u.Username == request.Username);
+                    if (existUsername != null)
+                    {
+                        return new ApiResponse<object>("This username is already in use. Please choose another.");
+                    }
+                    else
+                    {
+                        user.Username = request.Username;
+                    }
+
+                }
+
+                //update name
+                if (!string.IsNullOrEmpty(request.Name))
+                {
+                    user.Name = request.Name;
+                }
+
+                //update user in database
+                _unitOfWork.UserRepository.Update(user);
+                await _unitOfWork.CompleteAsync();
+
+                return new ApiResponse<object>(true, null, "User has been updated successfully.", null);
+            }
+            catch
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region DeactivateUserAsync
+        public async Task<ApiResponse<object>> DeactivateUserAsync(int userId)
+        {
+            try
+            {
+                //get user info 
+                var user = await _unitOfWork.UserRepository.FirstOrDefaultAsync(u => u.UserID == userId,"UserSessions");
+                if (user == null)
+                {
+                    return new ApiResponse<object>("User Not Found.");
+                }
+
+                //delete all user session form all device 
+                _unitOfWork.UserSessionRepository.RemoveRange(user.UserSessions);
+
+                //delete user form database (soft delete)
+                _unitOfWork.UserRepository.Remove(user);
+                await _unitOfWork.CompleteAsync();
+
+                return new ApiResponse<object>(true, null, "The user account has been removed successfully.", null);
+            }
+            catch
+            {
+                throw;
+            }
+        }
         #endregion
     }
 }

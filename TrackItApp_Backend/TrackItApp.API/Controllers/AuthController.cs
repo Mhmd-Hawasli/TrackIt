@@ -36,14 +36,10 @@ namespace TrackItApp.API.Controllers
                 }
 
                 //get DeviceID form request header
-                var deviceId = HttpContext.Items["DeviceId"]!.ToString();
-                string? currentDeviceId = HttpContext.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
-                if (string.IsNullOrEmpty(currentDeviceId))
-                {
-                    return BadRequest(new ApiResponse<object>("Request header 'Device-Id' is missing."));
-                }
+                string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
-                var result = await _authService.RegisterAsync(request, currentDeviceId);
+
+                var result = await _authService.RegisterAsync(request, deviceId);
                 if (!result.Succeeded)
                 {
                     return BadRequest(result);
@@ -74,13 +70,9 @@ namespace TrackItApp.API.Controllers
                 }
 
                 //get DeviceID form request header
-                string? currentDeviceId = HttpContext.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
-                if (string.IsNullOrEmpty(currentDeviceId))
-                {
-                    return BadRequest(new ApiResponse<object>("Request header 'Device-Id' is missing."));
-                }
+                string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
-                var result = await _authService.LoginAsync(request, currentDeviceId);
+                var result = await _authService.LoginAsync(request, deviceId);
                 if (!result.Succeeded)
                 {
                     return BadRequest(result);
@@ -110,13 +102,9 @@ namespace TrackItApp.API.Controllers
                 }
 
                 //get DeviceID form request header
-                string? currentDeviceId = HttpContext.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
-                if (string.IsNullOrEmpty(currentDeviceId))
-                {
-                    return BadRequest(new ApiResponse<object>("Request header 'Device-Id' is missing."));
-                }
+                string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
-                var result = await _authService.ResendCodeAsync(request, currentDeviceId);
+                var result = await _authService.ResendCodeAsync(request, deviceId);
                 if (!result.Succeeded)
                 {
                     return BadRequest(result);
@@ -139,20 +127,16 @@ namespace TrackItApp.API.Controllers
         {
             try
             {
-                // print validation error
+                //print validation error
                 if (!ModelState.IsValid)
                 {
                     return BadRequest(new ApiResponse<object>(ModelState));
                 }
 
                 //get DeviceID form request header
-                string? currentDeviceId = HttpContext.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
-                if (string.IsNullOrEmpty(currentDeviceId))
-                {
-                    return BadRequest(new ApiResponse<object>("Request header 'Device-Id' is missing."));
-                }
+                string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
-                var result = await _authService.VerifyAccountCodeAsync(request, currentDeviceId);
+                var result = await _authService.VerifyAccountCodeAsync(request, deviceId);
                 if (!result.Succeeded)
                 {
                     return BadRequest(result);
@@ -176,19 +160,12 @@ namespace TrackItApp.API.Controllers
             try
             {
                 //get UserID form token
-                var userIdString = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
-                {
-                    return Unauthorized("User is not authenticated or not found.");
-                }
+                int userId = int.Parse(HttpContext.Items["UserId"]!.ToString()!);
 
                 //get DeviceID form request header
-                string? currentDeviceId = HttpContext.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
-                if (string.IsNullOrEmpty(currentDeviceId))
-                {
-                    return BadRequest(new ApiResponse<object>("Request header 'Device-Id' is missing."));
-                }
-                var result = await _authService.LogoutAsync(userId, currentDeviceId);
+                string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
+
+                var result = await _authService.LogoutAsync(userId, deviceId);
                 if (!result.Succeeded)
                 {
                     if (result.Message == "User Not Found.")
@@ -215,14 +192,9 @@ namespace TrackItApp.API.Controllers
             try
             {
                 //get DeviceID form request header
-                string? currentDeviceId = HttpContext.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
-                if (string.IsNullOrEmpty(currentDeviceId))
-                {
-                    return BadRequest(new ApiResponse<object>("Request header 'Device-Id' is missing."));
-                }
+                string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
-
-                var result = await _authService.UpdateTokenAsync(request, currentDeviceId);
+                var result = await _authService.UpdateTokenAsync(request, deviceId);
                 if (!result.Succeeded)
                 {
                     if (result.Message == "Your access token is invalid. Please log in again.")
@@ -255,14 +227,9 @@ namespace TrackItApp.API.Controllers
                 }
 
                 //get DeviceID form request header
-                string? currentDeviceId = HttpContext.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
-                if (string.IsNullOrEmpty(currentDeviceId))
-                {
-                    return BadRequest(new ApiResponse<object>("Request header 'Device-Id' is missing."));
-                }
+                string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
-
-                var result = await _authService.ForgetPasswordRequestAsync(request, currentDeviceId);
+                var result = await _authService.ForgetPasswordRequestAsync(request, deviceId);
                 if (!result.Succeeded)
                 {
                     if (result.Message == "User not found.")
@@ -295,12 +262,9 @@ namespace TrackItApp.API.Controllers
                 }
 
                 //get DeviceID form request header
-                string? currentDeviceId = HttpContext.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
-                if (string.IsNullOrEmpty(currentDeviceId))
-                {
-                    return BadRequest(new ApiResponse<object>("Request header 'Device-Id' is missing."));
-                }
-                var result = await _authService.ForgetPasswordVerifyCodeAsync(request, currentDeviceId);
+                string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
+
+                var result = await _authService.ForgetPasswordVerifyCodeAsync(request, deviceId);
                 if (!result.Succeeded)
                 {
                     if (result.Message == "User not found.")
@@ -333,12 +297,9 @@ namespace TrackItApp.API.Controllers
                 }
 
                 //get DeviceID form request header
-                string? currentDeviceId = HttpContext.Request.Headers["Device-Id"].FirstOrDefault()?.ToLower();
-                if (string.IsNullOrEmpty(currentDeviceId))
-                {
-                    return BadRequest(new ApiResponse<object>("Request header 'Device-Id' is missing."));
-                }
-                var result = await _authService.ForgetPasswordResetPasswordAsync(request, currentDeviceId);
+                string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
+
+                var result = await _authService.ForgetPasswordResetPasswordAsync(request, deviceId);
                 if (!result.Succeeded)
                 {
                     if (result.Message == "User not found.")

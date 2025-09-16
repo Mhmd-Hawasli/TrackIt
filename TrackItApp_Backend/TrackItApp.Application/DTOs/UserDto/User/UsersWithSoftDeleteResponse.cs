@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace TrackItApp.Application.DTOs.UserDto.User
 {
-    public class GetUserResponse
+    public class UsersWithSoftDeleteResponse
     {
         public int UserID { get; set; }
-        public string Name { get; set; }
-        public string UserName { get; set; } 
+        public string UserName { get; set; }
         public string Email { get; set; }
+        public string IsDeleted { get; set; }
     }
 }

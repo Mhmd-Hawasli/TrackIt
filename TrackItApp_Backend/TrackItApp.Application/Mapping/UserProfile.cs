@@ -21,14 +21,16 @@ namespace TrackItApp.Application.Mapping
                 .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(value => false));
 
             CreateMap<User, RegisterResponse>();
-           
 
-           
+
+
             CreateMap<User, LoginResponse>()
                 .ForMember(dest => dest.AccessToken, opt => opt.Ignore())
                 .ForMember(dest => dest.RefreshToken, opt => opt.Ignore());
 
-            CreateMap<User, GetUserResponse>();
+            CreateMap<User, UserGetByIdResponse>();
+            CreateMap<User, UsersResponse>();
+            CreateMap<User, UsersWithSoftDeleteResponse>();
         }
     }
 }

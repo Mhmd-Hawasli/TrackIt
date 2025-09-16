@@ -1,17 +1,19 @@
-﻿using System.Text.Json;                       
-using TrackItApp.Application.Common;        
-using Microsoft.AspNetCore.Http;               
-using Microsoft.AspNetCore.Authorization;    
-using Microsoft.AspNetCore.Routing;          
-using Microsoft.IdentityModel.Tokens;         
-using Microsoft.Extensions.Configuration;    
-using System.IdentityModel.Tokens.Jwt;        
-using System.Security.Claims;                 
-using System.Text;                            
-using System.Threading.Tasks;                  
-using System.Linq;                             
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
+using Org.BouncyCastle.Crypto.Parameters;
 using System;
-using TrackItApp.Application.Interfaces;                                  
+using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
+using System.Linq.Dynamic.Core.Tokenizer;
+using System.Security.Claims;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
+using TrackItApp.Application.Common;
+using TrackItApp.Application.Interfaces;
 
 namespace TrackItApp.API.Middlewares
 {
@@ -32,7 +34,7 @@ namespace TrackItApp.API.Middlewares
 
         #region InvokeAsync
         public async Task InvokeAsync(HttpContext context, IUnitOfWork _unitOfWork)
-            {
+        {
             try
             {
                 // Get DeviceId and save it
@@ -41,7 +43,7 @@ namespace TrackItApp.API.Middlewares
                     await WriteErrorResponse(context, 400, "Request header 'Device-Id' is missing.");
                     return;
                 }
-                var deviceId = deviceIds.ToString().ToLower();
+                string deviceId = deviceIds.ToString().ToLower();
                 context.Items["DeviceId"] = deviceId;
 
 
@@ -70,11 +72,11 @@ namespace TrackItApp.API.Middlewares
                     await WriteErrorResponse(context, 401, "Unauthorized: Invalid token.");
                     return;
                 }
-                context.Items["UserId"]=userId;
+                context.Items["UserId"] = userId;
 
 
                 //get user session base on user id 
-                var session = await _unitOfWork.UserSessionRepository.FirstOrDefaultAsNoTrackingAsync(us => us.UserID == userId && us.DeviceID == deviceId,"User");
+                var session = await _unitOfWork.UserSessionRepository.FirstOrDefaultAsNoTrackingAsync(us => us.UserID == userId && us.DeviceID == deviceId, "User");
                 if (session == null || session.User == null)
                 {
                     await WriteErrorResponse(context, 401, "Unauthorized: No active session found.");
@@ -90,10 +92,10 @@ namespace TrackItApp.API.Middlewares
                 }
 
 
-                //check if user not valid
+                //check if user is valid
                 if (session.User.IsVerified == false || session.User.IsDeleted == true)
                 {
-                    var message = session.User.IsDeleted 
+                    var message = session.User.IsDeleted
                         ? "Unauthorized: User account is deleted."
                         : "Unauthorized: User not verified.";
                     await WriteErrorResponse(context, 401, message);
@@ -107,11 +109,6 @@ namespace TrackItApp.API.Middlewares
                 ////////////////////////////
                 return;
             }
-            catch (SecurityTokenExpiredException)
-            {
-                await WriteErrorResponse(context, 401, "Token is expired", 1);
-                return;
-            }
             catch (Exception ex)
             {
                 await WriteErrorResponse(context, 401, $"Unauthorized: {ex.Message}");
@@ -119,7 +116,6 @@ namespace TrackItApp.API.Middlewares
             }
         }
         #endregion
-        
 
         #region (private) WriteErrorResponse
         private static async Task WriteErrorResponse(HttpContext context, int statusCode, string message, int? data = null)
@@ -133,28 +129,49 @@ namespace TrackItApp.API.Middlewares
         #endregion
 
         //#region (private) ValidateToken
-        //private ClaimsPrincipal ValidateToken(string token)
+        //private ClaimsPrincipal? ValidateToken(HttpContext context)
         //{
-        //    var signingKey = _configuration["JWT:SigningKey"]
-        //                     ?? throw new InvalidOperationException("JWT:SigningKey is missing");
-        //    var key = Encoding.UTF8.GetBytes(signingKey);
-
-        //    var tokenHandler = new JwtSecurityTokenHandler();
-        //    var validationParams = new TokenValidationParameters
+        //    // تحقق من وجود التوكن
+        //    if (!context.Request.Headers.TryGetValue("Authorization", out var authHeader) ||
+        //        !authHeader.ToString().StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
         //    {
-        //        ClockSkew = TimeSpan.Zero,
-        //        ValidateIssuerSigningKey = true,
-        //        IssuerSigningKey = new SymmetricSecurityKey(key),
-        //        ValidateIssuer = false,
-        //        //ValidIssuer = _configuration["JWT:Issuer"],
-        //        ValidateAudience = false,
-        //        //ValidAudience = _configuration["JWT:Audience"],
-        //        ValidateLifetime = false,
-        //    };
-        //    var principal = tokenHandler.ValidateToken(token, validationParams, out SecurityToken validatedToken);
+        //        return null; // ارجع null إذا كان التوكن مفقودًا أو غير صالح
+        //    }
 
-        //    // ✅ signature صالح
-        //    return principal;
+        //    try
+        //    {
+        //        // استخرج التوكن
+        //        var token = authHeader.ToString()["Bearer ".Length..].Trim();
+
+        //        // احصل على المفتاح السري من الإعدادات
+        //        var signingKey = context.RequestServices.GetRequiredService<IConfiguration>()["JWT:SigningKey"];
+        //        var key = Encoding.UTF8.GetBytes(signingKey!);
+
+        //        var tokenHandler = new JwtSecurityTokenHandler();
+
+        //        // إعدادات التحقق
+        //        var validationParameters = new TokenValidationParameters
+        //        {
+        //            ValidateIssuer = true,
+        //            ValidateAudience = true,
+        //            ValidateLifetime = true,
+        //            ValidateIssuerSigningKey = true,
+        //            ValidIssuer = context.RequestServices.GetRequiredService<IConfiguration>()["JWT:Issuer"],
+        //            ValidAudience = context.RequestServices.GetRequiredService<IConfiguration>()["JWT:Audience"],
+        //            IssuerSigningKey = new SymmetricSecurityKey(key),
+        //            ClockSkew = TimeSpan.Zero
+        //        };
+
+        //        // حاول التحقق من التوكن
+        //        var principal = tokenHandler.ValidateToken(token, validationParameters, out var validatedToken);
+
+        //        return principal;
+        //    }
+        //    catch (Exception)
+        //    {
+        //        // ارجع null إذا فشل التحقق من التوكن
+        //        return null;
+        //    }
         //}
         //#endregion
 
