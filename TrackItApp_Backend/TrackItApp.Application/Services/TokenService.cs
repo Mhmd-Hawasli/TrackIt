@@ -1,8 +1,11 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using TrackItApp.Application.Common;
+using TrackItApp.Application.DTOs.UserDto.Auth;
 using TrackItApp.Application.Interfaces.Services;
 using TrackItApp.Domain.Entities;
 
@@ -20,30 +23,34 @@ namespace TrackItApp.Application.Services
         }
 
         #region ValidateExpiredAccessToken
-        public ClaimsPrincipal? ValidateExpiredAccessToken(string accessToken)
+        public int ValidateExpiredAccessToken(string accessToken)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-
-            var validationParameters = new TokenValidationParameters
-            {
-                ValidateLifetime = false,       // ⚠️ تجاهل انتهاء الصلاحية
-                ValidateIssuer = false,
-                ValidateAudience = false,
-                ValidateIssuerSigningKey = true,
-                IssuerSigningKey = _key
-            };
-
             try
             {
-                var principal = tokenHandler.ValidateToken(accessToken, validationParameters, out SecurityToken validatedToken);
+                var tokenHandler = new JwtSecurityTokenHandler();
 
+                var validationParameters = new TokenValidationParameters
+                {
+                    ValidateLifetime = false,       // ⚠️ تجاهل انتهاء الصلاحية
+                    ValidateIssuer = false,
+                    ValidateAudience = false,
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = _key
+                };
+
+
+                var principal = tokenHandler.ValidateToken(accessToken, validationParameters, out SecurityToken validatedToken);
+                var userIdString = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (principal == null || string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+                {
+                    throw new ArgumentException("Your access token is invalid. Please log in again.");
+                }
                 // ✅ signature صالح
-                return principal;
+                return userId;
             }
             catch (SecurityTokenException)
             {
-                // التوكن غير صالح (signature خطأ)
-                return null;
+                throw;
             }
         }
         #endregion

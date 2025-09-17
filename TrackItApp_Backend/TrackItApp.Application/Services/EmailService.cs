@@ -41,14 +41,6 @@ namespace TrackItApp.Application.Services
         public async Task<string> SendEmailVerificationCode(int userID, string email, string deviceId, CodeType codeType)
         {
             var verificationCode = new Random().Next(100000, 999999).ToString();
-            var verificationEntity = new VerificationCode
-            {
-                UserID = userID,
-                Code = BCrypt.Net.BCrypt.HashPassword(verificationCode),
-                ExpiresAt = DateTime.UtcNow.AddHours(1),
-                CodeType = codeType,
-                DeviceID = deviceId
-            };
 
             // Check for an existing, un-expired verification code and remove it before adding a new one
             var existingCode = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => vc.UserID == userID && vc.DeviceID == deviceId);
@@ -57,9 +49,20 @@ namespace TrackItApp.Application.Services
                 existingCode.Code = BCrypt.Net.BCrypt.HashPassword(verificationCode);
                 existingCode.ExpiresAt = DateTime.UtcNow.AddHours(1);
                 existingCode.CodeType = codeType;
+                existingCode.Email = email;
+                _unitOfWork.VerificationCodeRepository.Update(existingCode);
             }
             else if (existingCode == null)
             {
+                var verificationEntity = new VerificationCode
+                {
+                    UserID = userID,
+                    Code = BCrypt.Net.BCrypt.HashPassword(verificationCode),
+                    ExpiresAt = DateTime.UtcNow.AddHours(1),
+                    Email = email,
+                    CodeType = codeType,
+                    DeviceID = deviceId
+                };
                 await _unitOfWork.VerificationCodeRepository.AddAsync(verificationEntity);
             }
             var subject = "Your Verification Code";

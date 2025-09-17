@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using TrackItApp.Application.Common;
 using TrackItApp.Application.DTOs.UserDto.Auth;
+using TrackItApp.Application.DTOs.UserDto.Auth.ChangeEmail;
+using TrackItApp.Application.DTOs.UserDto.Auth.ChangePassword;
 
 namespace TrackItApp.Application.Interfaces.Services
 {
@@ -14,8 +16,8 @@ namespace TrackItApp.Application.Interfaces.Services
         //login related
         Task<ApiResponse<RegisterResponse>> RegisterAsync(RegisterRequest request, string currentDeviceId);
         Task<ApiResponse<LoginResponse>> LoginAsync(LoginRequest request, string currentDeviceId);
-        Task<ApiResponse<object>> ResendCodeAsync(ResendCodeDto request, string currentDeviceId);
-        Task<ApiResponse<LoginResponse>> VerifyAccountCodeAsync(VerifyAccountDto request, string currentDeviceId);
+        Task<ApiResponse<object>> ResendActivateCodeAsync(ResendActivateCodeDto request, string currentDeviceId);
+        Task<ApiResponse<LoginResponse>> VerifyActivateCodeAsync(VerifyActivateDto request, string currentDeviceId);
         Task<ApiResponse<object>> LogoutAsync(int userId, string currentDeviceId);
         Task<ApiResponse<UpdateTokenResponse>> UpdateTokenAsync(UpdateTokenRequest request, string currentDeviceId);
 
@@ -25,5 +27,12 @@ namespace TrackItApp.Application.Interfaces.Services
         Task<ApiResponse<object>> ForgetPasswordRequestAsync(ForgetPasswordRequestDto request, string currentDeviceId);
         Task<ApiResponse<object>> ForgetPasswordVerifyCodeAsync(ForgetPasswordVerifyCodeDto request, string currentDeviceId);
         Task<ApiResponse<object>> ForgetPasswordResetPasswordAsync(ForgetPasswordResetPasswordDto request, string currentDeviceId);
+        Task<ApiResponse<object>> ChangePasswordAsync(ChangePasswordDto request, int userId, string deviceId);
+
+        //--------------------
+        //Change Email
+        //--------------------
+        Task<ApiResponse<Object>> ChangeEmailRequestAsync(ChangeEmailRequest request, int userId, string deviceId);
+        Task<ApiResponse<Object>> ChangeEmailVerifyAsync(ChangeEmailVerify request, int userId, string deviceId);
     }
 }

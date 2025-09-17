@@ -14,13 +14,11 @@ namespace TrackItApp.Domain.Entities
         ResetPassword = 2,
 
         // Primary email
-        RemoveEmail = 3,
-        AddEmail = 4,
+        ChangeEmail = 3,
 
         // Backup email
-        AddBackupEmail = 5,
-        RemoveBackupEmail = 6,
-        RecoverWithBackupEmail = 7
+        ChangeBackupEmail = 4,
+        RecoverWithBackupEmail = 5
     }
     public class VerificationCode
     {
@@ -28,6 +26,7 @@ namespace TrackItApp.Domain.Entities
         public string Code { get; set; }
         public CodeType CodeType { get; set; }
         public DateTime ExpiresAt { get; set; }
+        public string Email { get; set; }
         public string DeviceID { get; set; }
 
         //Relations

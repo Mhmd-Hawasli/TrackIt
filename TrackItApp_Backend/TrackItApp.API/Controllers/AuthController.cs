@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using TrackItApp.Application.Common;
 using TrackItApp.Application.DTOs.UserDto.Auth;
+using TrackItApp.Application.DTOs.UserDto.Auth.ChangeEmail;
+using TrackItApp.Application.DTOs.UserDto.Auth.ChangePassword;
 using TrackItApp.Application.Interfaces.Services;
 
 
@@ -71,12 +73,12 @@ namespace TrackItApp.API.Controllers
         }
         #endregion
 
-        #region resend-code
-        [HttpPost("resend-code")]
+        #region resend-activate-code
+        [HttpPost("resend-activate-code")]
         [AllowAnonymous]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> ResendCode([FromBody] ResendCodeDto request)
+        public async Task<IActionResult> ResendActivateCode([FromBody] ResendActivateCodeDto request)
         {
             // print validation error
             if (!ModelState.IsValid)
@@ -87,7 +89,7 @@ namespace TrackItApp.API.Controllers
             //get DeviceID form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
-            var result = await _authService.ResendCodeAsync(request, deviceId);
+            var result = await _authService.ResendActivateCodeAsync(request, deviceId);
             if (!result.Succeeded)
             {
                 return BadRequest(result);
@@ -96,12 +98,12 @@ namespace TrackItApp.API.Controllers
         }
         #endregion 
 
-        #region verify-account-code
-        [HttpPost("verify-account-code")]
+        #region verify-activate-code
+        [HttpPost("verify-activate-code")]
         [AllowAnonymous]
         [ProducesResponseType(typeof(ApiResponse<LoginResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> VerifyAccountCode([FromBody] VerifyAccountDto request)
+        public async Task<IActionResult> VerifyActivateCode([FromBody] VerifyActivateDto request)
         {
 
             //print validation error
@@ -113,7 +115,7 @@ namespace TrackItApp.API.Controllers
             //get DeviceID form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
-            var result = await _authService.VerifyAccountCodeAsync(request, deviceId);
+            var result = await _authService.VerifyActivateCodeAsync(request, deviceId);
             if (!result.Succeeded)
             {
                 return BadRequest(result);
@@ -243,6 +245,91 @@ namespace TrackItApp.API.Controllers
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
             var result = await _authService.ForgetPasswordResetPasswordAsync(request, deviceId);
+            if (!result.Succeeded)
+            {
+                if (result.Message == "User not found.")
+                    return NotFound(result);
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+        #endregion
+
+        #region change-password
+        [HttpPut("change-password")]
+        [ProducesResponseType(typeof(ApiResponse<UpdateTokenResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto request)
+        {
+
+            //get DeviceID form request header
+            string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
+
+            //get userId form token
+            int userId = int.Parse(HttpContext.Items["UserId"]!.ToString()!);
+
+            var result = await _authService.ChangePasswordAsync(request, userId, deviceId);
+            if (!result.Succeeded)
+            {
+                if (result.Message == "User not found.")
+                    return NotFound(result);
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+        #endregion
+
+        #region change-email/request
+        [HttpPost("change-email/request")]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ChangeEmailRequest([FromBody] ChangeEmailRequest request)
+        {
+            // print validation error
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new ApiResponse<object>(ModelState));
+            }
+
+            //get userId from token 
+            int userId = int.Parse(HttpContext.Items["UserId"]!.ToString()!);
+
+            //get DeviceID form request header
+            string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
+
+            var result = await _authService.ChangeEmailRequestAsync(request, userId, deviceId);
+            if (!result.Succeeded)
+            {
+                if (result.Message == "User not found.")
+                    return NotFound(result);
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+        #endregion
+
+        #region change-email/verify
+        [HttpPost("change-email/verify")]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ChangeEmailVerify([FromBody] ChangeEmailVerify request)
+        {
+            // print validation error
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new ApiResponse<object>(ModelState));
+            }
+
+            //get userId from token 
+            int userId = int.Parse(HttpContext.Items["UserId"]!.ToString()!);
+
+            //get DeviceID form request header
+            string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
+
+            var result = await _authService.ChangeEmailVerifyAsync(request, userId, deviceId);
             if (!result.Succeeded)
             {
                 if (result.Message == "User not found.")

@@ -10,7 +10,7 @@ namespace TrackItApp.Application.Interfaces.Services
 {
     public interface ITokenService
     {
-        ClaimsPrincipal? ValidateExpiredAccessToken(string accessToken);
+        int ValidateExpiredAccessToken(string accessToken);
         string CreateToken(User user);
         (string refreshToken, string hashedRefreshToken) GenerateRefreshToken();
     }

@@ -5,13 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TrackItApp.Application.DTOs.UserDto.Auth
+namespace TrackItApp.Application.DTOs.UserDto.Auth.ChangePassword
 {
-    public class VerifyAccountDto
+    public class ForgetPasswordResetPasswordDto
     {
         [Required]
         [EmailAddress]
         public string Email { get; set; }
-        public string Code { get; set; }
+        public string Code { get; set; }  
+        public string NewPassword { get; set; }
     }
 }

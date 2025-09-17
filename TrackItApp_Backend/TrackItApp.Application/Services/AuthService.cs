@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Localization;
-using System.Security.Claims;
+using System.Net.Http.Headers;
 using TrackItApp.Application.Common;
 using TrackItApp.Application.DTOs.UserDto.Auth;
+using TrackItApp.Application.DTOs.UserDto.Auth.ChangeEmail;
+using TrackItApp.Application.DTOs.UserDto.Auth.ChangePassword;
 using TrackItApp.Application.Interfaces;
 using TrackItApp.Application.Interfaces.Services;
 using TrackItApp.Domain.Entities;
@@ -143,16 +145,16 @@ namespace TrackItApp.Application.Services
         #endregion
 
         #region ResendCodeAsync
-        public async Task<ApiResponse<object>> ResendCodeAsync(ResendCodeDto request, string currentDeviceId)
+        public async Task<ApiResponse<object>> ResendActivateCodeAsync(ResendActivateCodeDto request, string currentDeviceId)
         {
             //get codeModel record from database via Email and DeviceID
-            var verificationCode = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => vc.User.Email == request.Email.ToLower() && vc.DeviceID == currentDeviceId, "User");
-            if (verificationCode == null || verificationCode.CodeType != request.CodeType)
+            var verificationCode = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => vc.User.Email == request.Email.ToLower() && vc.DeviceID == currentDeviceId && vc.CodeType == CodeType.ActivateAccount, "User");
+            if (verificationCode == null)
             {
                 return new ApiResponse<object>("You don’t have any expired code to resend.");
             }
 
-            await _emailService.SendEmailVerificationCode(verificationCode.UserID, request.Email, currentDeviceId, request.CodeType);
+            await _emailService.SendEmailVerificationCode(verificationCode.UserID, request.Email, currentDeviceId, verificationCode.CodeType);
             await _unitOfWork.CompleteAsync();
 
             return new ApiResponse<object>(true, null, "The code has been re-sent to your email.", null);
@@ -161,7 +163,7 @@ namespace TrackItApp.Application.Services
         #endregion
 
         #region VerifyAccountCodeAsync
-        public async Task<ApiResponse<LoginResponse>> VerifyAccountCodeAsync(VerifyAccountDto request, string currentDeviceId)
+        public async Task<ApiResponse<LoginResponse>> VerifyActivateCodeAsync(VerifyActivateDto request, string currentDeviceId)
         {
             //get verification code record from database
             var codeModel = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(
@@ -261,20 +263,8 @@ namespace TrackItApp.Application.Services
         #region UpdateTokenAsync
         public async Task<ApiResponse<UpdateTokenResponse>> UpdateTokenAsync(UpdateTokenRequest request, string currentDeviceId)
         {
-            //check token's secret key
-            var token = _tokenService.ValidateExpiredAccessToken(request.AccessToken);
-
-            if (token == null)
-            {
-                return new ApiResponse<UpdateTokenResponse>("Your access token is invalid. Please log in again.");
-            }
-
-            //get UserID form token
-            var userIdString = token.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
-            {
-                return new ApiResponse<UpdateTokenResponse>("Your access token is invalid. Please log in again.");
-            }
+            //check token's secret key and return userId
+            int userId = _tokenService.ValidateExpiredAccessToken(request.AccessToken);
 
             //check userSession in database by UserId and DeviceId
             var userSession = await _unitOfWork.UserSessionRepository.FirstOrDefaultAsync(us => us.UserID == userId && us.DeviceID == currentDeviceId, "User.UserType");
@@ -413,6 +403,135 @@ namespace TrackItApp.Application.Services
         }
         #endregion
 
+        #region ChangePasswordAsync
+        public async Task<ApiResponse<object>> ChangePasswordAsync(ChangePasswordDto request, int userId, string deviceId)
+        {
+            //get user info from database
+            var user = await _unitOfWork.UserRepository.FirstOrDefaultAsync(u => u.UserID == userId, "UserSessions");
+            if (user == null)
+            {
+                return new ApiResponse<object>("User Not Found.");
+            }
 
+            //check if old password is correct
+            if (!BCrypt.Net.BCrypt.Verify(request.OldPassword, user.PasswordHash))
+            {
+                return new ApiResponse<object>("Your old password is incorrect.");
+            }
+
+            //check if new password is null or empty and send error response
+            if (string.IsNullOrEmpty(request.NewPassword))
+            {
+                return new ApiResponse<object>("The new password cannot be null or empty.");
+            }
+
+            if (request.OldPassword == request.NewPassword)
+            {
+                return new ApiResponse<object>("The new password cannot be the same as the old password.");
+            }
+
+            //hash new password and add it to database
+            var hashPassword = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+            user.PasswordHash = hashPassword;
+            _unitOfWork.UserRepository.Update(user);
+
+            var sessionListToRemove = user.UserSessions.Where(s => s.DeviceID != deviceId).ToList();
+            _unitOfWork.UserSessionRepository.RemoveRange(sessionListToRemove);
+
+            await _unitOfWork.CompleteAsync();
+            return new ApiResponse<object>(true, null, "Your password has been changed successfully.", null);
+
+        }
+
+        #endregion
+
+
+        //--------------------
+        //Change password
+        //--------------------
+
+        #region ChangeEmailRequestAsync
+        public async Task<ApiResponse<object>> ChangeEmailRequestAsync(ChangeEmailRequest request, int userId, string deviceId)
+        {
+            // Normalize new email
+            request.NewEmail = request.NewEmail.ToLower();
+
+            // Get user info from database
+            var user = await _unitOfWork.UserRepository.FirstOrDefaultAsync(u => u.UserID == userId);
+
+            // Check if user exists
+            if (user == null)
+            {
+                return new ApiResponse<object>("User Not Found.");
+            }
+
+            // Verify the user's current password for security
+            if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+            {
+                return new ApiResponse<object>("The current password you entered is incorrect.");
+            }
+
+            // Check if the new email is the same as the current email
+            if (user.Email == request.NewEmail)
+            {
+                return new ApiResponse<object>("Your new email is the same as your current email. Please choose a different one.");
+            }
+
+            // Check if the new email is already used by another user (including soft-deleted users)
+            var existEmail = await _unitOfWork.UserRepository.FirstOrDefaultWithSoftDeleteAsync(u => u.Email == request.NewEmail);
+            if (existEmail != null)
+            {
+                return new ApiResponse<object>("This email is already used by someone else. Please pick another email address.");
+            }
+
+            // Check if the new email is the same as the user's backup email
+            if (user.BackupEmail == request.NewEmail)
+            {
+                return new ApiResponse<object>("You cannot use your backup email as the new email. Please pick another email address.");
+            }
+
+            // Send verification code to the new email address
+            await _emailService.SendEmailVerificationCode(userId, request.NewEmail, deviceId, CodeType.ChangeEmail);
+            await _unitOfWork.CompleteAsync();
+
+            // Return success response
+            return new ApiResponse<object>(true, null, "An email has been sent to your new email address. Please check your email.", null);
+        }
+        #endregion
+
+        #region ChangeEmailVerifyAsync
+        public async Task<ApiResponse<object>> ChangeEmailVerifyAsync(ChangeEmailVerify request, int userId, string deviceId)
+        {
+            // Normalize new email
+            request.NewEmail = request.NewEmail.ToLower();
+
+            // Get Verification Code base on userId and DeviceId
+            var codeModel = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => vc.DeviceID == deviceId && vc.UserID == userId, "User.UserSessions");
+            if (codeModel == null
+                || codeModel.CodeType != CodeType.ChangeEmail
+                || codeModel.ExpiresAt < DateTime.UtcNow
+                || codeModel.Email != request.NewEmail
+                || !BCrypt.Net.BCrypt.Verify(request.Code, codeModel.Code))
+            {
+                return new ApiResponse<object>("verification code is not valid.");
+            }
+
+            //update user email
+            codeModel.User.Email = request.NewEmail;
+            _unitOfWork.UserRepository.Update(codeModel.User);
+
+            //remove session from other device
+            var sessionListToRemove = codeModel.User.UserSessions.Where(us => us.DeviceID != deviceId).ToList();
+            _unitOfWork.UserSessionRepository.RemoveRange(sessionListToRemove);
+
+            //remove verification code form database 
+            _unitOfWork.VerificationCodeRepository.Remove(codeModel);
+
+            await _unitOfWork.CompleteAsync();
+
+            // Return success response
+            return new ApiResponse<object>(true, null, "Your email has been changed successfully.", null);
+        }
+        #endregion
     }
 }
