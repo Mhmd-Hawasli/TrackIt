@@ -76,7 +76,7 @@ namespace TrackItApp.Application.Services
 
                 //return response
                 var response = _mapper.Map<RegisterResponse>(userModel);
-                return new ApiResponse<RegisterResponse>(response, "User has been created successfully.");
+                return new ApiResponse<RegisterResponse>(response, "User has been created successfully. A code has been sent to your email address.");
             }
             catch (Exception ex)
             {

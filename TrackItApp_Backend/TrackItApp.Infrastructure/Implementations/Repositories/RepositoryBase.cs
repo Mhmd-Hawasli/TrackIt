@@ -121,17 +121,17 @@ namespace TrackItApp.Infrastructure.Implementations.Repositories
 
         //GetAllAsync
         #region GetAllAsync
-        public virtual async Task<IEnumerable<T>> GetAllAsync(QueryParameters? filterModel =null, params string[] includes)
+        public virtual async Task<IEnumerable<T>> GetAllAsync(QueryParameters? filterModel = null, params string[] includes)
         {
             IQueryable<T> query = _dbSet;
             foreach (var include in includes)
             {
                 query = query.Include(include);
             }
-            
+
             //apply filter
-            if(filterModel != null)
-            { 
+            if (filterModel != null)
+            {
                 //filter logic
             }
             return await query.ToListAsync();
@@ -250,6 +250,12 @@ namespace TrackItApp.Infrastructure.Implementations.Repositories
             _dbSet.Remove(entity);
         }
         #endregion
+        #region Delete
+        public virtual void Delete(T entity)
+        {
+            _dbSet.Remove(entity);
+        }
+        #endregion
 
         //RemoveRange
         #region RemoveRange
@@ -258,6 +264,13 @@ namespace TrackItApp.Infrastructure.Implementations.Repositories
             _dbSet.RemoveRange(entities);
         }
         #endregion
+        #region DeleteRange
+        public virtual void DeleteRange(IEnumerable<T> entities)
+        {
+            _dbSet.RemoveRange(entities);
+        }
+        #endregion
+
 
     }
 }

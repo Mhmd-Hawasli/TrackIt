@@ -57,5 +57,7 @@ namespace TrackItApp.Domain.Repositories
         //--------------------
         void Remove(T entity);
         void RemoveRange(IEnumerable<T> entities);
+        void Delete(T entity);
+        void DeleteRange(IEnumerable<T> entities);
     }
 }

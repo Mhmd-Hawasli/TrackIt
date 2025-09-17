@@ -61,7 +61,7 @@ namespace TrackItApp.Infrastructure.Implementations.Repositories
         #region FirstOrDefaultWithSoftDeleteAsync
         public override async Task<T?> FirstOrDefaultWithSoftDeleteAsync(Expression<Func<T, bool>> predicate, params string[] includes)
         {
-            return await base.FirstOrDefaultWithSoftDeleteAsync(predicate,includes);
+            return await base.FirstOrDefaultWithSoftDeleteAsync(predicate, includes);
         }
         #endregion 
 
@@ -139,7 +139,7 @@ namespace TrackItApp.Infrastructure.Implementations.Repositories
         #region GetAllWithSoftDeleteAsync
         public override async Task<IEnumerable<T>> GetAllWithSoftDeleteAsync(QueryParameters? filterModel = null, params string[] includes)
         {
-           return await base.GetAllWithSoftDeleteAsync(filterModel, includes);
+            return await base.GetAllWithSoftDeleteAsync(filterModel, includes);
         }
         #endregion
 
@@ -176,7 +176,7 @@ namespace TrackItApp.Infrastructure.Implementations.Repositories
         #region AddAsync 
         public override async Task AddAsync(T entity)
         {
-             await base.AddAsync(entity);
+            await base.AddAsync(entity);
         }
         #endregion
 
@@ -222,6 +222,12 @@ namespace TrackItApp.Infrastructure.Implementations.Repositories
             _dbSet.Update(entity);
         }
         #endregion
+        #region Delete
+        public override void Delete(T entity)
+        {
+            base.Delete(entity);
+        }
+        #endregion
 
         //RemoveRange
         #region RemoveRange
@@ -232,6 +238,12 @@ namespace TrackItApp.Infrastructure.Implementations.Repositories
                 entity.IsDeleted = true;
             }
             _dbSet.UpdateRange(entities);
+        }
+        #endregion
+        #region DeleteRange
+        public override void DeleteRange(IEnumerable<T> entities)
+        {
+            base.DeleteRange(entities);
         }
         #endregion
 

@@ -188,7 +188,7 @@ namespace TrackItApp.Infrastructure.Migrations
             modelBuilder.Entity("TrackItApp.Domain.Entities.VerificationCode", b =>
                 {
                     b.HasOne("TrackItApp.Domain.Entities.User", "User")
-                        .WithMany("verificationCodes")
+                        .WithMany("VerificationCodes")
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -200,7 +200,7 @@ namespace TrackItApp.Infrastructure.Migrations
                 {
                     b.Navigation("UserSessions");
 
-                    b.Navigation("verificationCodes");
+                    b.Navigation("VerificationCodes");
                 });
 
             modelBuilder.Entity("TrackItApp.Domain.Entities.UserType", b =>

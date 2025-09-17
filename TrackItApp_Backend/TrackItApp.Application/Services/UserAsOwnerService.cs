@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TrackItApp.Application.Common;
+using TrackItApp.Application.Common.Requests;
 using TrackItApp.Application.DTOs.UserDto.User;
 using TrackItApp.Application.Interfaces;
 using TrackItApp.Application.Interfaces.Services;
@@ -21,6 +22,7 @@ namespace TrackItApp.Application.Services
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
+
 
         #region GetAllUserAsync
         public async Task<ApiResponse<IEnumerable<UsersResponse>>> GetAllUserAsync(QueryParameters query)
@@ -43,5 +45,55 @@ namespace TrackItApp.Application.Services
         }
         #endregion
 
+        #region ChangeStatusAsync
+        public async Task<ApiResponse<object>> ChangeStatusAsync(int id, ChangeStatusQuery query)
+        {
+            //get user info 
+            var user = await _unitOfWork.UserRepository.FirstOrDefaultWithSoftDeleteAsync(u => u.UserID == id, "UserSessions");
+            if (user == null)
+            {
+                return new ApiResponse<object>("User Not Found.");
+            }
+
+            if (query.IsSoftDeleted == null)
+            {
+                return new ApiResponse<object>("You must provide the 'isSoftDelete' value.");
+            }
+
+            if (query.IsSoftDeleted == true)
+            {
+                _unitOfWork.UserSessionRepository.RemoveRange(user.UserSessions);
+            }
+
+            //change status of user 
+            user.IsDeleted = query.IsSoftDeleted.Value;
+            _unitOfWork.UserRepository.Update(user);
+            await _unitOfWork.CompleteAsync();
+
+            var message = query.IsSoftDeleted.Value ? "The user has been deactivated successfully." : "The user has been activated successfully.";
+            var response = _mapper.Map<UsersWithSoftDeleteResponse>(user);
+            return new ApiResponse<object>(response, message);
+        }
+        #endregion
+
+        #region DeleteUserAsync
+        public async Task<ApiResponse<object>> DeleteUserAsync(int id)
+        {
+            //get user info 
+            var user = await _unitOfWork.UserRepository.FirstOrDefaultWithSoftDeleteAsync(u => u.UserID == id, "UserSessions");
+            if (user == null)
+            {
+                return new ApiResponse<object>("User Not Found.");
+            }
+
+            //delete user form database 
+            _unitOfWork.UserRepository.Delete(user);
+            _unitOfWork.UserSessionRepository.RemoveRange(user.UserSessions);
+            await _unitOfWork.CompleteAsync();
+
+            //return response message
+            return new ApiResponse<object>(true, null, "User has been deleted successfully (hard delete).", null);
+        }
+        #endregion
     }
 }

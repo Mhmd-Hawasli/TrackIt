@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TrackItApp.Application.Common;
+using TrackItApp.Application.Common.Requests;
 using TrackItApp.Application.DTOs.UserDto.Auth;
 using TrackItApp.Application.DTOs.UserDto.User;
 using TrackItApp.Application.Interfaces.Services;
@@ -24,6 +25,7 @@ namespace TrackItApp.API.Controllers
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(ApiResponse<RegisterResponse>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetUserById([FromRoute] int id)
         {
             var result = await _userService.GetUserInfoAsync(id);
@@ -70,6 +72,7 @@ namespace TrackItApp.API.Controllers
         #region UpdateUser
         [HttpPut("{id}")]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UpdateUser([FromBody] UpdateUserRequest request, [FromRoute] int id)
         {
@@ -91,16 +94,32 @@ namespace TrackItApp.API.Controllers
         }
         #endregion
 
-        #region deactivate-user
-        [HttpDelete("deactivate-user")]
+        #region change-status
+        [HttpDelete("change-status/{id}")]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> DeactivateUser()
+        public async Task<IActionResult> ChangeStatus([FromRoute] int id, [FromQuery] ChangeStatusQuery query)
         {
-            //get userId from token 
-            int userId = int.Parse(HttpContext.Items["UserId"]!.ToString()!);
+            var result = await _ownerService.ChangeStatusAsync(id, query);
+            if (!result.Succeeded)
+            {
+                if (result.Message == "User Not Found.")
+                    return NotFound(result);
+                return BadRequest(result);
+            }
+            return Ok(result);
+        }
+        #endregion
 
-            var result = await _userService.DeactivateUserAsync(userId);
+        #region DeleteUser
+        [HttpDelete("{id}")]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> DeleteUser([FromRoute] int id)
+        {
+            var result = await _ownerService.DeleteUserAsync(id);
             if (!result.Succeeded)
             {
                 if (result.Message == "User Not Found.")

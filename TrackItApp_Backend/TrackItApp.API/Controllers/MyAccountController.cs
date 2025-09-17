@@ -60,8 +60,8 @@ namespace TrackItApp.API.Controllers
         }
         #endregion
 
-        #region deactivate-user
-        [HttpDelete("deactivate-user")]
+        #region deactivate
+        [HttpDelete("deactivate")]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeactivateUser()
