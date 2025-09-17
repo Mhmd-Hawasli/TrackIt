@@ -26,21 +26,14 @@ namespace TrackItApp.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetUserById([FromRoute] int id)
         {
-            try
+            var result = await _userService.GetUserInfoAsync(id);
+            if (!result.Succeeded)
             {
-                var result = await _userService.GetUserInfoAsync(id);
-                if (!result.Succeeded)
-                {
-                    if (result.Message == "User Not Found.")
-                        return NotFound(result);
-                    return BadRequest(result);
-                }
-                return Ok(result);
+                if (result.Message == "User Not Found.")
+                    return NotFound(result);
+                return BadRequest(result);
             }
-            catch (Exception ex)
-            {
-                return BadRequest(new ApiResponse<object>(ex.Message));
-            }
+            return Ok(result);
         }
         #endregion
 
@@ -50,19 +43,12 @@ namespace TrackItApp.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetAllUser([FromBody] QueryParameters query)
         {
-            try
+            var result = await _ownerService.GetAllUserAsync(query);
+            if (!result.Succeeded)
             {
-                var result = await _ownerService.GetAllUserAsync(query);
-                if (!result.Succeeded)
-                {
-                    return BadRequest(result);
-                }
-                return Ok(result);
+                return BadRequest(result);
             }
-            catch (Exception ex)
-            {
-                return BadRequest(new ApiResponse<object>(ex.Message));
-            }
+            return Ok(result);
         }
         #endregion
 
@@ -72,19 +58,12 @@ namespace TrackItApp.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetAllUserWithSoftDelete([FromBody] QueryParameters query)
         {
-            try
+            var result = await _ownerService.GetAllUserWithSoftDeleteAsync(query);
+            if (!result.Succeeded)
             {
-                var result = await _ownerService.GetAllUserWithSoftDeleteAsync(query);
-                if (!result.Succeeded)
-                {
-                    return BadRequest(result);
-                }
-                return Ok(result);
+                return BadRequest(result);
             }
-            catch (Exception ex)
-            {
-                return BadRequest(new ApiResponse<object>(ex.Message));
-            }
+            return Ok(result);
         }
         #endregion
 
@@ -118,24 +97,17 @@ namespace TrackItApp.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeactivateUser()
         {
-            try
-            {
-                //get userId from token 
-                int userId = int.Parse(HttpContext.Items["UserId"]!.ToString()!);
+            //get userId from token 
+            int userId = int.Parse(HttpContext.Items["UserId"]!.ToString()!);
 
-                var result = await _userService.DeactivateUserAsync(userId);
-                if (!result.Succeeded)
-                {
-                    if (result.Message == "User Not Found.")
-                        return NotFound(result);
-                    return BadRequest(result);
-                }
-                return Ok(result);
-            }
-            catch (Exception ex)
+            var result = await _userService.DeactivateUserAsync(userId);
+            if (!result.Succeeded)
             {
-                return BadRequest(new ApiResponse<object>(ex.Message));
+                if (result.Message == "User Not Found.")
+                    return NotFound(result);
+                return BadRequest(result);
             }
+            return Ok(result);
         }
         #endregion
     }

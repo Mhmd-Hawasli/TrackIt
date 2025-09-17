@@ -14,6 +14,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using TrackItApp.Application.Common;
 using TrackItApp.Application.Interfaces;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace TrackItApp.API.Middlewares
 {
@@ -109,9 +110,17 @@ namespace TrackItApp.API.Middlewares
                 ////////////////////////////
                 return;
             }
+            /////////////////////////
+            //Global error handling//
+            /////////////////////////
             catch (Exception ex)
             {
-                await WriteErrorResponse(context, 401, $"Unauthorized: {ex.Message}");
+                var error = ex.InnerException?.Message ?? ex.Message;
+                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                context.Response.ContentType = "application/json";
+
+                var response = new ApiResponse<object>(false, null, null, [error]);
+                await context.Response.WriteAsync(JsonSerializer.Serialize(response, _jsonOptions));
                 return;
             }
         }
@@ -127,53 +136,6 @@ namespace TrackItApp.API.Middlewares
             await context.Response.WriteAsync(JsonSerializer.Serialize(response, _jsonOptions));
         }
         #endregion
-
-        //#region (private) ValidateToken
-        //private ClaimsPrincipal? ValidateToken(HttpContext context)
-        //{
-        //    // تحقق من وجود التوكن
-        //    if (!context.Request.Headers.TryGetValue("Authorization", out var authHeader) ||
-        //        !authHeader.ToString().StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
-        //    {
-        //        return null; // ارجع null إذا كان التوكن مفقودًا أو غير صالح
-        //    }
-
-        //    try
-        //    {
-        //        // استخرج التوكن
-        //        var token = authHeader.ToString()["Bearer ".Length..].Trim();
-
-        //        // احصل على المفتاح السري من الإعدادات
-        //        var signingKey = context.RequestServices.GetRequiredService<IConfiguration>()["JWT:SigningKey"];
-        //        var key = Encoding.UTF8.GetBytes(signingKey!);
-
-        //        var tokenHandler = new JwtSecurityTokenHandler();
-
-        //        // إعدادات التحقق
-        //        var validationParameters = new TokenValidationParameters
-        //        {
-        //            ValidateIssuer = true,
-        //            ValidateAudience = true,
-        //            ValidateLifetime = true,
-        //            ValidateIssuerSigningKey = true,
-        //            ValidIssuer = context.RequestServices.GetRequiredService<IConfiguration>()["JWT:Issuer"],
-        //            ValidAudience = context.RequestServices.GetRequiredService<IConfiguration>()["JWT:Audience"],
-        //            IssuerSigningKey = new SymmetricSecurityKey(key),
-        //            ClockSkew = TimeSpan.Zero
-        //        };
-
-        //        // حاول التحقق من التوكن
-        //        var principal = tokenHandler.ValidateToken(token, validationParameters, out var validatedToken);
-
-        //        return principal;
-        //    }
-        //    catch (Exception)
-        //    {
-        //        // ارجع null إذا فشل التحقق من التوكن
-        //        return null;
-        //    }
-        //}
-        //#endregion
 
     }
 }

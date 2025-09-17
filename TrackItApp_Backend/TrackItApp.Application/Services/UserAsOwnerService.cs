@@ -25,34 +25,21 @@ namespace TrackItApp.Application.Services
         #region GetAllUserAsync
         public async Task<ApiResponse<IEnumerable<UsersResponse>>> GetAllUserAsync(QueryParameters query)
         {
-            try
-            {
-                var userList = await _unitOfWork.UserRepository.GetAllAsNoTrackingAsync();
+            var userList = await _unitOfWork.UserRepository.GetAllAsNoTrackingAsync();
 
-                var response = _mapper.Map<IEnumerable<UsersResponse>>(userList);
-                return new ApiResponse<IEnumerable<UsersResponse>>(response);
-            }
-            catch
-            {
-                throw;
-            }
+            var response = _mapper.Map<IEnumerable<UsersResponse>>(userList);
+            return new ApiResponse<IEnumerable<UsersResponse>>(response);
+
         }
         #endregion
 
         #region GetAllUserWithSoftDeleteAsync
         public async Task<ApiResponse<IEnumerable<UsersWithSoftDeleteResponse>>> GetAllUserWithSoftDeleteAsync(QueryParameters query)
         {
-            try
-            {
-                var userList = await _unitOfWork.UserRepository.GetAllWithSoftDeleteAsync();
+            var userList = await _unitOfWork.UserRepository.GetAllWithSoftDeleteAsync();
 
-                var response = _mapper.Map<IEnumerable<UsersWithSoftDeleteResponse>>(userList);
-                return new ApiResponse<IEnumerable<UsersWithSoftDeleteResponse>>(response);
-            }
-            catch
-            {
-                throw;
-            }
+            var response = _mapper.Map<IEnumerable<UsersWithSoftDeleteResponse>>(userList);
+            return new ApiResponse<IEnumerable<UsersWithSoftDeleteResponse>>(response);
         }
         #endregion
 

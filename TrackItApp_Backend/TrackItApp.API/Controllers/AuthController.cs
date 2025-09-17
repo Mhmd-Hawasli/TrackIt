@@ -27,30 +27,22 @@ namespace TrackItApp.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
-            try
+            // print validation error
+            if (!ModelState.IsValid)
             {
-                // print validation error
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(new ApiResponse<object>(ModelState));
-                }
-
-                //get DeviceID form request header
-                string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
-
-
-                var result = await _authService.RegisterAsync(request, deviceId);
-                if (!result.Succeeded)
-                {
-                    return BadRequest(result);
-                }
-                return Ok(result);
+                return BadRequest(new ApiResponse<object>(ModelState));
             }
-            catch (Exception ex)
+
+            //get DeviceID form request header
+            string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
+
+
+            var result = await _authService.RegisterAsync(request, deviceId);
+            if (!result.Succeeded)
             {
-
-                return BadRequest(new ApiResponse<object>(ex.Message));
+                return BadRequest(result);
             }
+            return Ok(result);
         }
         #endregion
 
@@ -61,28 +53,21 @@ namespace TrackItApp.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            try
+            // print validation error
+            if (!ModelState.IsValid)
             {
-                // print validation error
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(new ApiResponse<object>(ModelState));
-                }
-
-                //get DeviceID form request header
-                string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
-
-                var result = await _authService.LoginAsync(request, deviceId);
-                if (!result.Succeeded)
-                {
-                    return BadRequest(result);
-                }
-                return Ok(result);
+                return BadRequest(new ApiResponse<object>(ModelState));
             }
-            catch (Exception ex)
+
+            //get DeviceID form request header
+            string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
+
+            var result = await _authService.LoginAsync(request, deviceId);
+            if (!result.Succeeded)
             {
-                return BadRequest(new ApiResponse<object>(ex.Message));
+                return BadRequest(result);
             }
+            return Ok(result);
         }
         #endregion
 
@@ -93,28 +78,21 @@ namespace TrackItApp.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> ResendCode([FromBody] ResendCodeDto request)
         {
-            try
+            // print validation error
+            if (!ModelState.IsValid)
             {
-                // print validation error
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(new ApiResponse<object>(ModelState));
-                }
-
-                //get DeviceID form request header
-                string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
-
-                var result = await _authService.ResendCodeAsync(request, deviceId);
-                if (!result.Succeeded)
-                {
-                    return BadRequest(result);
-                }
-                return Ok(result);
+                return BadRequest(new ApiResponse<object>(ModelState));
             }
-            catch (Exception ex)
+
+            //get DeviceID form request header
+            string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
+
+            var result = await _authService.ResendCodeAsync(request, deviceId);
+            if (!result.Succeeded)
             {
-                return BadRequest(new ApiResponse<object>(ex.Message));
+                return BadRequest(result);
             }
+            return Ok(result);
         }
         #endregion 
 
@@ -125,28 +103,22 @@ namespace TrackItApp.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> VerifyAccountCode([FromBody] VerifyAccountDto request)
         {
-            try
-            {
-                //print validation error
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(new ApiResponse<object>(ModelState));
-                }
 
-                //get DeviceID form request header
-                string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
-
-                var result = await _authService.VerifyAccountCodeAsync(request, deviceId);
-                if (!result.Succeeded)
-                {
-                    return BadRequest(result);
-                }
-                return Ok(result);
-            }
-            catch (Exception ex)
+            //print validation error
+            if (!ModelState.IsValid)
             {
-                return BadRequest(new ApiResponse<object>(ex.Message));
+                return BadRequest(new ApiResponse<object>(ModelState));
             }
+
+            //get DeviceID form request header
+            string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
+
+            var result = await _authService.VerifyAccountCodeAsync(request, deviceId);
+            if (!result.Succeeded)
+            {
+                return BadRequest(result);
+            }
+            return Ok(result);
         }
         #endregion
 
@@ -157,27 +129,20 @@ namespace TrackItApp.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Logout()
         {
-            try
-            {
-                //get UserID form token
-                int userId = int.Parse(HttpContext.Items["UserId"]!.ToString()!);
+            //get UserID form token
+            int userId = int.Parse(HttpContext.Items["UserId"]!.ToString()!);
 
-                //get DeviceID form request header
-                string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
+            //get DeviceID form request header
+            string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
-                var result = await _authService.LogoutAsync(userId, deviceId);
-                if (!result.Succeeded)
-                {
-                    if (result.Message == "User Not Found.")
-                        return NotFound(result);
-                    return BadRequest(result);
-                }
-                return Ok(result);
-            }
-            catch (Exception ex)
+            var result = await _authService.LogoutAsync(userId, deviceId);
+            if (!result.Succeeded)
             {
-                return BadRequest(new ApiResponse<object>(ex.Message));
+                if (result.Message == "User Not Found.")
+                    return NotFound(result);
+                return BadRequest(result);
             }
+            return Ok(result);
         }
         #endregion
 
@@ -189,24 +154,18 @@ namespace TrackItApp.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> UpdateToken([FromBody] UpdateTokenRequest request)
         {
-            try
-            {
-                //get DeviceID form request header
-                string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
-                var result = await _authService.UpdateTokenAsync(request, deviceId);
-                if (!result.Succeeded)
-                {
-                    if (result.Message == "Your access token is invalid. Please log in again.")
-                        return Unauthorized(result);
-                    return BadRequest(result);
-                }
-                return Ok(result);
-            }
-            catch (Exception ex)
+            //get DeviceID form request header
+            string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
+
+            var result = await _authService.UpdateTokenAsync(request, deviceId);
+            if (!result.Succeeded)
             {
-                return BadRequest(new ApiResponse<object>(ex.Message));
+                if (result.Message == "Your access token is invalid. Please log in again.")
+                    return Unauthorized(result);
+                return BadRequest(result);
             }
+            return Ok(result);
         }
         #endregion
 
@@ -218,30 +177,23 @@ namespace TrackItApp.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ForgetPasswordRequest([FromBody] ForgetPasswordRequestDto request)
         {
-            try
+            // print validation error
+            if (!ModelState.IsValid)
             {
-                // print validation error
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(new ApiResponse<object>(ModelState));
-                }
-
-                //get DeviceID form request header
-                string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
-
-                var result = await _authService.ForgetPasswordRequestAsync(request, deviceId);
-                if (!result.Succeeded)
-                {
-                    if (result.Message == "User not found.")
-                        return NotFound(result);
-                    return BadRequest(result);
-                }
-                return Ok(result);
+                return BadRequest(new ApiResponse<object>(ModelState));
             }
-            catch (Exception ex)
+
+            //get DeviceID form request header
+            string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
+
+            var result = await _authService.ForgetPasswordRequestAsync(request, deviceId);
+            if (!result.Succeeded)
             {
-                return BadRequest(new ApiResponse<object>(ex.Message));
+                if (result.Message == "User not found.")
+                    return NotFound(result);
+                return BadRequest(result);
             }
+            return Ok(result);
         }
         #endregion
 
@@ -253,30 +205,23 @@ namespace TrackItApp.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ForgetPasswordVerifyCode([FromBody] ForgetPasswordVerifyCodeDto request)
         {
-            try
+            // print validation error
+            if (!ModelState.IsValid)
             {
-                // print validation error
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(new ApiResponse<object>(ModelState));
-                }
-
-                //get DeviceID form request header
-                string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
-
-                var result = await _authService.ForgetPasswordVerifyCodeAsync(request, deviceId);
-                if (!result.Succeeded)
-                {
-                    if (result.Message == "User not found.")
-                        return NotFound(result);
-                    return BadRequest(result);
-                }
-                return Ok(result);
+                return BadRequest(new ApiResponse<object>(ModelState));
             }
-            catch (Exception ex)
+
+            //get DeviceID form request header
+            string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
+
+            var result = await _authService.ForgetPasswordVerifyCodeAsync(request, deviceId);
+            if (!result.Succeeded)
             {
-                return BadRequest(new ApiResponse<object>(ex.Message));
+                if (result.Message == "User not found.")
+                    return NotFound(result);
+                return BadRequest(result);
             }
+            return Ok(result);
         }
         #endregion
 
@@ -288,30 +233,23 @@ namespace TrackItApp.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ForgetPasswordResetPassword([FromBody] ForgetPasswordResetPasswordDto request)
         {
-            try
+            // print validation error
+            if (!ModelState.IsValid)
             {
-                // print validation error
-                if (!ModelState.IsValid)
-                {
-                    return BadRequest(new ApiResponse<object>(ModelState));
-                }
-
-                //get DeviceID form request header
-                string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
-
-                var result = await _authService.ForgetPasswordResetPasswordAsync(request, deviceId);
-                if (!result.Succeeded)
-                {
-                    if (result.Message == "User not found.")
-                        return NotFound(result);
-                    return BadRequest(result);
-                }
-                return Ok(result);
+                return BadRequest(new ApiResponse<object>(ModelState));
             }
-            catch (Exception ex)
+
+            //get DeviceID form request header
+            string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
+
+            var result = await _authService.ForgetPasswordResetPasswordAsync(request, deviceId);
+            if (!result.Succeeded)
             {
-                return BadRequest(new ApiResponse<object>(ex.Message));
+                if (result.Message == "User not found.")
+                    return NotFound(result);
+                return BadRequest(result);
             }
+            return Ok(result);
         }
         #endregion
     }

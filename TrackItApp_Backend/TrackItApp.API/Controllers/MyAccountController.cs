@@ -26,24 +26,17 @@ namespace TrackItApp.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> GetUserInfo()
         {
-            try
-            {
-                //get userId from token 
-                int userId = int.Parse(HttpContext.Items["UserId"]!.ToString()!);
+            //get userId from token 
+            int userId = int.Parse(HttpContext.Items["UserId"]!.ToString()!);
 
-                var result = await _userService.GetUserInfoAsync(userId);
-                if (!result.Succeeded)
-                {
-                    if (result.Message == "User Not Found.")
-                        return NotFound(result);
-                    return BadRequest(result);
-                }
-                return Ok(result);
-            }
-            catch (Exception ex)
+            var result = await _userService.GetUserInfoAsync(userId);
+            if (!result.Succeeded)
             {
-                return BadRequest(new ApiResponse<object>(ex.Message));
+                if (result.Message == "User Not Found.")
+                    return NotFound(result);
+                return BadRequest(result);
             }
+            return Ok(result);
         }
         #endregion
 
@@ -53,24 +46,17 @@ namespace TrackItApp.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> UpdateUser([FromBody] UpdateUserRequest request)
         {
-            try
-            {
-                //get userId from token 
-                int userId = int.Parse(HttpContext.Items["UserId"]!.ToString()!);
+            //get userId from token 
+            int userId = int.Parse(HttpContext.Items["UserId"]!.ToString()!);
 
-                var result = await _userService.UpdateUserAsync(request, userId);
-                if (!result.Succeeded)
-                {
-                    if (result.Message == "User Not Found.")
-                        return NotFound(result);
-                    return BadRequest(result);
-                }
-                return Ok(result);
-            }
-            catch (Exception ex)
+            var result = await _userService.UpdateUserAsync(request, userId);
+            if (!result.Succeeded)
             {
-                return BadRequest(new ApiResponse<object>(ex.Message));
+                if (result.Message == "User Not Found.")
+                    return NotFound(result);
+                return BadRequest(result);
             }
+            return Ok(result);
         }
         #endregion
 
@@ -80,24 +66,17 @@ namespace TrackItApp.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> DeactivateUser()
         {
-            try
-            {
-                //get userId from token 
-                int userId = int.Parse(HttpContext.Items["UserId"]!.ToString()!);
+            //get userId from token 
+            int userId = int.Parse(HttpContext.Items["UserId"]!.ToString()!);
 
-                var result = await _userService.DeactivateUserAsync(userId);
-                if (!result.Succeeded)
-                {
-                    if (result.Message == "User Not Found.")
-                        return NotFound(result);
-                    return BadRequest(result);
-                }
-                return Ok(result);
-            }
-            catch (Exception ex)
+            var result = await _userService.DeactivateUserAsync(userId);
+            if (!result.Succeeded)
             {
-                return BadRequest(new ApiResponse<object>(ex.Message));
+                if (result.Message == "User Not Found.")
+                    return NotFound(result);
+                return BadRequest(result);
             }
+            return Ok(result);
         }
         #endregion
 
