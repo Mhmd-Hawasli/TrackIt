@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TrackItApp.Application.DTOs.UserDto.Auth
+namespace TrackItApp.Application.DTOs.UserDto.Auth.AccountActivation
 {
-    public class VerifyActivateDto
+    public class VerifyActivationCodeDto
     {
         [Required]
         [EmailAddress]

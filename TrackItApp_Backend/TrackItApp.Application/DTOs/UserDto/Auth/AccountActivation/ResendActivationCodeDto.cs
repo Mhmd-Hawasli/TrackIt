@@ -6,9 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 using TrackItApp.Domain.Entities;
 
-namespace TrackItApp.Application.DTOs.UserDto.Auth
+namespace TrackItApp.Application.DTOs.UserDto.Auth.AccountActivation
 {
-    public class ResendActivateCodeDto
+    public class ResendActivationCodeDto
     {
         [Required]
         [EmailAddress]

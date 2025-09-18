@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Localization;
 using System.Net.Http.Headers;
 using TrackItApp.Application.Common;
 using TrackItApp.Application.DTOs.UserDto.Auth;
+using TrackItApp.Application.DTOs.UserDto.Auth.AccountActivation;
 using TrackItApp.Application.DTOs.UserDto.Auth.ChangeEmail;
 using TrackItApp.Application.DTOs.UserDto.Auth.ChangePassword;
 using TrackItApp.Application.Interfaces;
@@ -144,8 +145,8 @@ namespace TrackItApp.Application.Services
         }
         #endregion
 
-        #region ResendCodeAsync
-        public async Task<ApiResponse<object>> ResendActivateCodeAsync(ResendActivateCodeDto request, string currentDeviceId)
+        #region ResendActivationCodeAsync
+        public async Task<ApiResponse<object>> ResendActivationCodeAsync(ResendActivationCodeDto request, string currentDeviceId)
         {
             //get codeModel record from database via Email and DeviceID
             var verificationCode = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => vc.User.Email == request.Email.ToLower() && vc.DeviceID == currentDeviceId && vc.CodeType == CodeType.ActivateAccount, "User");
@@ -162,8 +163,8 @@ namespace TrackItApp.Application.Services
         }
         #endregion
 
-        #region VerifyAccountCodeAsync
-        public async Task<ApiResponse<LoginResponse>> VerifyActivateCodeAsync(VerifyActivateDto request, string currentDeviceId)
+        #region VerifyActivationCodeAsync
+        public async Task<ApiResponse<LoginResponse>> VerifyActivationCodeAsync(VerifyActivationCodeDto request, string currentDeviceId)
         {
             //get verification code record from database
             var codeModel = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(
