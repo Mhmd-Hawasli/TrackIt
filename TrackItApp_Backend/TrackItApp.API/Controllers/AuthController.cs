@@ -4,6 +4,7 @@ using System.Security.Claims;
 using TrackItApp.Application.Common;
 using TrackItApp.Application.DTOs.UserDto.Auth;
 using TrackItApp.Application.DTOs.UserDto.Auth.AccountActivation;
+using TrackItApp.Application.DTOs.UserDto.Auth.BackupEmail;
 using TrackItApp.Application.DTOs.UserDto.Auth.ChangeEmail;
 using TrackItApp.Application.DTOs.UserDto.Auth.ChangePassword;
 using TrackItApp.Application.Interfaces.Services;
@@ -22,6 +23,11 @@ namespace TrackItApp.API.Controllers
         }
 
 
+        //-----------------------------
+        // Authentication
+        //-----------------------------
+
+        //register
         #region register
         /// <summary>
         /// Registers a new user account using the provided registration data,
@@ -59,6 +65,7 @@ namespace TrackItApp.API.Controllers
         }
         #endregion
 
+        //login
         #region login
         /// <summary>
         /// Validates the user's login credentials (username or email and password) 
@@ -98,6 +105,7 @@ namespace TrackItApp.API.Controllers
         }
         #endregion
 
+        //logout
         #region logout
         /// <summary>
         /// Logs out the currently authenticated user on the given device.
@@ -132,6 +140,7 @@ namespace TrackItApp.API.Controllers
         }
         #endregion
 
+        //update-token
         #region update-token
         /// <summary>
         /// Refreshes the user's authentication tokens.
@@ -171,6 +180,7 @@ namespace TrackItApp.API.Controllers
         }
         #endregion
 
+        //account-activations/resend
         #region account-activations/resend
         /// <summary>
         /// Resends the account activation verification code for the user.
@@ -206,6 +216,7 @@ namespace TrackItApp.API.Controllers
         }
         #endregion
 
+        //account-activations/verify
         #region account-activations/verify
         /// <summary>
         /// Verifies the activation code sent to the user after registration or login.
@@ -244,6 +255,12 @@ namespace TrackItApp.API.Controllers
         }
         #endregion
 
+
+        //-----------------------------
+        // Password
+        //-----------------------------
+
+        //forgot-password/request
         #region forgot-password/request
         /// <summary>
         /// Initiates the forgot password process by sending a verification code to the user's primary email.
@@ -283,6 +300,7 @@ namespace TrackItApp.API.Controllers
         }
         #endregion
 
+        //forgot-password/verify
         #region forgot-password/verify
         /// <summary>
         /// Verifies the password reset code sent to the user's primary email.
@@ -322,6 +340,7 @@ namespace TrackItApp.API.Controllers
         }
         #endregion
 
+        //forgot-password/reset
         #region forgot-password/reset
         /// <summary>
         /// Resets the user's password after successful verification of the reset code.
@@ -363,6 +382,7 @@ namespace TrackItApp.API.Controllers
         }
         #endregion
 
+        //change-password
         #region change-password
         /// <summary>
         /// Changes the authenticated user's password from within the system.
@@ -400,6 +420,12 @@ namespace TrackItApp.API.Controllers
         }
         #endregion
 
+
+        //-----------------------------
+        // Change Email
+        //-----------------------------
+
+        //change-email/request
         #region change-email/request
         /// <summary>
         /// Starts the process to change the authenticated user's email address.
@@ -418,7 +444,7 @@ namespace TrackItApp.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> ChangeEmailRequest([FromBody] ChangeEmailRequest request)
+        public async Task<IActionResult> RequestChangeEmail([FromBody] RequestChangeEmailDto request)
         {
             // print validation error
             if (!ModelState.IsValid)
@@ -432,7 +458,7 @@ namespace TrackItApp.API.Controllers
             //get DeviceID form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
-            var result = await _authService.ChangeEmailRequestAsync(request, userId, deviceId);
+            var result = await _authService.RequestChangeEmailAsync(request, userId, deviceId);
             if (!result.Succeeded)
             {
                 if (result.Message == "User not found.")
@@ -443,6 +469,7 @@ namespace TrackItApp.API.Controllers
         }
         #endregion 
 
+        //change-email/verify
         #region change-email/verify
         /// <summary>
         /// Verifies the email change request for the authenticated user.
@@ -462,7 +489,7 @@ namespace TrackItApp.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> ChangeEmailVerify([FromBody] ChangeEmailVerify request)
+        public async Task<IActionResult> VerifyChangeEmail([FromBody] VerifyChangeEmailDto request)
         {
             // print validation error
             if (!ModelState.IsValid)
@@ -476,7 +503,7 @@ namespace TrackItApp.API.Controllers
             //get DeviceID form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
-            var result = await _authService.ChangeEmailVerifyAsync(request, userId, deviceId);
+            var result = await _authService.VerifyChangeEmailAsync(request, userId, deviceId);
             if (!result.Succeeded)
             {
                 if (result.Message == "User not found.")
@@ -487,12 +514,18 @@ namespace TrackItApp.API.Controllers
         }
         #endregion 
 
+
+        //-----------------------------
+        // Change Email
+        //-----------------------------
+
+        //backup-email/request-add
         #region backup-email/request-add
         [HttpPost("backup-email/request-add")]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> ChangeEmailVerif1()
+        public async Task<IActionResult> RequestAddBackupEmail([FromBody] RequestAddBackupEmailDto request)
         {
             // print validation error
             if (!ModelState.IsValid)
@@ -506,23 +539,24 @@ namespace TrackItApp.API.Controllers
             //get DeviceID form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
-            //var result = await _authService.ChangeEmailVerifyAsync(request, userId, deviceId);
-            //if (!result.Succeeded)
-            //{
-            //    if (result.Message == "User not found.")
-            //        return NotFound(result);
-            //    return BadRequest(result);
-            //}
-            return Ok();
+            var result = await _authService.RequestAddBackupEmailAsync(request, userId, deviceId);
+            if (!result.Succeeded)
+            {
+                if (result.Message == "User not found.")
+                    return NotFound(result);
+                return BadRequest(result);
+            }
+            return Ok(result);
         }
         #endregion
 
+        //backup-email/verify-add
         #region backup-email/verify-add
         [HttpPost("backup-email/verify-add")]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> ChangeEmailVerify2()
+        public async Task<IActionResult> VerifyAddBackupEmail([FromBody] VerifyAddBackupEmailDto request)
         {
             // print validation error
             if (!ModelState.IsValid)
@@ -536,47 +570,40 @@ namespace TrackItApp.API.Controllers
             //get DeviceID form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
-            //var result = await _authService.ChangeEmailVerifyAsync(request, userId, deviceId);
-            //if (!result.Succeeded)
-            //{
-            //    if (result.Message == "User not found.")
-            //        return NotFound(result);
-            //    return BadRequest(result);
-            //}
-            return Ok();
+            var result = await _authService.VerifyAddBackupEmailAsync(request, userId, deviceId);
+            if (!result.Succeeded)
+            {
+                if (result.Message == "User not found.")
+                    return NotFound(result);
+                return BadRequest(result);
+            }
+            return Ok(result);
         }
         #endregion
 
+        //backup-email/remove
         #region backup-email/remove
-        [HttpPost("backup-email/remove")]
+        [HttpDelete("backup-email/remove")]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> ChangeEmailVerify3()
+        public async Task<IActionResult> RemoveBackupEmail()
         {
-            // print validation error
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(new ApiResponse<object>(ModelState));
-            }
-
             //get userId from token 
             int userId = int.Parse(HttpContext.Items["UserId"]!.ToString()!);
 
-            //get DeviceID form request header
-            string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
-
-            //var result = await _authService.ChangeEmailVerifyAsync(request, userId, deviceId);
-            //if (!result.Succeeded)
-            //{
-            //    if (result.Message == "User not found.")
-            //        return NotFound(result);
-            //    return BadRequest(result);
-            //}
-            return Ok();
+            var result = await _authService.RemoveBackupEmailAsync(userId);
+            if (!result.Succeeded)
+            {
+                if (result.Message == "User not found.")
+                    return NotFound(result);
+                return BadRequest(result);
+            }
+            return Ok(result);
         }
         #endregion
 
+        //backup-email/account-activations/request
         #region backup-email/account-activations/request
         [HttpPost("backup-email/account-activations/request")]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
@@ -596,7 +623,7 @@ namespace TrackItApp.API.Controllers
             //get DeviceID form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
-            //var result = await _authService.ChangeEmailVerifyAsync(request, userId, deviceId);
+            //var result = await _authService.VerifyChangeEmailAsync(request, userId, deviceId);
             //if (!result.Succeeded)
             //{
             //    if (result.Message == "User not found.")
@@ -607,6 +634,7 @@ namespace TrackItApp.API.Controllers
         }
         #endregion 
 
+        //backup-email/account-activations/verify
         #region backup-email/account-activations/verify
         [HttpPost("backup-email/account-activations/verify")]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
@@ -626,7 +654,7 @@ namespace TrackItApp.API.Controllers
             //get DeviceID form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
-            //var result = await _authService.ChangeEmailVerifyAsync(request, userId, deviceId);
+            //var result = await _authService.VerifyChangeEmailAsync(request, userId, deviceId);
             //if (!result.Succeeded)
             //{
             //    if (result.Message == "User not found.")
@@ -637,6 +665,7 @@ namespace TrackItApp.API.Controllers
         }
         #endregion
 
+        //backup-email/forgot-password/request
         #region backup-email/forgot-password/request 
         [HttpPost("backup-email/forgot-password/request")]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
@@ -656,7 +685,7 @@ namespace TrackItApp.API.Controllers
             //get DeviceID form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
-            //var result = await _authService.ChangeEmailVerifyAsync(request, userId, deviceId);
+            //var result = await _authService.VerifyChangeEmailAsync(request, userId, deviceId);
             //if (!result.Succeeded)
             //{
             //    if (result.Message == "User not found.")
@@ -667,6 +696,7 @@ namespace TrackItApp.API.Controllers
         }
         #endregion
 
+        //backup-email/forgot-password/verify
         #region backup-email/forgot-password/verify
         [HttpPost("backup-email/forgot-password/verify")]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
@@ -686,7 +716,7 @@ namespace TrackItApp.API.Controllers
             //get DeviceID form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
-            //var result = await _authService.ChangeEmailVerifyAsync(request, userId, deviceId);
+            //var result = await _authService.VerifyChangeEmailAsync(request, userId, deviceId);
             //if (!result.Succeeded)
             //{
             //    if (result.Message == "User not found.")
@@ -695,8 +725,9 @@ namespace TrackItApp.API.Controllers
             //}
             return Ok();
         }
-        #endregion 
+        #endregion
 
+        //backup-email/forgot-password/reset
         #region backup-email/forgot-password/reset
         [HttpPost("backup-email/forgot-password/reset")]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
@@ -716,7 +747,7 @@ namespace TrackItApp.API.Controllers
             //get DeviceID form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
-            //var result = await _authService.ChangeEmailVerifyAsync(request, userId, deviceId);
+            //var result = await _authService.VerifyChangeEmailAsync(request, userId, deviceId);
             //if (!result.Succeeded)
             //{
             //    if (result.Message == "User not found.")

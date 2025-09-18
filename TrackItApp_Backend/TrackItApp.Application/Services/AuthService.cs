@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
+
 using Microsoft.AspNetCore.Localization;
 using System.Net.Http.Headers;
 using TrackItApp.Application.Common;
 using TrackItApp.Application.DTOs.UserDto.Auth;
 using TrackItApp.Application.DTOs.UserDto.Auth.AccountActivation;
+using TrackItApp.Application.DTOs.UserDto.Auth.BackupEmail;
 using TrackItApp.Application.DTOs.UserDto.Auth.ChangeEmail;
 using TrackItApp.Application.DTOs.UserDto.Auth.ChangePassword;
 using TrackItApp.Application.Interfaces;
@@ -451,8 +453,8 @@ namespace TrackItApp.Application.Services
         //Change password
         //--------------------
 
-        #region ChangeEmailRequestAsync
-        public async Task<ApiResponse<object>> ChangeEmailRequestAsync(ChangeEmailRequest request, int userId, string deviceId)
+        #region RequestChangeEmailAsync
+        public async Task<ApiResponse<object>> RequestChangeEmailAsync(RequestChangeEmailDto request, int userId, string deviceId)
         {
             // Normalize new email
             request.NewEmail = request.NewEmail.ToLower();
@@ -500,8 +502,8 @@ namespace TrackItApp.Application.Services
         }
         #endregion
 
-        #region ChangeEmailVerifyAsync
-        public async Task<ApiResponse<object>> ChangeEmailVerifyAsync(ChangeEmailVerify request, int userId, string deviceId)
+        #region VerifyChangeEmailAsync
+        public async Task<ApiResponse<object>> VerifyChangeEmailAsync(VerifyChangeEmailDto request, int userId, string deviceId)
         {
             // Normalize new email
             request.NewEmail = request.NewEmail.ToLower();
@@ -532,6 +534,103 @@ namespace TrackItApp.Application.Services
 
             // Return success response
             return new ApiResponse<object>(true, null, "Your email has been changed successfully.", null);
+        }
+        #endregion
+
+        //--------------------
+        //Backup Email
+        //--------------------
+
+        #region AddBackupEmailRequestAsync
+        public async Task<ApiResponse<object>> RequestAddBackupEmailAsync(RequestAddBackupEmailDto request, int userId, string deviceId)
+        {
+            //Normalize
+            request.BackupEmail = request.BackupEmail.ToLower();
+            //get user info
+            var user = await _unitOfWork.UserRepository.FirstOrDefaultAsync(u => u.UserID == userId);
+            if (user == null)
+            {
+                return new ApiResponse<object>("User Not Found.");
+            }
+
+            if (user.BackupEmail != null)
+            {
+                return new ApiResponse<object>("The user already has a backup email. Please remove it first.");
+            }
+
+            if (user.Email == request.BackupEmail)
+            {
+                return new ApiResponse<object>("The backup email cannot be the same as the primary email.");
+            }
+
+            if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+            {
+                return new ApiResponse<object>("The current password you entered is incorrect.");
+            }
+
+            //send verification code to new backup email
+            await _emailService.SendEmailVerificationCode(userId, request.BackupEmail, deviceId, CodeType.ChangeBackupEmail);
+            await _unitOfWork.CompleteAsync();
+
+            //return message response
+            return new ApiResponse<object>(true, null, "A verification email has been sent to your backup email. Please check your inbox.", null);
+        }
+        #endregion
+
+        #region VerifyAddBackupEmailAsync
+        public async Task<ApiResponse<object>> VerifyAddBackupEmailAsync(VerifyAddBackupEmailDto request, int userId, string deviceId)
+        {
+            request.BackupEmail = request.BackupEmail.ToLower();
+
+            var codeModel = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => vc.UserID == userId && vc.DeviceID == deviceId, "User");
+            if (codeModel == null
+                || codeModel.CodeType != CodeType.ChangeBackupEmail
+                || codeModel.ExpiresAt < DateTime.UtcNow
+                || codeModel.Email != request.BackupEmail
+                || !BCrypt.Net.BCrypt.Verify(request.Code, codeModel.Code))
+            {
+                return new ApiResponse<object>("verification code is not valid.");
+            }
+
+            if (codeModel.User.BackupEmail != null)
+            {
+                return new ApiResponse<object>("The user already has a backup email. Please remove it first.");
+            }
+
+            //update user backup email
+            codeModel.User.BackupEmail = request.BackupEmail;
+            _unitOfWork.UserRepository.Update(codeModel.User);
+
+            //remove verification code form database
+            _unitOfWork.VerificationCodeRepository.Remove(codeModel);
+            await _unitOfWork.CompleteAsync();
+
+            //return message response
+            return new ApiResponse<object>(true, null, "The new backup email has been saved successfully.", null);
+        }
+        #endregion
+
+        #region RemoveBackupEmailAsync
+        public async Task<ApiResponse<object>> RemoveBackupEmailAsync(int userId)
+        {
+            var user = await _unitOfWork.UserRepository.FirstOrDefaultAsync(u => u.UserID == userId);
+            if (user == null)
+            {
+                return new ApiResponse<object>("User Not Found.");
+            }
+
+            if (user.BackupEmail == null)
+            {
+                return new ApiResponse<object>("There is no backup email to remove.");
+            }
+
+            //update user info
+            user.BackupEmail = null;
+            _unitOfWork.UserRepository.Update(user);
+            await _unitOfWork.CompleteAsync();
+
+            //return message response
+            return new ApiResponse<object>(true, null, "The backup email has been removed successfully.", null);
         }
         #endregion
     }

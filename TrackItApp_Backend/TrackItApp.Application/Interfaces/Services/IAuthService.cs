@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using TrackItApp.Application.Common;
 using TrackItApp.Application.DTOs.UserDto.Auth;
 using TrackItApp.Application.DTOs.UserDto.Auth.AccountActivation;
+using TrackItApp.Application.DTOs.UserDto.Auth.BackupEmail;
 using TrackItApp.Application.DTOs.UserDto.Auth.ChangeEmail;
 using TrackItApp.Application.DTOs.UserDto.Auth.ChangePassword;
 
@@ -33,7 +34,14 @@ namespace TrackItApp.Application.Interfaces.Services
         //--------------------
         //Change Email
         //--------------------
-        Task<ApiResponse<Object>> ChangeEmailRequestAsync(ChangeEmailRequest request, int userId, string deviceId);
-        Task<ApiResponse<Object>> ChangeEmailVerifyAsync(ChangeEmailVerify request, int userId, string deviceId);
+        Task<ApiResponse<object>> RequestChangeEmailAsync(RequestChangeEmailDto request, int userId, string deviceId);
+        Task<ApiResponse<object>> VerifyChangeEmailAsync(VerifyChangeEmailDto request, int userId, string deviceId);
+
+        //--------------------
+        //Backup Email
+        //--------------------
+        Task<ApiResponse<object>> RequestAddBackupEmailAsync(RequestAddBackupEmailDto request, int userId, string deviceId);
+        Task<ApiResponse<object>> VerifyAddBackupEmailAsync(VerifyAddBackupEmailDto request, int userId, string deviceId);
+        Task<ApiResponse<object>> RemoveBackupEmailAsync(int userId);
     }
 }

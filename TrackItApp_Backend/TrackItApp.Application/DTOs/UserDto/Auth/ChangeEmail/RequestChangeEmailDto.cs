@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace TrackItApp.Application.DTOs.UserDto.Auth.ChangeEmail
 {
-    public class ChangeEmailVerify
+    public class RequestChangeEmailDto
     {
+        [Required]
+        public string Password { get; set; }
         [Required]
         [EmailAddress]
         public string NewEmail { get; set; }
-        [Required]
-        public string Code { get; set; }
     }
 }
