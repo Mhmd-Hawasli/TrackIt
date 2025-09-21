@@ -43,5 +43,7 @@ namespace TrackItApp.Application.Interfaces.Services
         Task<ApiResponse<object>> RequestAddBackupEmailAsync(RequestAddBackupEmailDto request, int userId, string deviceId);
         Task<ApiResponse<object>> VerifyAddBackupEmailAsync(VerifyAddBackupEmailDto request, int userId, string deviceId);
         Task<ApiResponse<object>> RemoveBackupEmailAsync(int userId);
+        Task<ApiResponse<object>> RequestActivationWithBackupEmailAsync(RequestActivationWithBackupEmailDto request,string deviceId);
+        Task<ApiResponse<LoginResponse>> VerifyActivationWithBackupEmailAsync(VerifyActivationWithBackupEmailDto request,string deviceId);
     }
 }

@@ -3,18 +3,14 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
-using Org.BouncyCastle.Crypto.Parameters;
 using System;
-using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
-using System.Linq.Dynamic.Core.Tokenizer;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 using TrackItApp.Application.Common;
 using TrackItApp.Application.Interfaces;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+
 
 namespace TrackItApp.API.Middlewares
 {

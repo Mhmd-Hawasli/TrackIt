@@ -150,8 +150,11 @@ namespace TrackItApp.Application.Services
         #region ResendActivationCodeAsync
         public async Task<ApiResponse<object>> ResendActivationCodeAsync(ResendActivationCodeDto request, string currentDeviceId)
         {
+            //normalize email
+            request.Email = request.Email.ToLower();
+
             //get codeModel record from database via Email and DeviceID
-            var verificationCode = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => vc.User.Email == request.Email.ToLower() && vc.DeviceID == currentDeviceId && vc.CodeType == CodeType.ActivateAccount, "User");
+            var verificationCode = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => vc.User.Email == request.Email && vc.DeviceID == currentDeviceId && vc.CodeType == CodeType.ActivateAccount, "User");
             if (verificationCode == null)
             {
                 return new ApiResponse<object>("You don’t have any expired code to resend.");
@@ -168,9 +171,13 @@ namespace TrackItApp.Application.Services
         #region VerifyActivationCodeAsync
         public async Task<ApiResponse<LoginResponse>> VerifyActivationCodeAsync(VerifyActivationCodeDto request, string currentDeviceId)
         {
+            //normalize email
+            request.Email = request.Email.ToLower();
+           
+
             //get verification code record from database
             var codeModel = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(
-                vc => vc.DeviceID == currentDeviceId && vc.User.Email == request.Email.ToLower(),
+                vc => vc.DeviceID == currentDeviceId && vc.User.Email == request.Email,
                 "User.UserSessions", "User.UserType");
             if (codeModel == null)
             {
@@ -633,5 +640,101 @@ namespace TrackItApp.Application.Services
             return new ApiResponse<object>(true, null, "The backup email has been removed successfully.", null);
         }
         #endregion
+
+        #region RequestActivationWithBackupEmailAsync
+        public async Task<ApiResponse<object>> RequestActivationWithBackupEmailAsync(RequestActivationWithBackupEmailDto request, string deviceId)
+        {
+            //normalize email
+            request.BackupEmail = request.BackupEmail.ToLower();
+
+            //get user info
+            var user = await _unitOfWork.UserRepository.FirstOrDefaultAsync(u => u.Email == request.Input.ToLower() || u.Username == request.Input);
+            if (user == null)
+            {
+                return new ApiResponse<object>("User Not Found.");
+            }
+
+            if (user.BackupEmail != request.BackupEmail
+                || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+            {
+                return new ApiResponse<object>("Invalid information.");
+            }
+
+            //send verfiacation code to backup email
+            await _emailService.SendEmailVerificationCode(user.UserID, request.BackupEmail, deviceId, CodeType.RecoverWithBackupEmail);
+            await _unitOfWork.CompleteAsync();
+
+            return new ApiResponse<object>(true, null, "An email has been sent to your backup email. Please check your inbox.", null);
+        }
+        #endregion
+
+        #region VerifyActivationWithBackupEmailAsync
+        public async Task<ApiResponse<LoginResponse>> VerifyActivationWithBackupEmailAsync(VerifyActivationWithBackupEmailDto request, string deviceId)
+        {
+            //normalize email
+            request.BackupEmail = request.BackupEmail.ToLower();
+
+            //get verification code record from database
+            var codeModel = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(
+                vc => vc.DeviceID == deviceId &&( vc.User.Email == request.Input.ToLower() || vc.User.Username == request.Input),
+                "User.UserSessions", "User.UserType");
+            if (codeModel == null)
+            {
+                return new ApiResponse<LoginResponse>("There is no active code for this device.");
+            }
+
+            //check if codeModel is correct and it has the same type
+            if (codeModel.CodeType != CodeType.RecoverWithBackupEmail
+                    || !BCrypt.Net.BCrypt.Verify(request.Code, codeModel.Code)
+                    || codeModel.ExpiresAt < DateTime.UtcNow)
+            {
+                return new ApiResponse<LoginResponse>("The verification code you entered is invalid.");
+            }
+
+            //remove the codeModel form database if everything is ok 
+            _unitOfWork.VerificationCodeRepository.Remove(codeModel);
+
+            //generate accessToken and refreshToken
+            var accessToken = _tokenService.CreateToken(codeModel.User);
+            (string refreshToken, string hashedRefreshToken) = _tokenService.GenerateRefreshToken();
+
+            //save or update user session in database
+            UserSession? userSession = codeModel.User.UserSessions.FirstOrDefault(us => us.DeviceID == deviceId);
+            if (userSession == null)
+            {
+                userSession = new UserSession()
+                {
+                    RefreshToken = hashedRefreshToken,
+                    DeviceID = deviceId,
+                    CreatedAt = DateTime.UtcNow,
+                    LastUpdatedAt = DateTime.UtcNow,
+                    UserID = codeModel.UserID,
+                    IsRevoked = false,
+                };
+                await _unitOfWork.UserSessionRepository.AddAsync(userSession);
+            }
+            else
+            {
+                userSession.RefreshToken = hashedRefreshToken;
+                userSession.LastUpdatedAt = DateTime.UtcNow;
+                userSession.IsRevoked = false;
+
+                _unitOfWork.UserSessionRepository.Update(userSession);
+            }
+
+            //mark user as verified
+            codeModel.User.IsVerified = true;
+
+            //save change to database
+            await _unitOfWork.CompleteAsync();
+
+            //return response
+            var response = _mapper.Map<LoginResponse>(codeModel.User);
+            response.AccessToken = accessToken;
+            response.RefreshToken = refreshToken;
+            return new ApiResponse<LoginResponse>(response);
+        } 
+        #endregion
+
     }
 }

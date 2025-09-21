@@ -605,11 +605,12 @@ namespace TrackItApp.API.Controllers
 
         //backup-email/account-activations/request
         #region backup-email/account-activations/request
+        [AllowAnonymous]
         [HttpPost("backup-email/account-activations/request")]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> ChangeEmailVerify4()
+        public async Task<IActionResult> RequestActivationWithBackupEmail(RequestActivationWithBackupEmailDto request)
         {
             // print validation error
             if (!ModelState.IsValid)
@@ -617,30 +618,28 @@ namespace TrackItApp.API.Controllers
                 return BadRequest(new ApiResponse<object>(ModelState));
             }
 
-            //get userId from token 
-            int userId = int.Parse(HttpContext.Items["UserId"]!.ToString()!);
-
             //get DeviceID form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
-            //var result = await _authService.VerifyChangeEmailAsync(request, userId, deviceId);
-            //if (!result.Succeeded)
-            //{
-            //    if (result.Message == "User not found.")
-            //        return NotFound(result);
-            //    return BadRequest(result);
-            //}
-            return Ok();
+            var result = await _authService.RequestActivationWithBackupEmailAsync(request, deviceId);
+            if (!result.Succeeded)
+            {
+                if (result.Message == "User not found.")
+                    return NotFound(result);
+                return BadRequest(result);
+            }
+            return Ok(result);
         }
         #endregion 
 
         //backup-email/account-activations/verify
         #region backup-email/account-activations/verify
+        [AllowAnonymous]
         [HttpPost("backup-email/account-activations/verify")]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> ChangeEmailVerify5()
+        public async Task<IActionResult> VerifyActivationWithBackupEmail([FromBody] VerifyActivationWithBackupEmailDto request)
         {
             // print validation error
             if (!ModelState.IsValid)
@@ -648,19 +647,17 @@ namespace TrackItApp.API.Controllers
                 return BadRequest(new ApiResponse<object>(ModelState));
             }
 
-            //get userId from token 
-            int userId = int.Parse(HttpContext.Items["UserId"]!.ToString()!);
-
+            
             //get DeviceID form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
-            //var result = await _authService.VerifyChangeEmailAsync(request, userId, deviceId);
-            //if (!result.Succeeded)
-            //{
-            //    if (result.Message == "User not found.")
-            //        return NotFound(result);
-            //    return BadRequest(result);
-            //}
+            var result = await _authService.VerifyActivationWithBackupEmailAsync(request, deviceId);
+            if (!result.Succeeded)
+            {
+                if (result.Message == "User not found.")
+                    return NotFound(result);
+                return BadRequest(result);
+            }
             return Ok();
         }
         #endregion
@@ -671,7 +668,7 @@ namespace TrackItApp.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> ChangeEmailVerify11()
+        public async Task<IActionResult> ChangeEmailVerify112()
         {
             // print validation error
             if (!ModelState.IsValid)
