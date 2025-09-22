@@ -7,12 +7,16 @@ using System.Threading.Tasks;
 
 namespace TrackItApp.Application.DTOs.UserDto.Auth.BackupEmail
 {
-    public class ForgetPasswordRequestWithBackupEmailDto
+    public class ForgetPasswordResetWithBackupEmailDto
     {
         [Required]
         public string Input { get; set; }
         [Required]
         [EmailAddress]
         public string BackupEmail { get; set; }
+        [Required]
+        public string Code { get; set; }
+        [Required]
+        public string NewPassword { get; set; }
     }
 }

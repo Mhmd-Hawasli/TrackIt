@@ -647,7 +647,7 @@ namespace TrackItApp.API.Controllers
                 return BadRequest(new ApiResponse<object>(ModelState));
             }
 
-            
+
             //get DeviceID form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
@@ -669,7 +669,7 @@ namespace TrackItApp.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> ForgetPasswordRequestWithBackupEmail([FromBody]ForgetPasswordRequestWithBackupEmailDto request)
+        public async Task<IActionResult> ForgetPasswordRequestWithBackupEmail([FromBody] ForgetPasswordRequestWithBackupEmailDto request)
         {
             // print validation error
             if (!ModelState.IsValid)
@@ -680,7 +680,7 @@ namespace TrackItApp.API.Controllers
             //get DeviceID form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
-            var result = await _authService.ForgetPasswordRequestWithBackupEmailAsync(request,deviceId);
+            var result = await _authService.ForgetPasswordRequestWithBackupEmailAsync(request, deviceId);
             if (!result.Succeeded)
             {
                 if (result.Message == "User not found.")
@@ -693,11 +693,12 @@ namespace TrackItApp.API.Controllers
 
         //backup-email/forgot-password/verify
         #region backup-email/forgot-password/verify
+        [AllowAnonymous]
         [HttpPost("backup-email/forgot-password/verify")]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> ChangeEmailVerify12()
+        public async Task<IActionResult> ForgetPasswordVerifyWithBackupEmail([FromBody] ForgetPasswordVerifyWithBackupEmailDto request)
         {
             // print validation error
             if (!ModelState.IsValid)
@@ -705,30 +706,30 @@ namespace TrackItApp.API.Controllers
                 return BadRequest(new ApiResponse<object>(ModelState));
             }
 
-            //get userId from token 
-            int userId = int.Parse(HttpContext.Items["UserId"]!.ToString()!);
+
 
             //get DeviceID form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
-            //var result = await _authService.VerifyChangeEmailAsync(request, userId, deviceId);
-            //if (!result.Succeeded)
-            //{
-            //    if (result.Message == "User not found.")
-            //        return NotFound(result);
-            //    return BadRequest(result);
-            //}
-            return Ok();
+            var result = await _authService.ForgetPasswordVerifyWithBackupEmailAsync(request, deviceId);
+            if (!result.Succeeded)
+            {
+                if (result.Message == "User not found.")
+                    return NotFound(result);
+                return BadRequest(result);
+            }
+            return Ok(result);
         }
         #endregion
 
         //backup-email/forgot-password/reset
         #region backup-email/forgot-password/reset
+        [AllowAnonymous]
         [HttpPost("backup-email/forgot-password/reset")]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> ChangeEmailVerify13()
+        public async Task<IActionResult> ForgetPasswordResetWithBackupEmail([FromBody] ForgetPasswordResetWithBackupEmailDto request)
         {
             // print validation error
             if (!ModelState.IsValid)
@@ -736,20 +737,18 @@ namespace TrackItApp.API.Controllers
                 return BadRequest(new ApiResponse<object>(ModelState));
             }
 
-            //get userId from token 
-            int userId = int.Parse(HttpContext.Items["UserId"]!.ToString()!);
 
             //get DeviceID form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
-            //var result = await _authService.VerifyChangeEmailAsync(request, userId, deviceId);
-            //if (!result.Succeeded)
-            //{
-            //    if (result.Message == "User not found.")
-            //        return NotFound(result);
-            //    return BadRequest(result);
-            //}
-            return Ok();
+            var result = await _authService.ForgetPasswordResetWithBackupEmailAsync(request, deviceId);
+            if (!result.Succeeded)
+            {
+                if (result.Message == "User not found.")
+                    return NotFound(result);
+                return BadRequest(result);
+            }
+            return Ok(result);
         }
         #endregion 
     }

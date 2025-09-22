@@ -46,5 +46,7 @@ namespace TrackItApp.Application.Interfaces.Services
         Task<ApiResponse<object>> RequestActivationWithBackupEmailAsync(RequestActivationWithBackupEmailDto request, string deviceId);
         Task<ApiResponse<LoginResponse>> VerifyActivationWithBackupEmailAsync(VerifyActivationWithBackupEmailDto request, string deviceId);
         Task<ApiResponse<object>> ForgetPasswordRequestWithBackupEmailAsync(ForgetPasswordRequestWithBackupEmailDto request, string deviceId);
+        Task<ApiResponse<object>> ForgetPasswordVerifyWithBackupEmailAsync(ForgetPasswordVerifyWithBackupEmailDto request, string deviceId);
+        Task<ApiResponse<object>> ForgetPasswordResetWithBackupEmailAsync(ForgetPasswordResetWithBackupEmailDto request, string deviceId);
     }
 }

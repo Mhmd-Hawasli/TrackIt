@@ -18,7 +18,8 @@ namespace TrackItApp.Domain.Entities
 
         // Backup email
         ChangeBackupEmail = 4,
-        RecoverWithBackupEmail = 5
+        RecoverWithBackupEmail = 5,
+        ResetPasswordWithBackupEmail = 6
     }
     public class VerificationCode
     {

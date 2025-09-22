@@ -104,7 +104,7 @@ namespace TrackItApp.Application.Services
             }
 
             //check if Is TwoFactor Enabled or user not verified
-            if (user.IsTwoFactorEnabled == true || user.IsVerified == false)
+            if (user.IsVerified == false)
             {
                 await _emailService.SendEmailVerificationCode(user.UserID, user.Email, currentDeviceId, CodeType.ActivateAccount);
                 await _unitOfWork.CompleteAsync();
@@ -334,7 +334,7 @@ namespace TrackItApp.Application.Services
             await _emailService.SendEmailVerificationCode(user.UserID, user.Email, currentDeviceId, CodeType.ResetPassword);
             await _unitOfWork.CompleteAsync();
 
-            return new ApiResponse<object>(true, null, "An email has been sent to your address. Please check your inbox.", null);
+            return new ApiResponse<object>(true, null, "An email has been sent to your email address. Please check your inbox.", null);
         }
         #endregion
 
@@ -551,8 +551,9 @@ namespace TrackItApp.Application.Services
         #region AddBackupEmailRequestAsync
         public async Task<ApiResponse<object>> RequestAddBackupEmailAsync(RequestAddBackupEmailDto request, int userId, string deviceId)
         {
-            //Normalize
+            //Normalize email
             request.BackupEmail = request.BackupEmail.ToLower();
+
             //get user info
             var user = await _unitOfWork.UserRepository.FirstOrDefaultAsync(u => u.UserID == userId);
             if (user == null)
@@ -737,11 +738,150 @@ namespace TrackItApp.Application.Services
         #endregion
 
         #region ForgetPasswordRequestWithBackupEmailAsync
-        public Task<ApiResponse<object>> ForgetPasswordRequestWithBackupEmailAsync(ForgetPasswordRequestWithBackupEmailDto request, string deviceId)
+        public async Task<ApiResponse<object>> ForgetPasswordRequestWithBackupEmailAsync(ForgetPasswordRequestWithBackupEmailDto request, string deviceId)
         {
-            throw new NotImplementedException();
+            //normalize email
+            request.BackupEmail = request.BackupEmail.ToLower();
+
+            //get user info
+            var user = await _unitOfWork.UserRepository.FirstOrDefaultAsync(u => u.Email == request.Input.ToLower() || u.Username == request.Input, "UserType");
+            if (user == null)
+            {
+                return new ApiResponse<object>("User not found.");
+            }
+            await _emailService.SendEmailVerificationCode(user.UserID, request.BackupEmail, deviceId, CodeType.ResetPasswordWithBackupEmail);
+            await _unitOfWork.CompleteAsync();
+
+            return new ApiResponse<object>(true, null, "An email has been sent to your backup email address. Please check your inbox.", null);
         }
         #endregion
+
+        #region ForgetPasswordVerifyWithBackupEmailAsync
+        public async Task<ApiResponse<object>> ForgetPasswordVerifyWithBackupEmailAsync(ForgetPasswordVerifyWithBackupEmailDto request, string deviceId)
+        {
+            //normalize email
+            request.BackupEmail = request.BackupEmail.ToLower();
+
+            //get codeModel info and user info
+            var codeModel = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => (vc.User.Email == request.Input.ToLower() || vc.User.Username == request.Input) && vc.DeviceID == deviceId, "User");
+
+            if (codeModel == null
+                || codeModel.ExpiresAt < DateTime.UtcNow
+                || codeModel.Email != request.BackupEmail
+                || codeModel.CodeType != CodeType.ResetPasswordWithBackupEmail
+                || !BCrypt.Net.BCrypt.Verify(request.Code, codeModel.Code))
+            {
+                return new ApiResponse<object>("Invalid verification Code. Please submit the request again.");
+            }
+
+            if (codeModel.User == null)
+            {
+                return new ApiResponse<object>("User not found.");
+            }
+
+            //We haven’t deleted the verification code because it’s needed for the next step.
+
+            return new ApiResponse<object>(true, null, "Email verification successful. Please proceed to the next step.", null);
+        }
+        #endregion
+
+        #region ForgetPasswordResetWithBackupEmailAsync
+        public async Task<ApiResponse<object>> ForgetPasswordResetWithBackupEmailAsync(ForgetPasswordResetWithBackupEmailDto request, string deviceId)
+        {
+            await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+                //normalize email
+                request.BackupEmail = request.BackupEmail.ToLower();
+
+                //get codeModel info and user info
+                var codeModel = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => (vc.User.Email == request.Input.ToLower() || vc.User.Username == request.Input) && vc.DeviceID == deviceId, "User.UserSessions");
+
+                if (codeModel == null
+                    || codeModel.ExpiresAt < DateTime.UtcNow
+                    || codeModel.Email != request.BackupEmail
+                    || codeModel.CodeType != CodeType.ResetPasswordWithBackupEmail
+                    || !BCrypt.Net.BCrypt.Verify(request.Code, codeModel.Code))
+                {
+                    await _unitOfWork.RollbackAsync();
+                    return new ApiResponse<object>("Invalid verification Code. Please submit the request again.");
+                }
+                if (codeModel.User == null)
+                {
+                    await _unitOfWork.RollbackAsync();
+                    return new ApiResponse<object>("User not found.");
+                }
+
+                //check if request newPassword is null or empty
+                if (string.IsNullOrEmpty(request.NewPassword))
+                {
+                    await _unitOfWork.RollbackAsync();
+                    return new ApiResponse<object>("The new password cannot be empty.");
+                }
+
+                //check if new password is the same of the old password
+                if (BCrypt.Net.BCrypt.Verify(request.NewPassword, codeModel.User.PasswordHash))
+                {
+                    await _unitOfWork.RollbackAsync();
+                    return new ApiResponse<object>("New password must be different from the old password.");
+                }
+
+                //update user password
+                codeModel.User.PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+                codeModel.User.IsVerified = true;
+                _unitOfWork.UserRepository.Update(codeModel.User);
+
+
+                //handle sessions
+                var allSessions = await _unitOfWork.UserSessionRepository.FindAsync(us => us.UserID == codeModel.UserID);
+                var currentDeviceSession = allSessions.Where(s => s.DeviceID == deviceId).First();
+                var sessionsToRemove = allSessions.Where(s => s.DeviceID != deviceId);
+
+                //add or update userSession
+                if (currentDeviceSession == null)
+                {
+                    var newSession = new UserSession
+                    {
+                        UserID = codeModel.UserID,
+                        DeviceID = deviceId,
+                        IsRevoked = false,
+                        CreatedAt = DateTime.UtcNow,
+                        LastUpdatedAt = DateTime.UtcNow,
+                        RefreshToken = string.Empty
+                    };
+                    await _unitOfWork.UserSessionRepository.AddAsync(newSession);
+                }
+                else
+                {
+                    currentDeviceSession.LastUpdatedAt = DateTime.UtcNow;
+                    currentDeviceSession.IsRevoked = false;
+
+                    _unitOfWork.UserSessionRepository.Update(currentDeviceSession);
+                }
+
+                //Remove UserSession form all other Device 
+                if (sessionsToRemove.Any())
+                {
+                    _unitOfWork.UserSessionRepository.RemoveRange(sessionsToRemove);
+                }
+
+                //remove verification code record
+                _unitOfWork.VerificationCodeRepository.Remove(codeModel);
+
+                //save change to database 
+                await _unitOfWork.CompleteAsync();
+                await _unitOfWork.CommitAsync();
+
+                return new ApiResponse<object>(true, null, "Your password has been successfully reset.", null);
+            }
+            catch
+            {
+                await _unitOfWork.RollbackAsync();
+                throw;
+            }
+        }
+        #endregion
+
 
     }
 }

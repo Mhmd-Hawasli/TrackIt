@@ -16,7 +16,6 @@ namespace TrackItApp.Application.Mapping
                 .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
                 .ForMember(dest => dest.UserTypeID, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(value => DateTime.UtcNow))
-                .ForMember(dest => dest.IsTwoFactorEnabled, opt => opt.MapFrom(value => false))
                 .ForMember(dest => dest.IsVerified, opt => opt.MapFrom(value => false))
                 .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(value => false));
 
