@@ -173,7 +173,7 @@ namespace TrackItApp.Application.Services
         {
             //normalize email
             request.Email = request.Email.ToLower();
-           
+
 
             //get verification code record from database
             var codeModel = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(
@@ -676,7 +676,7 @@ namespace TrackItApp.Application.Services
 
             //get verification code record from database
             var codeModel = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(
-                vc => vc.DeviceID == deviceId &&( vc.User.Email == request.Input.ToLower() || vc.User.Username == request.Input),
+                vc => vc.DeviceID == deviceId && (vc.User.Email == request.Input.ToLower() || vc.User.Username == request.Input),
                 "User.UserSessions", "User.UserType");
             if (codeModel == null)
             {
@@ -733,7 +733,14 @@ namespace TrackItApp.Application.Services
             response.AccessToken = accessToken;
             response.RefreshToken = refreshToken;
             return new ApiResponse<LoginResponse>(response);
-        } 
+        }
+        #endregion
+
+        #region ForgetPasswordRequestWithBackupEmailAsync
+        public Task<ApiResponse<object>> ForgetPasswordRequestWithBackupEmailAsync(ForgetPasswordRequestWithBackupEmailDto request, string deviceId)
+        {
+            throw new NotImplementedException();
+        }
         #endregion
 
     }
