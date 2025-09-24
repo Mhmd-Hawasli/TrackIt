@@ -2,6 +2,7 @@
 
 using Microsoft.AspNetCore.Localization;
 using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 using TrackItApp.Application.Common;
 using TrackItApp.Application.DTOs.UserDto.Auth;
 using TrackItApp.Application.DTOs.UserDto.Auth.AccountActivation;
@@ -27,7 +28,31 @@ namespace TrackItApp.Application.Services
             _emailService = emailService;
             _tokenService = tokenService;
         }
+        #region Helper methods
+        private string HashEmail(string? emailToHash)
+        {
 
+            string hashedEmail = "";
+
+            if (!string.IsNullOrEmpty(emailToHash))
+            {
+                var atIndex = emailToHash.IndexOf('@');
+                if (atIndex > 2)
+                {
+                    hashedEmail = emailToHash[..2] + "*****" + emailToHash[(atIndex - 2)..];
+                }
+                else
+                {
+                    hashedEmail = emailToHash[0] + "*****" + emailToHash[atIndex..];
+                }
+            }
+            return hashedEmail;
+        }
+        #endregion
+
+        //-----------------------------
+        // Authentication
+        //-----------------------------
 
         #region RegisterAsync
         public async Task<ApiResponse<RegisterResponse>> RegisterAsync(RegisterRequest request, string currentDeviceId)
@@ -548,6 +573,7 @@ namespace TrackItApp.Application.Services
         //Backup Email
         //--------------------
 
+        //AddBackupEmailRequestAsync
         #region AddBackupEmailRequestAsync
         public async Task<ApiResponse<object>> RequestAddBackupEmailAsync(RequestAddBackupEmailDto request, int userId, string deviceId)
         {
@@ -585,6 +611,7 @@ namespace TrackItApp.Application.Services
         }
         #endregion
 
+        //VerifyAddBackupEmailAsync
         #region VerifyAddBackupEmailAsync
         public async Task<ApiResponse<object>> VerifyAddBackupEmailAsync(VerifyAddBackupEmailDto request, int userId, string deviceId)
         {
@@ -618,6 +645,7 @@ namespace TrackItApp.Application.Services
         }
         #endregion
 
+        //RemoveBackupEmailAsync
         #region RemoveBackupEmailAsync
         public async Task<ApiResponse<object>> RemoveBackupEmailAsync(int userId)
         {
@@ -642,6 +670,7 @@ namespace TrackItApp.Application.Services
         }
         #endregion
 
+        //RequestActivationWithBackupEmailAsync
         #region RequestActivationWithBackupEmailAsync
         public async Task<ApiResponse<object>> RequestActivationWithBackupEmailAsync(RequestActivationWithBackupEmailDto request, string deviceId)
         {
@@ -652,13 +681,17 @@ namespace TrackItApp.Application.Services
             var user = await _unitOfWork.UserRepository.FirstOrDefaultAsync(u => u.Email == request.Input.ToLower() || u.Username == request.Input);
             if (user == null)
             {
-                return new ApiResponse<object>("User Not Found.");
+                return new ApiResponse<object>("Invalid information.1");
             }
 
-            if (user.BackupEmail != request.BackupEmail
-                || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+            if (!BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
             {
-                return new ApiResponse<object>("Invalid information.");
+                return new ApiResponse<object>("Invalid information.2");
+            }
+
+            if (user.BackupEmail != request.BackupEmail)
+            {
+                return new ApiResponse<object>($"The backup email does not match our records. Please enter your backup email ({HashEmail(user.BackupEmail)}).");
             }
 
             //send verfiacation code to backup email
@@ -669,6 +702,7 @@ namespace TrackItApp.Application.Services
         }
         #endregion
 
+        //VerifyActivationWithBackupEmailAsync
         #region VerifyActivationWithBackupEmailAsync
         public async Task<ApiResponse<LoginResponse>> VerifyActivationWithBackupEmailAsync(VerifyActivationWithBackupEmailDto request, string deviceId)
         {
@@ -690,6 +724,11 @@ namespace TrackItApp.Application.Services
                     || codeModel.ExpiresAt < DateTime.UtcNow)
             {
                 return new ApiResponse<LoginResponse>("The verification code you entered is invalid.");
+            }
+
+            if (codeModel.User.BackupEmail != request.BackupEmail)
+            {
+                return new ApiResponse<LoginResponse>($"The backup email does not match our records. Please enter your backup email ({HashEmail(codeModel.User.BackupEmail)}).");
             }
 
             //remove the codeModel form database if everything is ok 
@@ -737,6 +776,7 @@ namespace TrackItApp.Application.Services
         }
         #endregion
 
+        //ForgetPasswordRequestWithBackupEmailAsync
         #region ForgetPasswordRequestWithBackupEmailAsync
         public async Task<ApiResponse<object>> ForgetPasswordRequestWithBackupEmailAsync(ForgetPasswordRequestWithBackupEmailDto request, string deviceId)
         {
@@ -749,6 +789,11 @@ namespace TrackItApp.Application.Services
             {
                 return new ApiResponse<object>("User not found.");
             }
+
+            if (user.BackupEmail != request.BackupEmail)
+            {
+                return new ApiResponse<object>($"The backup email does not match our records. Please enter your backup email ({HashEmail(user.BackupEmail)}).");
+            }
             await _emailService.SendEmailVerificationCode(user.UserID, request.BackupEmail, deviceId, CodeType.ResetPasswordWithBackupEmail);
             await _unitOfWork.CompleteAsync();
 
@@ -756,6 +801,7 @@ namespace TrackItApp.Application.Services
         }
         #endregion
 
+        //ForgetPasswordVerifyWithBackupEmailAsync
         #region ForgetPasswordVerifyWithBackupEmailAsync
         public async Task<ApiResponse<object>> ForgetPasswordVerifyWithBackupEmailAsync(ForgetPasswordVerifyWithBackupEmailDto request, string deviceId)
         {
@@ -785,6 +831,7 @@ namespace TrackItApp.Application.Services
         }
         #endregion
 
+        //ForgetPasswordResetWithBackupEmailAsync
         #region ForgetPasswordResetWithBackupEmailAsync
         public async Task<ApiResponse<object>> ForgetPasswordResetWithBackupEmailAsync(ForgetPasswordResetWithBackupEmailDto request, string deviceId)
         {

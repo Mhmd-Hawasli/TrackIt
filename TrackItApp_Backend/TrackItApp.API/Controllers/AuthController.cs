@@ -658,7 +658,7 @@ namespace TrackItApp.API.Controllers
                     return NotFound(result);
                 return BadRequest(result);
             }
-            return Ok();
+            return Ok(result);
         }
         #endregion
 

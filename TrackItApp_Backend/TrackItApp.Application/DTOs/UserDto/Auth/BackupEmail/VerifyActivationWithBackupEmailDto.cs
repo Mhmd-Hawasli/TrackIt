@@ -10,7 +10,6 @@ namespace TrackItApp.Application.DTOs.UserDto.Auth.BackupEmail
     public class VerifyActivationWithBackupEmailDto
     {
         [Required]
-        [EmailAddress]
         public string Input { get; set; }
 
         [Required]
