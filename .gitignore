@@ -9,3 +9,4 @@ obj/
 *.user
 *.rsuser
 *.suo
+/TrackItApp_Backend/TrackItApp.API/appsettings.json
