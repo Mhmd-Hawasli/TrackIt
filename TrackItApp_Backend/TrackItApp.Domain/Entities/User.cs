@@ -24,5 +24,6 @@ namespace TrackItApp.Domain.Entities
         public UserType UserType { get; set; }
         public ICollection<UserSession> UserSessions { get; set; }
         public ICollection<VerificationCode> VerificationCodes { get; set; }
+        public ICollection<Dictionary> Dictionaries { get; set; }
     }
 }
