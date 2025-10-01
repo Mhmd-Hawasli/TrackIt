@@ -15,5 +15,6 @@ namespace TrackItApp.Domain.Entities
 
         //Relations
         public int WordID { get; set; }
+        public DictionaryWord DictionaryWord { get; set; }
     }
 }

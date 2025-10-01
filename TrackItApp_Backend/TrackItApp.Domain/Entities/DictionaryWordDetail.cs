@@ -17,10 +17,16 @@ namespace TrackItApp.Domain.Entities
         public string Description { get; set; }
 
         //Relations
+        public int WordID { get; set; }
+        public DictionaryWord DictionaryWord { get; set; }
     }
 
     public enum WordType
     {
-
+        None = 0,
+        Noun = 1,
+        Verb = 2,
+        Adjective = 3,
+        Adverb = 4,
     };
 }
