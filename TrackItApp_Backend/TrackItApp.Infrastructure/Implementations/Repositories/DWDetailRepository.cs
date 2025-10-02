@@ -9,9 +9,9 @@ using TrackItApp.Infrastructure.Implementations.Persistence;
 
 namespace TrackItApp.Infrastructure.Implementations.Repositories
 {
-    public class DictionaryWordDetailRepository : RepositoryBase<DWDetail>
+    public class DWDetailRepository : RepositoryBase<DWDetail>
         , IDWDetailRepository
     {
-        public DictionaryWordDetailRepository(AppDbContext context) : base(context) { }
+        public DWDetailRepository(AppDbContext context) : base(context) { }
     }
 }

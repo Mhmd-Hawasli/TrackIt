@@ -9,9 +9,9 @@ using TrackItApp.Infrastructure.Implementations.Persistence;
 
 namespace TrackItApp.Infrastructure.Implementations.Repositories
 {
-    public class DConfidenceRepository : RepositoryBase<DWConfidence>
+    public class DWConfidenceRepository : RepositoryBase<DWConfidence>
         , IDWConfidenceRepository
     {
-        public DConfidenceRepository(AppDbContext context) : base(context) { }
+        public DWConfidenceRepository(AppDbContext context) : base(context) { }
     }
 }

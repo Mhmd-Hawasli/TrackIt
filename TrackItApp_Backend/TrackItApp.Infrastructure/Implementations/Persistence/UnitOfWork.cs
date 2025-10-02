@@ -11,10 +11,14 @@ namespace TrackItApp.Infrastructure.Implementations.Persistence
     public class UnitOfWork : IUnitOfWork
     {
         private readonly AppDbContext _context;
+
+        //User
         public IUserTypeRepository UserTypeRepository { get; private set; }
         public IUserRepository UserRepository { get; private set; }
         public IVerificationCodeRepository VerificationCodeRepository { get; private set; }
         public IUserSessionRepository UserSessionRepository { get; private set; }
+
+        //Dictionary
         public IDictionaryRepository DictionaryRepository { get; private set; }
         public IDictionaryWordRepository DictionaryWordRepository { get; private set; }
         public IDWDetailRepository DWDetailRepository { get; private set; }

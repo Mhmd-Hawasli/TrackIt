@@ -10,9 +10,9 @@ using TrackItApp.Infrastructure.Implementations.Repositories;
 
 namespace TrackItApp.Infrastructure.Implementations.Repositories
 {
-    public class DictionaryReviewHistoryRepository : RepositoryBase<DWReviewHistory>, IDWReviewHistoryRepository
+    public class DWReviewHistoryRepository : RepositoryBase<DWReviewHistory>, IDWReviewHistoryRepository
     {
-        public DictionaryReviewHistoryRepository(AppDbContext context) : base(context) { }
+        public DWReviewHistoryRepository(AppDbContext context) : base(context) { }
 
     }
 }
