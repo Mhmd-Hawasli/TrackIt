@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TrackItApp.Domain.Entities
 {
-    public class DictionaryReviewHistory
+    public class DWReviewHistory
     {
         public int ReviewID { get; set; }
         public int OldConfidenceNumber { get; set; }

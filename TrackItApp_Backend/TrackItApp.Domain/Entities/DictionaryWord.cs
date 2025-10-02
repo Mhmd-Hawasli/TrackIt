@@ -19,9 +19,9 @@ namespace TrackItApp.Domain.Entities
         public int DictionaryID { get; set; }
         public Dictionary Dictionary { get; set; }
         public int? ConfidenceID { get; set; }
-        public DictionaryWordConfidence DictionaryWordConfidence { get; set; }
+        public DWConfidence DictionaryWordConfidence { get; set; }
 
-        public ICollection<DictionaryReviewHistory> DictionaryReviewHistories { get; set; }
-        public ICollection<DictionaryWordDetail> DictionaryWordDetails { get; set; }
+        public ICollection<DWReviewHistory> DictionaryReviewHistories { get; set; }
+        public ICollection<DWDetail> DictionaryWordDetails { get; set; }
     }
 }

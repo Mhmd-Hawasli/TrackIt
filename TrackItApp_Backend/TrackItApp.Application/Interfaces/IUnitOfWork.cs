@@ -14,6 +14,11 @@ namespace TrackItApp.Application.Interfaces
         IUserTypeRepository UserTypeRepository { get; }
         IVerificationCodeRepository VerificationCodeRepository { get; }
         IUserSessionRepository UserSessionRepository { get; }
+        IDictionaryRepository DictionaryRepository { get; }
+        IDictionaryWordRepository DictionaryWordRepository { get; }
+        IDWDetailRepository DWDetailRepository { get; }
+        IDWReviewHistoryRepository DWReviewHistoryRepository { get; }
+        IDWConfidenceRepository DWConfidenceRepository { get; }
 
         //Method
         Task<int> CompleteAsync();

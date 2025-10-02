@@ -8,7 +8,7 @@ using TrackItApp.Domain.Repositories;
 
 namespace TrackItApp.Application.Interfaces.Repositories
 {
-    public interface IDictionaryWordConfidenceRepository : IRepositoryBase<DictionaryWordConfidence>
+    public interface IDWDetailRepository : IRepositoryBase<DWDetail>
     {
     }
 }

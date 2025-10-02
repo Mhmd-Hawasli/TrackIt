@@ -8,7 +8,7 @@ using TrackItApp.Domain.Repositories;
 
 namespace TrackItApp.Application.Interfaces.Repositories
 {
-    public interface IDictionaryReviewHistoryRepository : IRepositoryBase<DictionaryReviewHistory>
+    public interface IDWReviewHistoryRepository : IRepositoryBase<DWReviewHistory>
     {
     }
 }

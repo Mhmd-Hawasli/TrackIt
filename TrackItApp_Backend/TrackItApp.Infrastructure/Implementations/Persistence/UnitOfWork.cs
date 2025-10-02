@@ -15,13 +15,23 @@ namespace TrackItApp.Infrastructure.Implementations.Persistence
         public IUserRepository UserRepository { get; private set; }
         public IVerificationCodeRepository VerificationCodeRepository { get; private set; }
         public IUserSessionRepository UserSessionRepository { get; private set; }
+        public IDictionaryRepository DictionaryRepository { get; private set; }
+        public IDictionaryWordRepository DictionaryWordRepository { get; private set; }
+        public IDWDetailRepository DWDetailRepository { get; private set; }
+        public IDWConfidenceRepository DWConfidenceRepository { get; private set; }
+        public IDWReviewHistoryRepository DWReviewHistoryRepository { get; private set; }
 
         public UnitOfWork(
             AppDbContext context,
             IUserRepository userRepository,
             IUserTypeRepository userTypeRepository,
             IVerificationCodeRepository verificationCodeRepository,
-            IUserSessionRepository userSessionRepository
+            IUserSessionRepository userSessionRepository,
+            IDictionaryRepository dictionaryRepository,
+            IDictionaryWordRepository dictionaryWordRepository,
+            IDWDetailRepository dWDetailRepository,
+            IDWConfidenceRepository dWConfidenceRepository,
+            IDWReviewHistoryRepository dWReviewHistoryRepository
             )
         {
             _context = context;
@@ -29,6 +39,11 @@ namespace TrackItApp.Infrastructure.Implementations.Persistence
             UserTypeRepository = userTypeRepository;
             VerificationCodeRepository = verificationCodeRepository;
             UserSessionRepository = userSessionRepository;
+            DictionaryRepository = dictionaryRepository;
+            DictionaryWordRepository = dictionaryWordRepository;
+            DWDetailRepository = dWDetailRepository;
+            DWConfidenceRepository = dWConfidenceRepository;
+            DWReviewHistoryRepository = dWReviewHistoryRepository;
         }
 
         //--------------------

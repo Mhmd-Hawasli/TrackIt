@@ -6,13 +6,12 @@ using System.Threading.Tasks;
 using TrackItApp.Application.Interfaces.Repositories;
 using TrackItApp.Domain.Entities;
 using TrackItApp.Infrastructure.Implementations.Persistence;
-using TrackItApp.Infrastructure.Implementations.Repositories;
 
 namespace TrackItApp.Infrastructure.Implementations.Repositories
 {
-    public class DictionaryReviewHistoryRepository : RepositoryBase<DictionaryReviewHistory>, IDictionaryReviewHistoryRepository
+    public class DictionaryWordDetailRepository : RepositoryBase<DWDetail>
+        , IDWDetailRepository
     {
-        public DictionaryReviewHistoryRepository(AppDbContext context) : base(context) { }
-
+        public DictionaryWordDetailRepository(AppDbContext context) : base(context) { }
     }
 }

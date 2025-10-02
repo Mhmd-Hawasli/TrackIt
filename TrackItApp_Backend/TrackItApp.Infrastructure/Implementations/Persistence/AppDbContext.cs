@@ -19,9 +19,9 @@ namespace TrackItApp.Infrastructure.Implementations.Persistence
         public DbSet<VerificationCode> VerificationCodes { get; set; }
         public DbSet<Dictionary> Dictionaries { get; set; }
         public DbSet<DictionaryWord> DictionaryWords { get; set; }
-        public DbSet<DictionaryWordDetail> DictionaryWordDetails { get; set; }
-        public DbSet<DictionaryWordConfidence> DictionaryWordConfidences { get; set; }
-        public DbSet<DictionaryReviewHistory> DictionaryReviewHistories { get; set; }
+        public DbSet<DWDetail> DWDetails { get; set; }
+        public DbSet<DWConfidence> DWConfidences { get; set; }
+        public DbSet<DWReviewHistory> DWReviewHistories { get; set; }
         #endregion
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -47,13 +47,13 @@ namespace TrackItApp.Infrastructure.Implementations.Persistence
             modelBuilder.Entity<DictionaryWord>()
                 .HasKey(dw => dw.WordID);
 
-            modelBuilder.Entity<DictionaryWordDetail>()
+            modelBuilder.Entity<DWDetail>()
                 .HasKey(dwd => dwd.WordDetailID);
 
-            modelBuilder.Entity<DictionaryWordConfidence>()
+            modelBuilder.Entity<DWConfidence>()
                 .HasKey(dwc => dwc.ConfidenceID);
 
-            modelBuilder.Entity<DictionaryReviewHistory>()
+            modelBuilder.Entity<DWReviewHistory>()
                 .HasKey(drh => drh.ReviewID);
             #endregion
 

@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace TrackItApp.Domain.Entities
 {
-    public class DictionaryWordConfidence
+    public class DWConfidence
     {
         public int ConfidenceID { get; set; }
         public int ConfidenceNumber { get; set; }
         public int ConfidencePeriod { get; set; }
-        
+
         //Relations
         public int DictionaryID { get; set; }
         public Dictionary Dictionary { get; set; }

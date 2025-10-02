@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TrackItApp.Domain.Entities
 {
-    public class DictionaryWordDetail
+    public class DWDetail
     {
         public int WordDetailID { get; set; }
         public string Title { get; set; }

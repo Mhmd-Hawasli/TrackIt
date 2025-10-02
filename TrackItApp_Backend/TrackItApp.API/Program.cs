@@ -86,10 +86,10 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserSessionRepository, UserSessionRepository>();
 builder.Services.AddScoped<IUserAsOwnerService, UserAsOwnerService>();
 builder.Services.AddScoped<IDictionaryRepository, DictionaryRepository>();
-builder.Services.AddScoped<IDictionaryWordDetailRepository, DictionaryWordDetailRepository>();
+builder.Services.AddScoped<IDWDetailRepository, DictionaryWordDetailRepository>();
 builder.Services.AddScoped<IDictionaryWordRepository, DictionaryWordRepository>();
-builder.Services.AddScoped<IDictionaryWordConfidenceRepository, DictionaryWordConfidenceRepository>();
-builder.Services.AddScoped<IDictionaryReviewHistoryRepository, DictionaryReviewHistoryRepository>();
+builder.Services.AddScoped<IDWConfidenceRepository, DConfidenceRepository>();
+builder.Services.AddScoped<IDWReviewHistoryRepository, DictionaryReviewHistoryRepository>();
 #endregion 
 
 //Auto Mapper

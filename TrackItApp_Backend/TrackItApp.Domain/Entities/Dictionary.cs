@@ -17,7 +17,7 @@ namespace TrackItApp.Domain.Entities
         public int CreatedByUserID { get; set; }
         public User CreatedByUser { get; set; }
         public ICollection<DictionaryWord> DictionaryWords { get; set; }
-        public ICollection<DictionaryWordConfidence> DictionaryWordConfidences { get; set; }
+        public ICollection<DWConfidence> DictionaryWordConfidences { get; set; }
 
     }
 }
