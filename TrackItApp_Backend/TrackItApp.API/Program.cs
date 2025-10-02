@@ -85,6 +85,7 @@ builder.Services.AddScoped<IVerificationCodeRepository, VerificationCodeReposito
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserSessionRepository, UserSessionRepository>();
 builder.Services.AddScoped<IUserAsOwnerService, UserAsOwnerService>();
+
 builder.Services.AddScoped<IDictionaryRepository, DictionaryRepository>();
 builder.Services.AddScoped<IDWDetailRepository, DWDetailRepository>();
 builder.Services.AddScoped<IDictionaryWordRepository, DictionaryWordRepository>();
