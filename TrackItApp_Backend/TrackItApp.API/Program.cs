@@ -2,9 +2,12 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using Swashbuckle.AspNetCore.SwaggerUI;
 using System;
 using System.Text;
 using TrackItApp.API.Common;
+using TrackItApp.API.Middlewares;
+using TrackItApp.Application.Common;
 using TrackItApp.Application.Interfaces;
 using TrackItApp.Application.Interfaces.Repositories;
 using TrackItApp.Application.Interfaces.Services;
@@ -13,8 +16,6 @@ using TrackItApp.Application.Services;
 using TrackItApp.Domain.Repositories;
 using TrackItApp.Infrastructure.Implementations.Persistence;
 using TrackItApp.Infrastructure.Implementations.Repositories;
-using TrackItApp.API.Middlewares;
-using TrackItApp.Application.Common;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
@@ -109,7 +110,12 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "TrackIt Api Docs");
+        c.DefaultModelsExpandDepth(-1);
+        c.DocExpansion(DocExpansion.None);
+    });
 }
 
 app.UseHttpsRedirection();
