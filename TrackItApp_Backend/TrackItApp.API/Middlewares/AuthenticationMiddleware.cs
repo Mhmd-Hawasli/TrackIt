@@ -34,6 +34,11 @@ namespace TrackItApp.API.Middlewares
         {
             try
             {
+                if (context.Request.Path.StartsWithSegments("/swagger"))
+                {
+                    await _next(context);
+                    return;
+                }
                 // Get DeviceId and save it
                 if (!context.Request.Headers.TryGetValue("Device-Id", out var deviceIds) || string.IsNullOrWhiteSpace(deviceIds))
                 {
