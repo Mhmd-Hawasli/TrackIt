@@ -1,23 +1,16 @@
-import 'common/bloc/auth/auth_state_cubit.dart';
-import 'presentation/home/pages/home.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:track_it_health/core/secrets/app_secrets.dart';
+import 'package:track_it_health/core/theme/theme.dart';
+import 'package:track_it_health/features/auth/presentation/pages/login_page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:track_it_health/features/auth/presentation/pages/signup_page.dart';
 
-import 'package:track_it/common/bloc/auth/auth_state.dart';
-import 'package:track_it/core/configs/theme/app_theme.dart';
-import 'package:track_it/presentation/auth/pages/signup.dart';
-import 'package:track_it/service_locator.dart';
-
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setSystemUIOverlayStyle(
-    const SystemUiOverlayStyle(
-      statusBarBrightness: Brightness.light,
-      systemNavigationBarColor: Colors.black
-    )
+  final supabse = await Supabase.initialize(
+    url: AppSecrets.supabaseUrl,
+    anonKey: AppSecrets.supabaseAnnonKey,
   );
-  setupServiceLocator();
   runApp(const MyApp());
 }
 
@@ -26,25 +19,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setEnabledSystemUIMode(
-    SystemUiMode.manual, overlays: [SystemUiOverlay.bottom]);
-    return BlocProvider(
-      create: (context) => AuthStateCubit()..appStarted(),
-      child: MaterialApp(
-          theme: AppTheme.appTheme,
-          debugShowCheckedModeBanner: false,
-          home: BlocBuilder<AuthStateCubit,AuthState>(
-            builder: (context, state) {
-              if (state is Authenticated){
-                return const HomePage();
-              }
-              if (state is UnAuthenticated){
-                return SignupPage();
-              }
-              return Container();
-            },
-          )
-        ),
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'TrackIt-Health',
+      theme: AppTheme.darkThemeMode,
+      home: const  SignUpPage(),
     );
   }
 }

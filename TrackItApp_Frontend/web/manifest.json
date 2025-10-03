@@ -1,6 +1,6 @@
 {
-    "name": "trackit_frontend",
-    "short_name": "trackit_frontend",
+    "name": "track_it_health",
+    "short_name": "track_it_health",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
