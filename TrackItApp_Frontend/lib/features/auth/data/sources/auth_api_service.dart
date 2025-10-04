@@ -5,8 +5,6 @@ import 'package:track_it_health/core/network/dio_client.dart';
 import 'package:track_it_health/features/auth/data/models/user_model.dart';
 
 abstract interface class AuthApiService {
-  // Future<Either> signUpOld(SignupReqParams signupReqParams);
-
   Future<UserModel> signup(Map<String, dynamic> data);
 
   Future<UserModel> login(Map<String, dynamic> data);
