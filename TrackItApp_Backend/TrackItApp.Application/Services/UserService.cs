@@ -22,7 +22,7 @@ namespace TrackItApp.Application.Services
         public async Task<ApiResponse<UserGetByIdResponse>> GetUserInfoAsync(int userId)
         {
             //get user info
-            var user = await _unitOfWork.UserRepository.FirstOrDefaultAsNoTrackingAsync(u => u.UserID == userId);
+            var user = await _unitOfWork.UserRepository.FirstOrDefaultAsNoTrackingAsync(u => u.UserId == userId);
             if (user == null)
             {
                 return new ApiResponse<UserGetByIdResponse>("User Not Found.");
@@ -39,7 +39,7 @@ namespace TrackItApp.Application.Services
         {
 
             //check if user is in database 
-            var user = await _unitOfWork.UserRepository.FirstOrDefaultAsync(u => u.UserID == userId);
+            var user = await _unitOfWork.UserRepository.FirstOrDefaultAsync(u => u.UserId == userId);
             if (user == null)
             {
                 return new ApiResponse<object>("User Not Found.");
@@ -78,7 +78,7 @@ namespace TrackItApp.Application.Services
         public async Task<ApiResponse<object>> DeactivateUserAsync(int userId)
         {
             //get user info 
-            var user = await _unitOfWork.UserRepository.FirstOrDefaultAsync(u => u.UserID == userId, "UserSessions");
+            var user = await _unitOfWork.UserRepository.FirstOrDefaultAsync(u => u.UserId == userId, "UserSessions");
             if (user == null)
             {
                 return new ApiResponse<object>("User Not Found.");

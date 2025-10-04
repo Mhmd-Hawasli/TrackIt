@@ -60,7 +60,7 @@ namespace TrackItApp.Application.Services
         {
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, user.UserID.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                 new Claim("role", user.UserType.UserTypeName.ToString().ToLower())
 
             };

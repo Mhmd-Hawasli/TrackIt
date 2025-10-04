@@ -8,7 +8,7 @@ namespace TrackItApp.Domain.Entities
 {
     public class UserType
     {
-        public int UserTypeID { get; set; }
+        public int UserTypeId { get; set; }
         public string UserTypeName { get; set; }
 
         //Relations

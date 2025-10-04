@@ -9,7 +9,7 @@ namespace TrackItApp.Domain.Entities
 {
     public class User : ISoftDelete
     {
-        public int UserID { get; set; }
+        public int UserId { get; set; }
         public string Name { get; set; }
         public string Username { get; set; }
         public string Email { get; set; }
@@ -20,7 +20,7 @@ namespace TrackItApp.Domain.Entities
         public bool IsDeleted { get; set; }
 
         //Relations
-        public int UserTypeID { get; set; }
+        public int UserTypeId { get; set; }
         public UserType UserType { get; set; }
         public ICollection<UserSession> UserSessions { get; set; }
         public ICollection<VerificationCode> VerificationCodes { get; set; }

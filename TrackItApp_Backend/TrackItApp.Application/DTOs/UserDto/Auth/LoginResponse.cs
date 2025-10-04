@@ -8,7 +8,7 @@ namespace TrackItApp.Application.DTOs.UserDto.Auth
 {
     public class LoginResponse
     {
-        public string UserID { get; set; }
+        public string UserId { get; set; }
         public string UserName { get; set; }
         public string AccessToken { get; set; }
         public string RefreshToken { get; set; }

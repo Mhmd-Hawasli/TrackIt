@@ -49,7 +49,7 @@ namespace TrackItApp.Application.Services
         public async Task<ApiResponse<object>> ChangeStatusAsync(int id, ChangeStatusQuery query)
         {
             //get user info 
-            var user = await _unitOfWork.UserRepository.FirstOrDefaultWithSoftDeleteAsync(u => u.UserID == id, "UserSessions");
+            var user = await _unitOfWork.UserRepository.FirstOrDefaultWithSoftDeleteAsync(u => u.UserId == id, "UserSessions");
             if (user == null)
             {
                 return new ApiResponse<object>("User Not Found.");
@@ -80,7 +80,7 @@ namespace TrackItApp.Application.Services
         public async Task<ApiResponse<object>> DeleteUserAsync(int id)
         {
             //get user info 
-            var user = await _unitOfWork.UserRepository.FirstOrDefaultWithSoftDeleteAsync(u => u.UserID == id, "UserSessions");
+            var user = await _unitOfWork.UserRepository.FirstOrDefaultWithSoftDeleteAsync(u => u.UserId == id, "UserSessions");
             if (user == null)
             {
                 return new ApiResponse<object>("User Not Found.");

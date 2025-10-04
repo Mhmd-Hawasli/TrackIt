@@ -8,7 +8,7 @@ namespace TrackItApp.Domain.Entities
 {
     public class DWDetail
     {
-        public int WordDetailID { get; set; }
+        public int WordDetailId { get; set; }
         public string Title { get; set; }
         public string? WordImage { get; set; }
         public string? Example { get; set; }
@@ -17,7 +17,7 @@ namespace TrackItApp.Domain.Entities
         public string Description { get; set; }
 
         //Relations
-        public int WordID { get; set; }
+        public int WordId { get; set; }
         public DictionaryWord DictionaryWord { get; set; }
     }
 

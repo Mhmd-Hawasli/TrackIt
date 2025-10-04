@@ -10,11 +10,11 @@ namespace TrackItApp.Application.Mapping
         public UserProfile()
         {
             CreateMap<RegisterRequest, User>()
-                .ForMember(dest => dest.UserID, opt => opt.Ignore())
+                .ForMember(dest => dest.UserId, opt => opt.Ignore())
                 .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.Email.ToLower()))
                 .ForMember(dest => dest.BackupEmail, opt => opt.Ignore())
                 .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
-                .ForMember(dest => dest.UserTypeID, opt => opt.Ignore())
+                .ForMember(dest => dest.UserTypeId, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(value => DateTime.UtcNow))
                 .ForMember(dest => dest.IsVerified, opt => opt.MapFrom(value => false))
                 .ForMember(dest => dest.IsDeleted, opt => opt.MapFrom(value => false));

@@ -3,7 +3,13 @@ import 'package:flutter/material.dart';
 
 class AuthGradientButton extends StatelessWidget {
   final String buttonText;
-  const AuthGradientButton({super.key, required this.buttonText});
+  final VoidCallback onPressed;
+
+  const AuthGradientButton({
+    super.key,
+    required this.buttonText,
+    required this.onPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -13,10 +19,7 @@ class AuthGradientButton extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.bottomLeft,
           end: Alignment.topRight,
-          colors: [
-            AppPalette.gradient1,
-            AppPalette.gradient2,
-          ],
+          colors: [AppPalette.gradient1, AppPalette.gradient2],
         ),
         borderRadius: BorderRadius.circular(7),
       ),
@@ -26,15 +29,19 @@ class AuthGradientButton extends StatelessWidget {
           backgroundColor: AppPalette.transparentColor,
           shadowColor: AppPalette.transparentColor,
         ),
-        onPressed: () {},
+        onPressed: onPressed,
         child: Text(
           buttonText,
           style: const TextStyle(
             fontSize: 17,
             fontWeight: FontWeight.w600,
             shadows: [
-              Shadow(blurRadius: 3, color: Colors.black87, offset: Offset(1, 1)),
-            ]
+              Shadow(
+                blurRadius: 3,
+                color: Colors.black87,
+                offset: Offset(1, 1),
+              ),
+            ],
           ),
         ),
       ),

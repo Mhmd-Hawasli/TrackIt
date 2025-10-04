@@ -5,10 +5,10 @@ import 'package:track_it_health/core/usecase/usecase.dart';
 import 'package:track_it_health/features/auth/data/models/signup_req_params.dart';
 import 'package:track_it_health/features/auth/domain/repository/auth_repository.dart';
 
-class SignupUseCase implements UseCase<String, UserSignUpParams> {
+class UserSignUpUseCase implements UseCase<String, UserSignUpParams> {
   final AuthRepository authRepository;
 
-  const SignupUseCase(this.authRepository);
+  const UserSignUpUseCase(this.authRepository);
 
   @override
   Future<Either<Failure, String>> call({

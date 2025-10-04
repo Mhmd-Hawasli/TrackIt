@@ -27,11 +27,11 @@ namespace TrackItApp.Infrastructure.Migrations
 
             modelBuilder.Entity("TrackItApp.Domain.Entities.User", b =>
                 {
-                    b.Property<int>("UserID")
+                    b.Property<int>("UserId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("UserID"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("UserId"));
 
                     b.Property<string>("BackupEmail")
                         .HasColumnType("text");
@@ -60,19 +60,19 @@ namespace TrackItApp.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("UserTypeID")
+                    b.Property<int>("UserTypeId")
                         .HasColumnType("integer");
 
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("UserID");
+                    b.HasKey("UserId");
 
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.HasIndex("UserTypeID");
+                    b.HasIndex("UserTypeId");
 
                     b.HasIndex("Username")
                         .IsUnique();
@@ -82,16 +82,16 @@ namespace TrackItApp.Infrastructure.Migrations
 
             modelBuilder.Entity("TrackItApp.Domain.Entities.UserSession", b =>
                 {
-                    b.Property<int>("UserSessionID")
+                    b.Property<int>("UserSessionId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("UserSessionID"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("UserSessionId"));
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<string>("DeviceID")
+                    b.Property<string>("DeviceId")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -105,12 +105,12 @@ namespace TrackItApp.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("UserID")
+                    b.Property<int>("UserId")
                         .HasColumnType("integer");
 
-                    b.HasKey("UserSessionID");
+                    b.HasKey("UserSessionId");
 
-                    b.HasIndex("UserID", "DeviceID")
+                    b.HasIndex("UserId", "DeviceId")
                         .IsUnique();
 
                     b.ToTable("UserSessions");
@@ -118,28 +118,28 @@ namespace TrackItApp.Infrastructure.Migrations
 
             modelBuilder.Entity("TrackItApp.Domain.Entities.UserType", b =>
                 {
-                    b.Property<int>("UserTypeID")
+                    b.Property<int>("UserTypeId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("UserTypeID"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("UserTypeId"));
 
                     b.Property<string>("UserTypeName")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.HasKey("UserTypeID");
+                    b.HasKey("UserTypeId");
 
                     b.ToTable("userTypes");
                 });
 
             modelBuilder.Entity("TrackItApp.Domain.Entities.VerificationCode", b =>
                 {
-                    b.Property<int>("VerificationCodeID")
+                    b.Property<int>("VerificationCodeId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("VerificationCodeID"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("VerificationCodeId"));
 
                     b.Property<string>("Code")
                         .IsRequired()
@@ -148,7 +148,7 @@ namespace TrackItApp.Infrastructure.Migrations
                     b.Property<int>("CodeType")
                         .HasColumnType("integer");
 
-                    b.Property<string>("DeviceID")
+                    b.Property<string>("DeviceId")
                         .IsRequired()
                         .HasColumnType("text");
 
@@ -159,12 +159,12 @@ namespace TrackItApp.Infrastructure.Migrations
                     b.Property<DateTime>("ExpiresAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("UserID")
+                    b.Property<int>("UserId")
                         .HasColumnType("integer");
 
-                    b.HasKey("VerificationCodeID");
+                    b.HasKey("VerificationCodeId");
 
-                    b.HasIndex("UserID", "DeviceID")
+                    b.HasIndex("UserId", "DeviceId")
                         .IsUnique();
 
                     b.ToTable("verificationCodes");
@@ -174,7 +174,7 @@ namespace TrackItApp.Infrastructure.Migrations
                 {
                     b.HasOne("TrackItApp.Domain.Entities.UserType", "UserType")
                         .WithMany("Users")
-                        .HasForeignKey("UserTypeID")
+                        .HasForeignKey("UserTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -185,7 +185,7 @@ namespace TrackItApp.Infrastructure.Migrations
                 {
                     b.HasOne("TrackItApp.Domain.Entities.User", "User")
                         .WithMany("UserSessions")
-                        .HasForeignKey("UserID")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -196,7 +196,7 @@ namespace TrackItApp.Infrastructure.Migrations
                 {
                     b.HasOne("TrackItApp.Domain.Entities.User", "User")
                         .WithMany("VerificationCodes")
-                        .HasForeignKey("UserID")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

@@ -8,13 +8,13 @@ namespace TrackItApp.Domain.Entities
 {
     public class DWConfidence
     {
-        public int ConfidenceID { get; set; }
+        public int ConfidenceId { get; set; }
         public int ConfidenceNumber { get; set; }
         public int ConfidencePeriod { get; set; }
 
         //Relations
-        public int DictionaryID { get; set; }
+        public int DictionaryId { get; set; }
         public Dictionary Dictionary { get; set; }
-        public ICollection<DictionaryWord> dictionaryWords { get; set; }
+        public ICollection<DictionaryWord> DictionaryWords { get; set; }
     }
 }

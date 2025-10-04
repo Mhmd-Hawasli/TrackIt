@@ -30,40 +30,40 @@ namespace TrackItApp.Infrastructure.Implementations.Persistence
 
             #region Primary Keys
             modelBuilder.Entity<User>()
-                .HasKey(u => u.UserID);
+                .HasKey(u => u.UserId);
 
             modelBuilder.Entity<UserSession>()
-                .HasKey(us => us.UserSessionID);
+                .HasKey(us => us.UserSessionId);
 
             modelBuilder.Entity<UserType>()
-                .HasKey(ut => ut.UserTypeID);
+                .HasKey(ut => ut.UserTypeId);
 
             modelBuilder.Entity<VerificationCode>()
-                .HasKey(vc => vc.VerificationCodeID);
+                .HasKey(vc => vc.VerificationCodeId);
 
             modelBuilder.Entity<Dictionary>()
-                .HasKey(d => d.DictionaryID);
+                .HasKey(d => d.DictionaryId);
 
             modelBuilder.Entity<DictionaryWord>()
-                .HasKey(dw => dw.WordID);
+                .HasKey(dw => dw.WordId);
 
             modelBuilder.Entity<DWDetail>()
-                .HasKey(dwd => dwd.WordDetailID);
+                .HasKey(dwd => dwd.WordDetailId);
 
             modelBuilder.Entity<DWConfidence>()
-                .HasKey(dwc => dwc.ConfidenceID);
+                .HasKey(dwc => dwc.ConfidenceId);
 
             modelBuilder.Entity<DWReviewHistory>()
-                .HasKey(drh => drh.ReviewID);
+                .HasKey(drh => drh.ReviewId);
             #endregion
 
             #region Unique Constraints
             modelBuilder.Entity<VerificationCode>()
-                .HasIndex(vc => new { vc.UserID, vc.DeviceID })
+                .HasIndex(vc => new { vc.UserId, vc.DeviceId })
                 .IsUnique();
 
             modelBuilder.Entity<UserSession>()
-                .HasIndex(us => new { us.UserID, us.DeviceID })
+                .HasIndex(us => new { us.UserId, us.DeviceId })
                 .IsUnique();
 
             modelBuilder.Entity<User>()
@@ -79,47 +79,47 @@ namespace TrackItApp.Infrastructure.Implementations.Persistence
             modelBuilder.Entity<User>()
                 .HasOne(u => u.UserType)
                 .WithMany(ut => ut.Users)
-                .HasForeignKey(u => u.UserTypeID);
+                .HasForeignKey(u => u.UserTypeId);
 
             modelBuilder.Entity<User>()
                 .HasMany(u => u.UserSessions)
                 .WithOne(us => us.User)
-                .HasForeignKey(u => u.UserID);
+                .HasForeignKey(u => u.UserId);
 
             modelBuilder.Entity<User>()
                 .HasMany(u => u.VerificationCodes)
                 .WithOne(vc => vc.User)
-                .HasForeignKey(vc => vc.UserID);
+                .HasForeignKey(vc => vc.UserId);
 
             modelBuilder.Entity<User>()
                 .HasMany(u => u.Dictionaries)
                 .WithOne(d => d.CreatedByUser)
-                .HasForeignKey(d => d.CreatedByUserID);
+                .HasForeignKey(d => d.CreatedByUserId);
 
             modelBuilder.Entity<DictionaryWord>()
                 .HasOne(dw => dw.Dictionary)
                 .WithMany(d => d.DictionaryWords)
-                .HasForeignKey(dw => dw.DictionaryID);
+                .HasForeignKey(dw => dw.DictionaryId);
 
             modelBuilder.Entity<DictionaryWord>()
                 .HasMany(dw => dw.DictionaryReviewHistories)
                 .WithOne(drh => drh.DictionaryWord)
-                .HasForeignKey(drh => drh.WordID);
+                .HasForeignKey(drh => drh.WordId);
 
             modelBuilder.Entity<DictionaryWord>()
                 .HasMany(dw => dw.DictionaryWordDetails)
                 .WithOne(dwd => dwd.DictionaryWord)
-                .HasForeignKey(dwd => dwd.WordID);
+                .HasForeignKey(dwd => dwd.WordId);
 
             modelBuilder.Entity<DictionaryWord>()
                 .HasOne(dw => dw.DictionaryWordConfidence)
-                .WithMany(dwc => dwc.dictionaryWords)
-                .HasForeignKey(dw => dw.ConfidenceID);
+                .WithMany(dwc => dwc.DictionaryWords)
+                .HasForeignKey(dw => dw.ConfidenceId);
 
             modelBuilder.Entity<Dictionary>()
                 .HasMany(d => d.DictionaryWordConfidences)
                 .WithOne(dwc => dwc.Dictionary)
-                .HasForeignKey(dwc => dwc.DictionaryID);
+                .HasForeignKey(dwc => dwc.DictionaryId);
             #endregion
         }
     }

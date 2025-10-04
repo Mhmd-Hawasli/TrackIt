@@ -8,7 +8,7 @@ namespace TrackItApp.Application.DTOs.DictionaryDto
 {
     public class DictionaryResponse
     {
-        public int DictionaryID { get; set; }
+        public int DictionaryId { get; set; }
         public string DictionaryName { get; set; }
         public string DictionaryDescription { get; set; }
         public DateTime CreatedAt { get; set; }

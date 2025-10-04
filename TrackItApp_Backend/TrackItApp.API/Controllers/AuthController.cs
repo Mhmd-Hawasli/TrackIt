@@ -31,7 +31,7 @@ namespace TrackItApp.API.Controllers
         #region register
         /// <summary>
         /// Registers a new user account using the provided registration data,
-        /// and associates the account with the current device ID from the request header.
+        /// and associates the account with the current device Id from the request header.
         /// After successful registration, the user will be required to confirm their account,
         /// and a verification code will be sent to their contact (e.g., email).
         /// </summary>
@@ -52,7 +52,7 @@ namespace TrackItApp.API.Controllers
                 return BadRequest(new ApiResponse<object>(ModelState));
             }
 
-            //get DeviceID form request header
+            //get DeviceId form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
 
@@ -69,7 +69,7 @@ namespace TrackItApp.API.Controllers
         #region login
         /// <summary>
         /// Validates the user's login credentials (username or email and password) 
-        /// together with the current device ID.
+        /// together with the current device Id.
         /// If a valid and confirmed session already exists, the user is logged in 
         /// and receives an access token along with a refresh token.
         /// If no valid session exists, or the account has not yet been confirmed, 
@@ -93,7 +93,7 @@ namespace TrackItApp.API.Controllers
                 return BadRequest(new ApiResponse<object>(ModelState));
             }
 
-            //get DeviceID form request header
+            //get DeviceId form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
             var result = await _authService.LoginAsync(request, deviceId);
@@ -123,10 +123,10 @@ namespace TrackItApp.API.Controllers
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
         public async Task<IActionResult> Logout()
         {
-            //get UserID form token
+            //get UserId form token
             int userId = int.Parse(HttpContext.Items["UserId"]!.ToString()!);
 
-            //get DeviceID form request header
+            //get DeviceId form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
             var result = await _authService.LogoutAsync(userId, deviceId);
@@ -145,7 +145,7 @@ namespace TrackItApp.API.Controllers
         /// <summary>
         /// Refreshes the user's authentication tokens.
         /// The client sends an expired access token along with a valid refresh token.
-        /// The system validates the expired access token (ignoring expiration) to extract the user ID,
+        /// The system validates the expired access token (ignoring expiration) to extract the user Id,
         /// verifies the session for the given device, and ensures the refresh token matches.
         /// If valid, a new access token and refresh token are issued, 
         /// and the session's validity is updated (default maximum lifetime: 2 months).
@@ -166,7 +166,7 @@ namespace TrackItApp.API.Controllers
         public async Task<IActionResult> UpdateToken([FromBody] UpdateTokenRequest request)
         {
 
-            //get DeviceID form request header
+            //get DeviceId form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
             var result = await _authService.UpdateTokenAsync(request, deviceId);
@@ -204,7 +204,7 @@ namespace TrackItApp.API.Controllers
                 return BadRequest(new ApiResponse<object>(ModelState));
             }
 
-            //get DeviceID form request header
+            //get DeviceId form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
             var result = await _authService.ResendActivationCodeAsync(request, deviceId);
@@ -243,7 +243,7 @@ namespace TrackItApp.API.Controllers
                 return BadRequest(new ApiResponse<object>(ModelState));
             }
 
-            //get DeviceID form request header
+            //get DeviceId form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
             var result = await _authService.VerifyActivationCodeAsync(request, deviceId);
@@ -286,7 +286,7 @@ namespace TrackItApp.API.Controllers
                 return BadRequest(new ApiResponse<object>(ModelState));
             }
 
-            //get DeviceID form request header
+            //get DeviceId form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
             var result = await _authService.ForgetPasswordRequestAsync(request, deviceId);
@@ -305,7 +305,7 @@ namespace TrackItApp.API.Controllers
         /// <summary>
         /// Verifies the password reset code sent to the user's primary email.
         /// This is an intermediate step in the forgot password process to ensure the provided code is valid and not expired.
-        /// The code must match the one previously sent for password reset, and it is checked against the current device ID.
+        /// The code must match the one previously sent for password reset, and it is checked against the current device Id.
         /// </summary>
         /// <param name="request">The request containing the user's email and the verification code received.</param>
         /// <returns>
@@ -326,7 +326,7 @@ namespace TrackItApp.API.Controllers
                 return BadRequest(new ApiResponse<object>(ModelState));
             }
 
-            //get DeviceID form request header
+            //get DeviceId form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
             var result = await _authService.ForgetPasswordVerifyCodeAsync(request, deviceId);
@@ -368,7 +368,7 @@ namespace TrackItApp.API.Controllers
                 return BadRequest(new ApiResponse<object>(ModelState));
             }
 
-            //get DeviceID form request header
+            //get DeviceId form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
             var result = await _authService.ForgetPasswordResetPasswordAsync(request, deviceId);
@@ -403,7 +403,7 @@ namespace TrackItApp.API.Controllers
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto request)
         {
 
-            //get DeviceID form request header
+            //get DeviceId form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
             //get userId form token
@@ -455,7 +455,7 @@ namespace TrackItApp.API.Controllers
             //get userId from token 
             int userId = int.Parse(HttpContext.Items["UserId"]!.ToString()!);
 
-            //get DeviceID form request header
+            //get DeviceId form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
             var result = await _authService.RequestChangeEmailAsync(request, userId, deviceId);
@@ -500,7 +500,7 @@ namespace TrackItApp.API.Controllers
             //get userId from token 
             int userId = int.Parse(HttpContext.Items["UserId"]!.ToString()!);
 
-            //get DeviceID form request header
+            //get DeviceId form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
             var result = await _authService.VerifyChangeEmailAsync(request, userId, deviceId);
@@ -536,7 +536,7 @@ namespace TrackItApp.API.Controllers
             //get userId from token 
             int userId = int.Parse(HttpContext.Items["UserId"]!.ToString()!);
 
-            //get DeviceID form request header
+            //get DeviceId form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
             var result = await _authService.RequestAddBackupEmailAsync(request, userId, deviceId);
@@ -567,7 +567,7 @@ namespace TrackItApp.API.Controllers
             //get userId from token 
             int userId = int.Parse(HttpContext.Items["UserId"]!.ToString()!);
 
-            //get DeviceID form request header
+            //get DeviceId form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
             var result = await _authService.VerifyAddBackupEmailAsync(request, userId, deviceId);
@@ -618,7 +618,7 @@ namespace TrackItApp.API.Controllers
                 return BadRequest(new ApiResponse<object>(ModelState));
             }
 
-            //get DeviceID form request header
+            //get DeviceId form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
             var result = await _authService.RequestActivationWithBackupEmailAsync(request, deviceId);
@@ -648,7 +648,7 @@ namespace TrackItApp.API.Controllers
             }
 
 
-            //get DeviceID form request header
+            //get DeviceId form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
             var result = await _authService.VerifyActivationWithBackupEmailAsync(request, deviceId);
@@ -677,7 +677,7 @@ namespace TrackItApp.API.Controllers
                 return BadRequest(new ApiResponse<object>(ModelState));
             }
 
-            //get DeviceID form request header
+            //get DeviceId form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
             var result = await _authService.ForgetPasswordRequestWithBackupEmailAsync(request, deviceId);
@@ -708,7 +708,7 @@ namespace TrackItApp.API.Controllers
 
 
 
-            //get DeviceID form request header
+            //get DeviceId form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
             var result = await _authService.ForgetPasswordVerifyWithBackupEmailAsync(request, deviceId);
@@ -738,7 +738,7 @@ namespace TrackItApp.API.Controllers
             }
 
 
-            //get DeviceID form request header
+            //get DeviceId form request header
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
             var result = await _authService.ForgetPasswordResetWithBackupEmailAsync(request, deviceId);

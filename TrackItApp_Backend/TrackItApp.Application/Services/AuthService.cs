@@ -98,7 +98,7 @@ namespace TrackItApp.Application.Services
                 await _unitOfWork.CompleteAsync();
 
                 //send email verification
-                await _emailService.SendEmailVerificationCode(userModel.UserID, userModel.Email, currentDeviceId, CodeType.ActivateAccount);
+                await _emailService.SendEmailVerificationCode(userModel.UserId, userModel.Email, currentDeviceId, CodeType.ActivateAccount);
 
                 //save new user in the database
                 await _unitOfWork.CompleteAsync();
@@ -131,7 +131,7 @@ namespace TrackItApp.Application.Services
             //check if Is TwoFactor Enabled or user not verified
             if (user.IsVerified == false)
             {
-                await _emailService.SendEmailVerificationCode(user.UserID, user.Email, currentDeviceId, CodeType.ActivateAccount);
+                await _emailService.SendEmailVerificationCode(user.UserId, user.Email, currentDeviceId, CodeType.ActivateAccount);
                 await _unitOfWork.CompleteAsync();
                 string message = user.IsVerified == false
                     ? "Your account has not been verified. Please check your email."
@@ -140,14 +140,14 @@ namespace TrackItApp.Application.Services
             }
 
             //check if user don't have active session
-            var session = await _unitOfWork.UserSessionRepository.FirstOrDefaultAsNoTrackingAsync(us => us.UserID == user.UserID && us.DeviceID == currentDeviceId);
+            var session = await _unitOfWork.UserSessionRepository.FirstOrDefaultAsNoTrackingAsync(us => us.UserId == user.UserId && us.DeviceId == currentDeviceId);
             if (session == null || session.LastUpdatedAt < DateTime.UtcNow.AddMonths(-2))
             {
                 if (session != null)
                 {
                     _unitOfWork.UserSessionRepository.Remove(session);
                 }
-                await _emailService.SendEmailVerificationCode(user.UserID, user.Email, currentDeviceId, CodeType.ActivateAccount);
+                await _emailService.SendEmailVerificationCode(user.UserId, user.Email, currentDeviceId, CodeType.ActivateAccount);
                 await _unitOfWork.CompleteAsync();
                 return new ApiResponse<LoginResponse>(true, null, "No active session found on this device. Please check your email.", null);
             }
@@ -178,14 +178,14 @@ namespace TrackItApp.Application.Services
             //normalize email
             request.Email = request.Email.ToLower();
 
-            //get codeModel record from database via Email and DeviceID
-            var verificationCode = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => vc.User.Email == request.Email && vc.DeviceID == currentDeviceId && vc.CodeType == CodeType.ActivateAccount, "User");
+            //get codeModel record from database via Email and DeviceId
+            var verificationCode = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => vc.User.Email == request.Email && vc.DeviceId == currentDeviceId && vc.CodeType == CodeType.ActivateAccount, "User");
             if (verificationCode == null)
             {
                 return new ApiResponse<object>("You don’t have any expired code to resend.");
             }
 
-            await _emailService.SendEmailVerificationCode(verificationCode.UserID, request.Email, currentDeviceId, verificationCode.CodeType);
+            await _emailService.SendEmailVerificationCode(verificationCode.UserId, request.Email, currentDeviceId, verificationCode.CodeType);
             await _unitOfWork.CompleteAsync();
 
             return new ApiResponse<object>(true, null, "The code has been re-sent to your email.", null);
@@ -202,7 +202,7 @@ namespace TrackItApp.Application.Services
 
             //get verification code record from database
             var codeModel = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(
-                vc => vc.DeviceID == currentDeviceId && vc.User.Email == request.Email,
+                vc => vc.DeviceId == currentDeviceId && vc.User.Email == request.Email,
                 "User.UserSessions", "User.UserType");
             if (codeModel == null)
             {
@@ -219,7 +219,7 @@ namespace TrackItApp.Application.Services
             //check if codeModel is expired and new email
             if (codeModel.ExpiresAt < DateTime.UtcNow)
             {
-                await _emailService.SendEmailVerificationCode(codeModel.UserID, request.Email, currentDeviceId, CodeType.ActivateAccount);
+                await _emailService.SendEmailVerificationCode(codeModel.UserId, request.Email, currentDeviceId, CodeType.ActivateAccount);
                 await _unitOfWork.CompleteAsync();
                 return new ApiResponse<LoginResponse>("Your code has expired. Please check your email address.");
             }
@@ -232,16 +232,16 @@ namespace TrackItApp.Application.Services
             (string refreshToken, string hashedRefreshToken) = _tokenService.GenerateRefreshToken();
 
             //save or update user session in database
-            UserSession? userSession = codeModel.User.UserSessions.FirstOrDefault(us => us.DeviceID == currentDeviceId);
+            UserSession? userSession = codeModel.User.UserSessions.FirstOrDefault(us => us.DeviceId == currentDeviceId);
             if (userSession == null)
             {
                 userSession = new UserSession()
                 {
                     RefreshToken = hashedRefreshToken,
-                    DeviceID = currentDeviceId,
+                    DeviceId = currentDeviceId,
                     CreatedAt = DateTime.UtcNow,
                     LastUpdatedAt = DateTime.UtcNow,
-                    UserID = codeModel.UserID,
+                    UserId = codeModel.UserId,
                     IsRevoked = false,
                 };
                 await _unitOfWork.UserSessionRepository.AddAsync(userSession);
@@ -273,7 +273,7 @@ namespace TrackItApp.Application.Services
         public async Task<ApiResponse<object>> LogoutAsync(int userId, string currentDeviceId)
         {
             //get user model and his session
-            var userSession = await _unitOfWork.UserSessionRepository.FirstOrDefaultAsync(us => us.UserID == userId && us.DeviceID == currentDeviceId, "User");
+            var userSession = await _unitOfWork.UserSessionRepository.FirstOrDefaultAsync(us => us.UserId == userId && us.DeviceId == currentDeviceId, "User");
             if (userSession == null)
             {
                 return new ApiResponse<object>("UserSession Not Found.");
@@ -302,7 +302,7 @@ namespace TrackItApp.Application.Services
             int userId = _tokenService.ValidateExpiredAccessToken(request.AccessToken);
 
             //check userSession in database by UserId and DeviceId
-            var userSession = await _unitOfWork.UserSessionRepository.FirstOrDefaultAsync(us => us.UserID == userId && us.DeviceID == currentDeviceId, "User.UserType");
+            var userSession = await _unitOfWork.UserSessionRepository.FirstOrDefaultAsync(us => us.UserId == userId && us.DeviceId == currentDeviceId, "User.UserType");
             if (userSession == null)
             {
                 return new ApiResponse<UpdateTokenResponse>("No active session found on this device. Please log in again.");
@@ -356,7 +356,7 @@ namespace TrackItApp.Application.Services
             {
                 return new ApiResponse<object>("User not found.");
             }
-            await _emailService.SendEmailVerificationCode(user.UserID, user.Email, currentDeviceId, CodeType.ResetPassword);
+            await _emailService.SendEmailVerificationCode(user.UserId, user.Email, currentDeviceId, CodeType.ResetPassword);
             await _unitOfWork.CompleteAsync();
 
             return new ApiResponse<object>(true, null, "An email has been sent to your email address. Please check your inbox.", null);
@@ -367,7 +367,7 @@ namespace TrackItApp.Application.Services
         public async Task<ApiResponse<object>> ForgetPasswordVerifyCodeAsync(ForgetPasswordVerifyCodeDto request, string currentDeviceId)
         {
             //get codeModel info and user info
-            var codeModel = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => vc.User.Email == request.Email.ToLower() && vc.DeviceID == currentDeviceId, "User");
+            var codeModel = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => vc.User.Email == request.Email.ToLower() && vc.DeviceId == currentDeviceId, "User");
             if (codeModel == null)
             {
                 return new ApiResponse<object>("Verification record not found. Please submit the request again.");
@@ -392,7 +392,7 @@ namespace TrackItApp.Application.Services
         public async Task<ApiResponse<object>> ForgetPasswordResetPasswordAsync(ForgetPasswordResetPasswordDto request, string currentDeviceId)
         {
             //get codeModel info and user info
-            var codeModel = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => vc.User.Email == request.Email.ToLower() && vc.DeviceID == currentDeviceId, "User.UserSessions");
+            var codeModel = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => vc.User.Email == request.Email.ToLower() && vc.DeviceId == currentDeviceId, "User.UserSessions");
             if (codeModel == null)
             {
                 return new ApiResponse<object>("Verification record not found. Please submit the request again.");
@@ -425,7 +425,7 @@ namespace TrackItApp.Application.Services
             _unitOfWork.UserRepository.Update(codeModel.User);
 
             //remove session form other device
-            var sessions = codeModel.User.UserSessions.Where(us => us.DeviceID != currentDeviceId).ToList();
+            var sessions = codeModel.User.UserSessions.Where(us => us.DeviceId != currentDeviceId).ToList();
             _unitOfWork.UserSessionRepository.RemoveRange(sessions);
 
             //remove verification code record
@@ -442,7 +442,7 @@ namespace TrackItApp.Application.Services
         public async Task<ApiResponse<object>> ChangePasswordAsync(ChangePasswordDto request, int userId, string deviceId)
         {
             //get user info from database
-            var user = await _unitOfWork.UserRepository.FirstOrDefaultAsync(u => u.UserID == userId, "UserSessions");
+            var user = await _unitOfWork.UserRepository.FirstOrDefaultAsync(u => u.UserId == userId, "UserSessions");
             if (user == null)
             {
                 return new ApiResponse<object>("User Not Found.");
@@ -470,7 +470,7 @@ namespace TrackItApp.Application.Services
             user.PasswordHash = hashPassword;
             _unitOfWork.UserRepository.Update(user);
 
-            var sessionListToRemove = user.UserSessions.Where(s => s.DeviceID != deviceId).ToList();
+            var sessionListToRemove = user.UserSessions.Where(s => s.DeviceId != deviceId).ToList();
             _unitOfWork.UserSessionRepository.RemoveRange(sessionListToRemove);
 
             await _unitOfWork.CompleteAsync();
@@ -492,7 +492,7 @@ namespace TrackItApp.Application.Services
             request.NewEmail = request.NewEmail.ToLower();
 
             // Get user info from database
-            var user = await _unitOfWork.UserRepository.FirstOrDefaultAsync(u => u.UserID == userId);
+            var user = await _unitOfWork.UserRepository.FirstOrDefaultAsync(u => u.UserId == userId);
 
             // Check if user exists
             if (user == null)
@@ -541,7 +541,7 @@ namespace TrackItApp.Application.Services
             request.NewEmail = request.NewEmail.ToLower();
 
             // Get Verification Code base on userId and DeviceId
-            var codeModel = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => vc.DeviceID == deviceId && vc.UserID == userId, "User.UserSessions");
+            var codeModel = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => vc.DeviceId == deviceId && vc.UserId == userId, "User.UserSessions");
             if (codeModel == null
                 || codeModel.CodeType != CodeType.ChangeEmail
                 || codeModel.ExpiresAt < DateTime.UtcNow
@@ -556,7 +556,7 @@ namespace TrackItApp.Application.Services
             _unitOfWork.UserRepository.Update(codeModel.User);
 
             //remove session from other device
-            var sessionListToRemove = codeModel.User.UserSessions.Where(us => us.DeviceID != deviceId).ToList();
+            var sessionListToRemove = codeModel.User.UserSessions.Where(us => us.DeviceId != deviceId).ToList();
             _unitOfWork.UserSessionRepository.RemoveRange(sessionListToRemove);
 
             //remove verification code form database 
@@ -581,7 +581,7 @@ namespace TrackItApp.Application.Services
             request.BackupEmail = request.BackupEmail.ToLower();
 
             //get user info
-            var user = await _unitOfWork.UserRepository.FirstOrDefaultAsync(u => u.UserID == userId);
+            var user = await _unitOfWork.UserRepository.FirstOrDefaultAsync(u => u.UserId == userId);
             if (user == null)
             {
                 return new ApiResponse<object>("User Not Found.");
@@ -617,7 +617,7 @@ namespace TrackItApp.Application.Services
         {
             request.BackupEmail = request.BackupEmail.ToLower();
 
-            var codeModel = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => vc.UserID == userId && vc.DeviceID == deviceId, "User");
+            var codeModel = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => vc.UserId == userId && vc.DeviceId == deviceId, "User");
             if (codeModel == null
                 || codeModel.CodeType != CodeType.ChangeBackupEmail
                 || codeModel.ExpiresAt < DateTime.UtcNow
@@ -649,7 +649,7 @@ namespace TrackItApp.Application.Services
         #region RemoveBackupEmailAsync
         public async Task<ApiResponse<object>> RemoveBackupEmailAsync(int userId)
         {
-            var user = await _unitOfWork.UserRepository.FirstOrDefaultAsync(u => u.UserID == userId);
+            var user = await _unitOfWork.UserRepository.FirstOrDefaultAsync(u => u.UserId == userId);
             if (user == null)
             {
                 return new ApiResponse<object>("User Not Found.");
@@ -695,7 +695,7 @@ namespace TrackItApp.Application.Services
             }
 
             //send verfiacation code to backup email
-            await _emailService.SendEmailVerificationCode(user.UserID, request.BackupEmail, deviceId, CodeType.RecoverWithBackupEmail);
+            await _emailService.SendEmailVerificationCode(user.UserId, request.BackupEmail, deviceId, CodeType.RecoverWithBackupEmail);
             await _unitOfWork.CompleteAsync();
 
             return new ApiResponse<object>(true, null, "An email has been sent to your backup email. Please check your inbox.", null);
@@ -711,7 +711,7 @@ namespace TrackItApp.Application.Services
 
             //get verification code record from database
             var codeModel = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(
-                vc => vc.DeviceID == deviceId && (vc.User.Email == request.Input.ToLower() || vc.User.Username == request.Input),
+                vc => vc.DeviceId == deviceId && (vc.User.Email == request.Input.ToLower() || vc.User.Username == request.Input),
                 "User.UserSessions", "User.UserType");
             if (codeModel == null)
             {
@@ -739,16 +739,16 @@ namespace TrackItApp.Application.Services
             (string refreshToken, string hashedRefreshToken) = _tokenService.GenerateRefreshToken();
 
             //save or update user session in database
-            UserSession? userSession = codeModel.User.UserSessions.FirstOrDefault(us => us.DeviceID == deviceId);
+            UserSession? userSession = codeModel.User.UserSessions.FirstOrDefault(us => us.DeviceId == deviceId);
             if (userSession == null)
             {
                 userSession = new UserSession()
                 {
                     RefreshToken = hashedRefreshToken,
-                    DeviceID = deviceId,
+                    DeviceId = deviceId,
                     CreatedAt = DateTime.UtcNow,
                     LastUpdatedAt = DateTime.UtcNow,
-                    UserID = codeModel.UserID,
+                    UserId = codeModel.UserId,
                     IsRevoked = false,
                 };
                 await _unitOfWork.UserSessionRepository.AddAsync(userSession);
@@ -794,7 +794,7 @@ namespace TrackItApp.Application.Services
             {
                 return new ApiResponse<object>($"The backup email does not match our records. Please enter your backup email ({HashEmail(user.BackupEmail)}).");
             }
-            await _emailService.SendEmailVerificationCode(user.UserID, request.BackupEmail, deviceId, CodeType.ResetPasswordWithBackupEmail);
+            await _emailService.SendEmailVerificationCode(user.UserId, request.BackupEmail, deviceId, CodeType.ResetPasswordWithBackupEmail);
             await _unitOfWork.CompleteAsync();
 
             return new ApiResponse<object>(true, null, "An email has been sent to your backup email address. Please check your inbox.", null);
@@ -809,7 +809,7 @@ namespace TrackItApp.Application.Services
             request.BackupEmail = request.BackupEmail.ToLower();
 
             //get codeModel info and user info
-            var codeModel = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => (vc.User.Email == request.Input.ToLower() || vc.User.Username == request.Input) && vc.DeviceID == deviceId, "User");
+            var codeModel = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => (vc.User.Email == request.Input.ToLower() || vc.User.Username == request.Input) && vc.DeviceId == deviceId, "User");
 
             if (codeModel == null
                 || codeModel.ExpiresAt < DateTime.UtcNow
@@ -842,7 +842,7 @@ namespace TrackItApp.Application.Services
                 request.BackupEmail = request.BackupEmail.ToLower();
 
                 //get codeModel info and user info
-                var codeModel = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => (vc.User.Email == request.Input.ToLower() || vc.User.Username == request.Input) && vc.DeviceID == deviceId, "User.UserSessions");
+                var codeModel = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => (vc.User.Email == request.Input.ToLower() || vc.User.Username == request.Input) && vc.DeviceId == deviceId, "User.UserSessions");
 
                 if (codeModel == null
                     || codeModel.ExpiresAt < DateTime.UtcNow
@@ -880,17 +880,17 @@ namespace TrackItApp.Application.Services
 
 
                 //handle sessions
-                var allSessions = await _unitOfWork.UserSessionRepository.FindAsync(us => us.UserID == codeModel.UserID);
-                var currentDeviceSession = allSessions.Where(s => s.DeviceID == deviceId).First();
-                var sessionsToRemove = allSessions.Where(s => s.DeviceID != deviceId);
+                var allSessions = await _unitOfWork.UserSessionRepository.FindAsync(us => us.UserId == codeModel.UserId);
+                var currentDeviceSession = allSessions.Where(s => s.DeviceId == deviceId).First();
+                var sessionsToRemove = allSessions.Where(s => s.DeviceId != deviceId);
 
                 //add or update userSession
                 if (currentDeviceSession == null)
                 {
                     var newSession = new UserSession
                     {
-                        UserID = codeModel.UserID,
-                        DeviceID = deviceId,
+                        UserId = codeModel.UserId,
+                        DeviceId = deviceId,
                         IsRevoked = false,
                         CreatedAt = DateTime.UtcNow,
                         LastUpdatedAt = DateTime.UtcNow,

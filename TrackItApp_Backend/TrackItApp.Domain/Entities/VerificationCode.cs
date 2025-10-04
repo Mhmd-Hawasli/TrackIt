@@ -23,15 +23,15 @@ namespace TrackItApp.Domain.Entities
     }
     public class VerificationCode
     {
-        public int VerificationCodeID { get; set; }
+        public int VerificationCodeId { get; set; }
         public string Code { get; set; }
         public CodeType CodeType { get; set; }
         public DateTime ExpiresAt { get; set; }
         public string Email { get; set; }
-        public string DeviceID { get; set; }
+        public string DeviceId { get; set; }
 
         //Relations
-        public int UserID { get; set; }
+        public int UserId { get; set; }
         public User User { get; set; }
     }
 }

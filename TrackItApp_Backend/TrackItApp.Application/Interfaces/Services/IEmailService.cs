@@ -9,6 +9,6 @@ namespace TrackItApp.Application.Interfaces.Services
 {
     public interface IEmailService
     {
-        Task<string> SendEmailVerificationCode(int userID, string email, string deviceId, CodeType codeType);
+        Task<string> SendEmailVerificationCode(int userId, string email, string deviceId, CodeType codeType);
     }
 }

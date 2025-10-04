@@ -1,5 +1,10 @@
 import 'package:flutter/gestures.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:track_it_health/core/service_locator.dart';
 import 'package:track_it_health/core/theme/app_palette.dart';
+import 'package:track_it_health/features/auth/data/models/signup_req_params.dart';
+import 'package:track_it_health/features/auth/domain/usecases/signup_use_case.dart';
+import 'package:track_it_health/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:track_it_health/features/auth/presentation/pages/login_page.dart';
 import 'package:track_it_health/features/auth/presentation/widgets/auth_field.dart';
 import 'package:track_it_health/features/auth/presentation/widgets/auth_gradient_button.dart';
@@ -64,7 +69,21 @@ class _SignUpPageState extends State<SignUpPage> {
                     isObscureText: true,
                   ),
                   const SizedBox(height: 20),
-                  const AuthGradientButton(buttonText: 'Sign Up'),
+                  AuthGradientButton(
+                    buttonText: 'Sign Up',
+                    onPressed: () {
+                      if (formKey.currentState!.validate()) {
+                        context.read<AuthBloc>().add(
+                          AuthSignUp(
+                            name: nameController.text.trim(),
+                            username: usernameController.text.trim(),
+                            email: emailController.text.trim(),
+                            password: passwordController.text.trim(),
+                          ),
+                        );
+                      }
+                    },
+                  ),
                   const SizedBox(height: 20),
                   RichText(
                     text: TextSpan(
