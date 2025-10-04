@@ -6,25 +6,26 @@ class UserModel extends UserEntity {
     required super.name,
     required super.username,
     required super.email,
+    super.backupEmail,
   });
 
-  @override
   Map<String, dynamic> toMap() {
     return {
-      'userId': userId,
-      'name': name,
-      'username': username,
-      'email': email,
+      'userId': this.userId,
+      'name': this.name,
+      'username': this.username,
+      'email': this.email,
+      'backupEmail': this.backupEmail,
     };
   }
 
-  @override
   factory UserModel.fromMap(Map<String, dynamic> map) {
     return UserModel(
       userId: map['userId'] as int,
       name: map['name'] as String,
       username: map['username'] as String,
       email: map['email'] as String,
+      backupEmail: map['backupEmail'] as String?,
     );
   }
 }

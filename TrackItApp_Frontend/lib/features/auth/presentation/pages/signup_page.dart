@@ -1,8 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:track_it_health/core/service_locator.dart';
 import 'package:track_it_health/core/theme/app_palette.dart';
-import 'package:track_it_health/features/auth/data/models/signup_req_params.dart';
 import 'package:track_it_health/features/auth/domain/usecases/signup_use_case.dart';
 import 'package:track_it_health/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:track_it_health/features/auth/presentation/pages/login_page.dart';
@@ -74,11 +72,13 @@ class _SignUpPageState extends State<SignUpPage> {
                     onPressed: () {
                       if (formKey.currentState!.validate()) {
                         context.read<AuthBloc>().add(
-                          AuthSignUp(
-                            name: nameController.text.trim(),
-                            username: usernameController.text.trim(),
-                            email: emailController.text.trim(),
-                            password: passwordController.text.trim(),
+                          AuthSignUpEvent(
+                            userSignUpParams: UserSignUpParams(
+                              name: nameController.text.trim(),
+                              username: usernameController.text.trim(),
+                              email: emailController.text.trim(),
+                              password: passwordController.text.trim(),
+                            ),
                           ),
                         );
                       }

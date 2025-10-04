@@ -1,20 +1,20 @@
 import 'package:dartz/dartz.dart';
 import 'package:track_it_health/core/error/failure.dart';
-import 'package:track_it_health/core/service_locator.dart';
 import 'package:track_it_health/core/usecase/usecase.dart';
-import 'package:track_it_health/features/auth/data/models/signup_req_params.dart';
+import 'package:track_it_health/features/auth/domain/entities/user_entity.dart';
 import 'package:track_it_health/features/auth/domain/repository/auth_repository.dart';
 
-class UserSignUpUseCase implements UseCase<String, UserSignUpParams> {
-  final AuthRepository authRepository;
+class UserSignUpUseCase implements UseCase<UserEntity, UserSignUpParams> {
+  final AuthRepository _authRepository;
 
-  const UserSignUpUseCase(this.authRepository);
+  const UserSignUpUseCase(AuthRepository authRepository)
+    : _authRepository = authRepository;
 
   @override
-  Future<Either<Failure, String>> call({
+  Future<Either<Failure, UserEntity>> call({
     required UserSignUpParams params,
   }) async {
-    return await authRepository.signup(params.toMap());
+    return await _authRepository.signup(params.toMap());
   }
 }
 

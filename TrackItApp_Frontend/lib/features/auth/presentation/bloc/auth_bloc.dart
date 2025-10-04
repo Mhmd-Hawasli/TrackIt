@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:track_it_health/features/auth/domain/entities/user_entity.dart';
 import 'package:track_it_health/features/auth/domain/usecases/signup_use_case.dart';
 
 part 'auth_event.dart';
@@ -12,13 +13,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc({required UserSignUpUseCase userSignUpUseCase})
     : _userSignup = userSignUpUseCase,
       super(AuthInitial()) {
-    on<AuthSignUp>((event, emit) async {
-      var response = await _userSignup(
-        params: UserSignUpParams.fromMap(event.toMap()),
-      );
+    on<AuthSignUpEvent>((event, emit) async {
+      var response = await _userSignup(params: event.userSignUpParams);
       response.fold(
-        (l) => emit(AuthFailure(l.message)),
-        (r) => emit(AuthSuccess(r)),
+        (left) => emit(AuthFailure(left.message)),
+        (right) => emit(AuthSuccess(right)),
       );
     });
   }

@@ -54,7 +54,6 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 20),
               AuthGradientButton(buttonText: 'Sign In', onPressed: () {}),
               const SizedBox(height: 20),
-
               RichText(
                 text: TextSpan(
                   text: 'Don\'t have an account? ',
