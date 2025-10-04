@@ -1,9 +1,7 @@
-import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
 import 'package:track_it_health/core/constants/api_urls.dart';
 import 'package:track_it_health/core/error/exceptions.dart';
 import 'package:track_it_health/core/network/dio_client.dart';
-import 'package:track_it_health/core/service_locator.dart';
 import 'package:track_it_health/features/auth/data/models/user_model.dart';
 
 abstract interface class AuthApiService {
