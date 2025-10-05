@@ -13,7 +13,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc({required UserSignUpUseCase userSignUpUseCase})
     : _userSignup = userSignUpUseCase,
       super(AuthInitial()) {
+    //event one
     on<AuthSignUpEvent>((event, emit) async {
+      emit(AuthLoading());
       var response = await _userSignup(params: event.userSignUpParams);
       response.fold(
         (left) => emit(AuthFailure(left.message)),
