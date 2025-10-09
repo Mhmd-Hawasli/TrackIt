@@ -1,4 +1,7 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:track_it_health/core/theme/app_palette.dart';
+import 'package:track_it_health/features/auth/domain/usecases/login_usecase.dart';
+import 'package:track_it_health/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:track_it_health/features/auth/presentation/pages/signup_page.dart';
 import 'package:track_it_health/features/auth/presentation/widgets/auth_field.dart';
 import 'package:track_it_health/features/auth/presentation/widgets/auth_gradient_button.dart';
@@ -31,50 +34,71 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(15.0),
-        child: Form(
-          key: formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                'Sign In.',
-                style: TextStyle(fontSize: 60, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 30),
-              AuthField(
-                hintText: 'Username or Email',
-                controller: usernameOrEmailController,
-              ),
-              const SizedBox(height: 15),
-              AuthField(
-                hintText: 'Password',
-                controller: passwordController,
-                isObscureText: true,
-              ),
-              const SizedBox(height: 20),
-              AuthGradientButton(buttonText: 'Sign In', onPressed: () {}),
-              const SizedBox(height: 20),
-              RichText(
-                text: TextSpan(
-                  text: 'Don\'t have an account? ',
-                  style: Theme.of(context).textTheme.titleMedium,
-                  children: [
-                    TextSpan(
-                      text: 'Sign Up',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: AppPalette.gradient2,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () {
-                          Navigator.of(context).push(SignUpPage.route());
-                        },
+        child: BlocConsumer<AuthBloc, AuthState>(
+          listener: (context, state) {},
+          builder: (context, state) {
+            return Form(
+              key: formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    'Sign In.',
+                    style: TextStyle(fontSize: 60, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 30),
+                  AuthField(
+                    hintText: 'Username or Email',
+                    controller: usernameOrEmailController,
+                  ),
+                  const SizedBox(height: 15),
+                  AuthField(
+                    hintText: 'Password',
+                    controller: passwordController,
+                    isObscureText: true,
+                  ),
+                  const SizedBox(height: 20),
+                  AuthGradientButton(
+                    buttonText: 'Sign In',
+                    onPressed: () {
+                      if (formKey.currentState!.validate()) {
+                        context.read<AuthBloc>().add(
+                          AuthLoginEvent(
+                            userLoginParams: UserLoginParams(
+                              usernameOrEmail: usernameOrEmailController.text
+                                  .trim(),
+                              password: passwordController.text.trim(),
+                            ),
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  RichText(
+                    text: TextSpan(
+                      text: 'Don\'t have an account? ',
+                      style: Theme.of(context).textTheme.titleMedium,
+                      children: [
+                        TextSpan(
+                          text: 'Sign Up',
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(
+                                color: AppPalette.gradient2,
+                                fontWeight: FontWeight.bold,
+                              ),
+                          recognizer: TapGestureRecognizer()
+                            ..onTap = () {
+                              Navigator.of(context).push(SignUpPage.route());
+                            },
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );

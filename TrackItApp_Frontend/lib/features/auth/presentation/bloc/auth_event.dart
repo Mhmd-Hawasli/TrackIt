@@ -8,3 +8,9 @@ final class AuthSignUpEvent extends AuthEvent {
 
   AuthSignUpEvent({required this.userSignUpParams});
 }
+
+final class AuthLoginEvent extends AuthEvent {
+  final UserLoginParams userLoginParams;
+
+  AuthLoginEvent({required this.userLoginParams});
+}

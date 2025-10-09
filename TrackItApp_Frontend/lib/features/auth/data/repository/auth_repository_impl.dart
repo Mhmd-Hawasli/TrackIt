@@ -12,15 +12,20 @@ class AuthRepositoryImpl implements AuthRepository {
     : _authApiService = authApiService;
 
   @override
-  Future<Either<Failure, UserEntity>> login(Map<String, dynamic> data) {
-    // TODO: implement login
-    throw UnimplementedError();
+  Future<Either<Failure, UserEntity>> login(Map<String, dynamic> data) async {
+    return _getUser(() async => _authApiService.login(data));
   }
 
   @override
   Future<Either<Failure, UserEntity>> signup(Map<String, dynamic> data) async {
+    return _getUser(() async => _authApiService.signup(data));
+  }
+
+  Future<Either<Failure, UserEntity>> _getUser(
+    Future<UserEntity> Function() fn,
+  ) async {
     try {
-      final userInfo = await _authApiService.signup(data);
+      final userInfo = await fn();
       return Right(userInfo);
     } on ServerExceptions catch (e) {
       return Left(Failure(e.message));

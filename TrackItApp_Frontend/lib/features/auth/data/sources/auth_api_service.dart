@@ -17,9 +17,16 @@ class AuthApiServiceImpl implements AuthApiService {
   const AuthApiServiceImpl(DioClient dioClient) : _dioClient = dioClient;
 
   @override
-  Future<UserModel> login(Map<String, dynamic> data) {
-    // TODO: implement login
-    throw UnimplementedError();
+  Future<UserModel> login(Map<String, dynamic> data) async {
+    try {
+      var response = await _dioClient.post(ApiUrls.login, data: data);
+      if (response.data == null) {
+        throw ServerExceptions("response data is null.");
+      }
+      return UserModel.fromMap(response.data["data"]);
+    } on DioException catch (e) {
+      throw ServerExceptions(e.response?.data['message']);
+    }
   }
 
   @override

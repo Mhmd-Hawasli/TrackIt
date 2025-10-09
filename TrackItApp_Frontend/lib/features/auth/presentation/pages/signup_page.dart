@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:track_it_health/core/common/widgets/loader.dart';
 import 'package:track_it_health/core/theme/app_palette.dart';
 import 'package:track_it_health/core/utils/show_snakbar.dart';
-import 'package:track_it_health/features/auth/domain/usecases/signup_use_case.dart';
+import 'package:track_it_health/features/auth/domain/usecases/signup_usecase.dart';
 import 'package:track_it_health/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:track_it_health/features/auth/presentation/pages/login_page.dart';
 import 'package:track_it_health/features/auth/presentation/pages/verification_code_page.dart';
