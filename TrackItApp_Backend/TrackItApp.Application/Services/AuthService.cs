@@ -175,17 +175,18 @@ namespace TrackItApp.Application.Services
         #region ResendActivationCodeAsync
         public async Task<ApiResponse<object>> ResendActivationCodeAsync(ResendActivationCodeDto request, string currentDeviceId)
         {
-            //normalize email
-            request.Email = request.Email.ToLower();
-
             //get codeModel record from database via Email and DeviceId
-            var verificationCode = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => vc.User.Email == request.Email && vc.DeviceId == currentDeviceId && vc.CodeType == CodeType.ActivateAccount, "User");
+            var verificationCode = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(
+            vc => vc.DeviceId == currentDeviceId &&
+                  vc.CodeType == CodeType.ActivateAccount&&
+                  (vc.User.Email == request.Input.ToLower() || vc.User.Username == request.Input)
+                  , "User");
             if (verificationCode == null)
             {
                 return new ApiResponse<object>("You don’t have any expired code to resend.");
             }
 
-            await _emailService.SendEmailVerificationCode(verificationCode.UserId, request.Email, currentDeviceId, verificationCode.CodeType);
+            await _emailService.SendEmailVerificationCode(verificationCode.UserId, verificationCode.User.Email, currentDeviceId, verificationCode.CodeType);
             await _unitOfWork.CompleteAsync();
 
             return new ApiResponse<object>(true, null, "The code has been re-sent to your email.", null);
@@ -195,14 +196,10 @@ namespace TrackItApp.Application.Services
 
         #region VerifyActivationCodeAsync
         public async Task<ApiResponse<LoginResponse>> VerifyActivationCodeAsync(VerifyActivationCodeDto request, string currentDeviceId)
-        {
-            //normalize email
-            request.Email = request.Email.ToLower();
-
-
+        { 
             //get verification code record from database
             var codeModel = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(
-                vc => vc.DeviceId == currentDeviceId && vc.User.Email == request.Email,
+                vc => vc.DeviceId == currentDeviceId && (vc.User.Email == request.Input.ToLower() || vc.User.Username == request.Input),
                 "User.UserSessions", "User.UserType");
             if (codeModel == null)
             {
@@ -219,7 +216,7 @@ namespace TrackItApp.Application.Services
             //check if codeModel is expired and new email
             if (codeModel.ExpiresAt < DateTime.UtcNow)
             {
-                await _emailService.SendEmailVerificationCode(codeModel.UserId, request.Email, currentDeviceId, CodeType.ActivateAccount);
+                await _emailService.SendEmailVerificationCode(codeModel.UserId, codeModel.Email, currentDeviceId, CodeType.ActivateAccount);
                 await _unitOfWork.CompleteAsync();
                 return new ApiResponse<LoginResponse>("Your code has expired. Please check your email address.");
             }

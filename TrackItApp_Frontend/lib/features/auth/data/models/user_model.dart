@@ -1,4 +1,6 @@
-import 'package:track_it_health/features/auth/domain/entities/user_entity.dart';
+import 'dart:ui';
+
+import 'package:track_it_health/common/entities/user_entity.dart';
 
 class UserModel extends UserEntity {
   UserModel({
@@ -9,23 +11,31 @@ class UserModel extends UserEntity {
     super.backupEmail,
   });
 
-  Map<String, dynamic> toMap() {
+  Map<String, dynamic> toJson() {
     return {
-      'userId': this.userId,
-      'name': this.name,
-      'username': this.username,
-      'email': this.email,
-      'backupEmail': this.backupEmail,
+      'userId': userId,
+      'name': name,
+      'username': username,
+      'email': email,
+      'backupEmail': backupEmail,
     };
   }
 
-  factory UserModel.fromMap(Map<String, dynamic> map) {
+  factory UserModel.fromJson(Map<String, dynamic> map) {
     return UserModel(
-      userId: map['userId'] as int,
-      name: map['name'] as String,
-      username: map['username'] as String,
-      email: map['email'] as String,
+      userId: map['userId'] as int ?? 0,
+      name: map['name'] as String ?? '',
+      username: map['username'] as String ?? '',
+      email: map['email'] as String ?? '',
       backupEmail: map['backupEmail'] as String?,
     );
   }
+
+  UserEntity toEntity() => UserEntity(
+    userId: userId,
+    name: name,
+    username: username,
+    email: email,
+    backupEmail: backupEmail,
+  );
 }

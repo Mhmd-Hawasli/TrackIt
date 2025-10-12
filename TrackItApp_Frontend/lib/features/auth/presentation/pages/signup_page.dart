@@ -1,6 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:track_it_health/core/common/widgets/loader.dart';
+import 'package:track_it_health/common/widgets/loader.dart';
 import 'package:track_it_health/core/theme/app_palette.dart';
 import 'package:track_it_health/core/utils/show_snakbar.dart';
 import 'package:track_it_health/features/auth/domain/usecases/signup_usecase.dart';
@@ -44,14 +44,17 @@ class _SignUpPageState extends State<SignUpPage> {
         minimum: EdgeInsets.all(15.0),
         child: BlocConsumer<AuthBloc, AuthState>(
           listener: (context, state) {
-            if (state is AuthFailure) {
+            if (state is AuthFailureState) {
               showSnackBar(context, state.message);
-            } else if (state is AuthSuccess) {
-              Navigator.of(context).push(VerificationCodePage.route());
+            } else if (state is AuthNeedVerifyState) {
+              showSnackBar(context, state.message);
+              Navigator.of(
+                context,
+              ).push(VerificationCodePage.route(input: state.input));
             }
           },
           builder: (context, state) {
-            if (state is AuthLoading) {
+            if (state is AuthLoadingState) {
               return const Loader();
             }
             return Form(

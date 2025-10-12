@@ -14,3 +14,13 @@ final class AuthLoginEvent extends AuthEvent {
 
   AuthLoginEvent({required this.userLoginParams});
 }
+
+final class AuthVerifyAccountEvent extends AuthEvent {
+  final VerifyAccountParams verifyAccountParams;
+
+  AuthVerifyAccountEvent({required this.verifyAccountParams});
+}
+
+final class AuthForgetPasswordEvent extends AuthEvent {}
+
+final class AuthVerifyWithBackupEmailEvent extends AuthEvent {}

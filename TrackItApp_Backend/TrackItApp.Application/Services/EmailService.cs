@@ -49,7 +49,7 @@ namespace TrackItApp.Application.Services
                 existingCode.Code = BCrypt.Net.BCrypt.HashPassword(verificationCode);
                 existingCode.ExpiresAt = DateTime.UtcNow.AddHours(1);
                 existingCode.CodeType = codeType;
-                existingCode.Email = email;
+                existingCode.Email = email.ToLower();
                 _unitOfWork.VerificationCodeRepository.Update(existingCode);
             }
             else if (existingCode == null)
@@ -59,7 +59,7 @@ namespace TrackItApp.Application.Services
                     UserId = userId,
                     Code = BCrypt.Net.BCrypt.HashPassword(verificationCode),
                     ExpiresAt = DateTime.UtcNow.AddHours(1),
-                    Email = email,
+                    Email = email.ToLower(),
                     CodeType = codeType,
                     DeviceId = deviceId
                 };
@@ -68,7 +68,7 @@ namespace TrackItApp.Application.Services
             var subject = "Your Verification Code";
             var body = $"<html><body><h1>Hello,</h1><p>Your verification code is: <strong>{verificationCode}</strong></p></body></html>";
 
-            await SendEmailAsync(email, subject, body);
+            await SendEmailAsync(email.ToLower(), subject, body);
 
             return verificationCode;
         }

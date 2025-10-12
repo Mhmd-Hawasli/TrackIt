@@ -10,8 +10,8 @@ namespace TrackItApp.Application.DTOs.UserDto.Auth.AccountActivation
     public class VerifyActivationCodeDto
     {
         [Required]
-        [EmailAddress]
-        public string Email { get; set; }
+        public string Input{ get; set; }
+        [Required]
         public string Code { get; set; }
     }
 }

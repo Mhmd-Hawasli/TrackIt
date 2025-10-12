@@ -1,17 +1,16 @@
 import 'package:dartz/dartz.dart';
 import 'package:track_it_health/core/error/failure.dart';
 import 'package:track_it_health/core/usecase/usecase.dart';
-import 'package:track_it_health/features/auth/domain/entities/user_entity.dart';
 import 'package:track_it_health/features/auth/domain/repository/auth_repository.dart';
 
-class UserSignUpUseCase implements UseCase<UserEntity, UserSignUpParams> {
+class UserSignUpUseCase implements UseCase<String, UserSignUpParams> {
   final AuthRepository _authRepository;
 
   const UserSignUpUseCase(AuthRepository authRepository)
     : _authRepository = authRepository;
 
   @override
-  Future<Either<Failure, UserEntity>> call({
+  Future<Either<Failure, String>> call({
     required UserSignUpParams params,
   }) async {
     return await _authRepository.signup(params.toMap());
@@ -33,10 +32,10 @@ class UserSignUpParams {
 
   Map<String, dynamic> toMap() {
     return {
-      'name': this.name,
-      'username': this.username,
-      'email': this.email,
-      'password': this.password,
+      'name': name,
+      'username': username,
+      'email': email,
+      'password': password,
     };
   }
 

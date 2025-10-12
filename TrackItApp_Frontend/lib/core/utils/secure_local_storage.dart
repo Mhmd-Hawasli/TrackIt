@@ -1,6 +1,6 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-class LocalStorage {
+class SecureLocalStorage {
   static final _storage = const FlutterSecureStorage();
 
   static const _keyAccessToken = 'access_token';

@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:logger/logger.dart';
+import 'package:track_it_health/core/utils/secure_local_storage.dart';
 
 /// This interceptor is used to show request and response logs
 class LoggerInterceptor extends Interceptor {
@@ -26,10 +27,24 @@ class LoggerInterceptor extends Interceptor {
   }
 
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+  void onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    // Retrieve access token securely from local storage
+    final token = await SecureLocalStorage.getAccessToken();
+
+    // Add Authorization header if token exists
+    if (token != null && token.isNotEmpty) {
+      options.headers['Authorization'] = 'Bearer $token';
+    }
+
+    // Build and log full request path
     final requestPath = '${options.baseUrl}${options.path}';
-    logger.i('${options.method} request ==> $requestPath'); //Info log
-    handler.next(options); // continue with the Request
+    logger.i('${options.method} request ==> $requestPath'); // Info log
+
+    // Continue the request
+    return handler.next(options);
   }
 
   @override

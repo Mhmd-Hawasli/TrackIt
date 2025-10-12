@@ -11,7 +11,6 @@ namespace TrackItApp.Application.DTOs.UserDto.Auth.AccountActivation
     public class ResendActivationCodeDto
     {
         [Required]
-        [EmailAddress]
-        public string Email { get; set; }
+        public string Input { get; set; }
     }
 }
