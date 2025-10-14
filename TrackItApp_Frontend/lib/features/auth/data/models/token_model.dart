@@ -12,8 +12,8 @@ class TokenModel extends TokenEntity {
 
   factory TokenModel.fromJson(Map<String, dynamic> map) {
     return TokenModel(
-      accessToken: map['accessToken'] as String ?? '',
-      refreshToken: map['refreshToken'] as String ?? '',
+      accessToken: map['accessToken'] as String,
+      refreshToken: map['refreshToken'] as String,
     );
   }
 

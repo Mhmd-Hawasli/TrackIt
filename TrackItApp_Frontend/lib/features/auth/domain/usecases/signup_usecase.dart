@@ -1,6 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:track_it_health/core/error/failure.dart';
-import 'package:track_it_health/core/usecase/usecase.dart';
+import 'package:track_it_health/core/utils/usecase/usecase.dart';
 import 'package:track_it_health/features/auth/domain/repository/auth_repository.dart';
 
 class UserSignUpUseCase implements UseCase<String, UserSignUpParams> {
