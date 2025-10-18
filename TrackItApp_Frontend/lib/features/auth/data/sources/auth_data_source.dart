@@ -20,28 +20,29 @@ class AuthApiServiceImpl implements AuthApiService {
 
   @override
   Future<String> signup(Map<String, dynamic> data) async {
-    return await _dioClient.post(ApiUrls.register, data: data);
+    final responseData = await _dioClient.post(ApiUrls.register, data: data);
+    return responseData['message'];
   }
 
   @override
   Future<Either<String, TokenModel>> login(Map<String, dynamic> data) async {
-    try {
-      final result = await _dioClient.post(ApiUrls.login, data: data);
+    final responseData = await _dioClient.post(ApiUrls.login, data: data);
 
-      // إذا رجع String معناها رسالة "verify your account"
-      if (result is String) {
-        return left(result);
-      }
-
-      // إذا رجعت Map → حولها لـ TokenModel
-      return right(TokenModel.fromJson(result));
-    } on ServerExceptions catch (e) {
-      throw ServerExceptions(e.message);
+    if (responseData['data'] == null) {
+      return left(responseData['message']);
     }
+    return right(TokenModel.fromJson(responseData['data']));
   }
 
   @override
   Future<TokenModel> verifyAccount(Map<String, dynamic> data) async {
-    return await _dioClient.post(ApiUrls.verifyAccount, data: data);
+    final responseData = await _dioClient.post(
+      ApiUrls.verifyAccount,
+      data: data,
+    );
+    if (responseData['data'] == null) {
+      throw ServerExceptions(responseData['message'] ?? 'an error occurred.');
+    }
+    return TokenModel.fromJson(responseData['data']);
   }
 }
