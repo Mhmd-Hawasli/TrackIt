@@ -6,5 +6,5 @@ sealed class AppTokenEvent {}
 final class SaveTokenEvent extends AppTokenEvent {
   final TokenEntity tokenEntity;
 
-  SaveTokenEvent(this.tokenEntity);
+  SaveTokenEvent({required this.tokenEntity});
 }

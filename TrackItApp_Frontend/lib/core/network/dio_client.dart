@@ -28,18 +28,13 @@ class DioClient {
       throw ServerExceptions('Response data is null.');
     }
 
-    if (data is Map<String, dynamic>) {
-      final succeeded = data['succeeded'];
-      final message = data['message'] ?? 'Unknown error occurred.';
+    final bool succeeded = data['succeeded'] ?? false;
+    final String message = data['message'] ?? 'Unknown error occurred.';
 
-      if (succeeded == false) {
-        throw ServerExceptions(message);
-      }
-
-      return data['data'] ?? message;
+    if (succeeded == false) {
+      throw ServerExceptions(message);
     }
 
-    // For non-standard responses
     return data;
   }
 

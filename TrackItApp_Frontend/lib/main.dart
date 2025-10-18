@@ -1,4 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:track_it_health/common/blocs/app_token/app_token_bloc.dart';
+import 'package:track_it_health/common/blocs/app_user/app_user_bloc.dart';
 import 'package:track_it_health/core/service_locator.dart';
 import 'package:track_it_health/core/theme/theme.dart';
 import 'package:track_it_health/features/auth/presentation/bloc/auth_bloc.dart';
@@ -11,7 +13,9 @@ void main() async {
   runApp(
     MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => sl<AuthBloc>(), child: Container(),),
+        BlocProvider(create: (_) => serviceLocator<AuthBloc>()),
+        BlocProvider(create: (_) => serviceLocator<AppTokenBloc>()),
+        BlocProvider(create: (_) => serviceLocator<AppUserBloc>()),
       ],
       child: const MyApp(),
     ),

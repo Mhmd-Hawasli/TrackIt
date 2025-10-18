@@ -1,11 +1,13 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:track_it_health/common/blocs/app_token/app_token_bloc.dart';
 import 'package:track_it_health/core/theme/app_palette.dart';
-import 'package:track_it_health/features/auth/domain/usecases/verify_account_usecase.dart';
+import 'package:track_it_health/features/auth/domain/usecases/verify_account_use_case.dart';
 import 'package:track_it_health/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:track_it_health/features/auth/presentation/widgets/auth_field.dart';
 import 'package:track_it_health/features/auth/presentation/widgets/auth_gradient_button.dart';
+import 'package:track_it_health/features/dashboard/presentation/pages/dashboard_page.dart';
 
 class VerificationCodePage extends StatefulWidget {
   final String input;
@@ -34,13 +36,27 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: BlocConsumer<AuthBloc, AuthState>(
-        listener: (context, state) {},
+        listener: (context, state) {
+          if (state is AuthSuccessState) {
+            context.read<AppTokenBloc>().add(
+              SaveTokenEvent(tokenEntity: state.tokenEntity),
+            );
+            if (!mounted) return;
+            Navigator.of(
+              context,
+            ).pushAndRemoveUntil(DashboardPage.route(), (route) => false);
+          }
+        },
         builder: (context, state) {
           return SafeArea(
             child: Center(
               child: Form(
                 key: formKey,
                 child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 60,
+                  ),
                   reverse: false,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -48,7 +64,7 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
                       const Text(
                         'Verify your account.',
                         style: TextStyle(
-                          fontSize: 40,
+                          fontSize: 30,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

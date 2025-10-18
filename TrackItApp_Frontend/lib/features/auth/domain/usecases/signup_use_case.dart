@@ -3,10 +3,10 @@ import 'package:track_it_health/core/error/failure.dart';
 import 'package:track_it_health/core/utils/usecase/usecase.dart';
 import 'package:track_it_health/features/auth/domain/repository/auth_repository.dart';
 
-class UserSignUpUseCase implements UseCase<String, UserSignUpParams> {
+class SignUpUseCase implements UseCase<String, UserSignUpParams> {
   final AuthRepository _authRepository;
 
-  const UserSignUpUseCase(AuthRepository authRepository)
+  const SignUpUseCase(AuthRepository authRepository)
     : _authRepository = authRepository;
 
   @override

@@ -5,11 +5,11 @@ import 'package:track_it_health/core/utils/usecase/usecase.dart';
 import 'package:track_it_health/common/entities/user_entity.dart';
 import 'package:track_it_health/features/auth/domain/repository/auth_repository.dart';
 
-class UserLoginUseCase
+class LoginUseCase
     implements UseCase<Either<String, TokenEntity>, UserLoginParams> {
   final AuthRepository _authRepository;
 
-  const UserLoginUseCase(AuthRepository authRepository)
+  const LoginUseCase(AuthRepository authRepository)
     : _authRepository = authRepository;
 
   @override

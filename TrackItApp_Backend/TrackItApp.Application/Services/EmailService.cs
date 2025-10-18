@@ -38,7 +38,7 @@ namespace TrackItApp.Application.Services
         /// <param name="userId">The user's Id.</param>
         /// <param name="email">The email address to send the code to.</param>
         /// <returns>The generated verification code.</returns>
-        public async Task<string> SendEmailVerificationCode(int userId, string email, string deviceId, CodeType codeType)
+        public async Task SendEmailVerificationCode(int userId, string email, string deviceId, CodeType codeType)
         {
             var verificationCode = new Random().Next(100000, 999999).ToString();
 
@@ -46,7 +46,7 @@ namespace TrackItApp.Application.Services
             var existingCode = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(vc => vc.UserId == userId && vc.DeviceId == deviceId);
             if (existingCode != null)
             {
-                existingCode.Code = BCrypt.Net.BCrypt.HashPassword(verificationCode);
+                existingCode.Code = verificationCode;
                 existingCode.ExpiresAt = DateTime.UtcNow.AddHours(1);
                 existingCode.CodeType = codeType;
                 existingCode.Email = email.ToLower();
@@ -57,7 +57,7 @@ namespace TrackItApp.Application.Services
                 var verificationEntity = new VerificationCode
                 {
                     UserId = userId,
-                    Code = BCrypt.Net.BCrypt.HashPassword(verificationCode),
+                    Code = verificationCode,
                     ExpiresAt = DateTime.UtcNow.AddHours(1),
                     Email = email.ToLower(),
                     CodeType = codeType,
@@ -69,8 +69,6 @@ namespace TrackItApp.Application.Services
             var body = $"<html><body><h1>Hello,</h1><p>Your verification code is: <strong>{verificationCode}</strong></p></body></html>";
 
             await SendEmailAsync(email.ToLower(), subject, body);
-
-            return verificationCode;
         }
         #endregion
 

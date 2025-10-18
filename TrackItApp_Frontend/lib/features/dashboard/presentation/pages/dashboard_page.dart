@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:track_it_health/common/blocs/app_token/app_token_bloc.dart';
+import 'package:track_it_health/common/blocs/app_user/app_user_bloc.dart';
 
 class DashboardPage extends StatelessWidget {
   static route() =>
@@ -8,6 +11,14 @@ class DashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text("Home Page"));
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<AppTokenBloc, AppTokenState>(
+          listener: (context, state) {},
+        ),
+        BlocListener<AppUserBloc, AppUserState>(listener: (context, state) {}),
+      ],
+      child: Center(child: Text("Home Page")),
+    );
   }
 }

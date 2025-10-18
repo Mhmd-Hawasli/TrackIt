@@ -6,29 +6,33 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:track_it_health/common/entities/token_entity.dart';
 import 'package:track_it_health/common/entities/user_entity.dart';
 import 'package:track_it_health/core/utils/secure_local_storage.dart';
-import 'package:track_it_health/features/auth/domain/usecases/login_usecase.dart';
-import 'package:track_it_health/features/auth/domain/usecases/signup_usecase.dart';
-import 'package:track_it_health/features/auth/domain/usecases/verify_account_usecase.dart';
+import 'package:track_it_health/features/auth/domain/usecases/login_use_case.dart';
+import 'package:track_it_health/features/auth/domain/usecases/signup_use_case.dart';
+import 'package:track_it_health/features/auth/domain/usecases/verify_account_use_case.dart';
 
 part 'auth_event.dart';
 
 part 'auth_state.dart';
 
 class AuthBloc extends Bloc<AuthEvent, AuthState> {
-  final UserSignUpUseCase _userSignup;
-  final UserLoginUseCase _userLogin;
+  final SignUpUseCase _signupUseCase;
+  final LoginUseCase _loginUseCase;
+  final VerifyAccountUseCase _verifyAccountUseCase;
+  static const Duration _timeoutDurations = Duration(seconds: 10);
 
   AuthBloc({
-    required UserSignUpUseCase userSignUpUseCase,
-    required UserLoginUseCase userLoginUseCase,
-  }) : _userSignup = userSignUpUseCase,
-       _userLogin = userLoginUseCase,
+    required SignUpUseCase signUpUseCase,
+    required LoginUseCase loginUseCase,
+    required VerifyAccountUseCase verifyAccountUseCase,
+  }) : _signupUseCase = signUpUseCase,
+       _loginUseCase = loginUseCase,
+       _verifyAccountUseCase = verifyAccountUseCase,
        super(AuthInitialState()) {
-    //event one
+    //event 1
     on<AuthSignUpEvent>(_onAuthSignUpEvent);
-    //event two
+    //event 2
     on<AuthLoginEvent>(_onAuthLoginEvent);
-    //event three
+    //event 3
     on<AuthVerifyAccountEvent>(_onAuthVerifyAccountEvent);
   }
 
@@ -38,8 +42,28 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(AuthLoadingState());
     try {
-      // final response = await
-    } catch (e) {}
+      final response =
+          await _verifyAccountUseCase(
+            params: event.verifyAccountParams,
+          ).timeout(
+            _timeoutDurations,
+            onTimeout: () {
+              throw TimeoutException('verifyAccount request timed out');
+            },
+          );
+      response.fold(
+        // Left
+        (failure) => emit(AuthFailureState(failure.message)),
+        // Right
+        (tokenEntity) {
+          (emit(AuthSuccessState(tokenEntity)));
+        },
+      );
+    } on TimeoutException {
+      emit(AuthFailureState('Request time out. Please try again.'));
+    } catch (e) {
+      emit(AuthFailureState('Unexpected error: $e'));
+    }
   }
 
   void _onAuthSignUpEvent(
@@ -48,17 +72,15 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   ) async {
     emit(AuthLoadingState());
     try {
-      //set timeout Duration
-      const timeoutDuration = Duration(seconds: 10);
-      final response = await _userSignup(params: event.userSignUpParams)
+      final response = await _signupUseCase(params: event.userSignUpParams)
           .timeout(
-            timeoutDuration,
+            _timeoutDurations,
             onTimeout: () {
               throw TimeoutException('SignUp request timed out');
             },
           );
       response.fold(
-        (left) => emit(AuthFailureState(left.message)),
+        (failure) => emit(AuthFailureState(failure.message)),
         (succeededMessage) => emit(
           AuthNeedVerifyState(event.userSignUpParams.email, succeededMessage),
         ),
@@ -73,20 +95,18 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   void _onAuthLoginEvent(AuthLoginEvent event, Emitter<AuthState> emit) async {
     emit(AuthLoadingState());
     try {
-      //set timeout durations
-      const timeoutDuration = Duration(seconds: 10);
-      final response = await _userLogin(params: event.userLoginParams).timeout(
-        timeoutDuration,
-        onTimeout: () {
-          throw TimeoutException('login request time out.');
-        },
-      );
-
+      final response = await _loginUseCase(params: event.userLoginParams)
+          .timeout(
+            _timeoutDurations,
+            onTimeout: () {
+              throw TimeoutException('login request time out.');
+            },
+          );
       response.fold(
-        // Failure (e.g., network/server error)
+        // Left
         (failure) => emit(AuthFailureState(failure.message)),
 
-        // Success → Either verification message or token
+        // Right
         (either) {
           either.fold(
             // Account needs verification
@@ -94,12 +114,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
                 emit(AuthNeedVerifyState(event.userLoginParams.input, message)),
 
             // Login success → store tokens & emit success
-            (tokenEntity) async {
-              // Save tokens securely
-              await SecureLocalStorage.saveTokens(
-                accessToken: tokenEntity.accessToken,
-                refreshToken: tokenEntity.refreshToken,
-              );
+            (tokenEntity) {
               emit(AuthSuccessState(tokenEntity));
             },
           );

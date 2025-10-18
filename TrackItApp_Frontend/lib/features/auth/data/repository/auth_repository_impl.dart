@@ -3,13 +3,13 @@ import 'package:track_it_health/common/entities/token_entity.dart';
 import 'package:track_it_health/core/error/exceptions.dart';
 import 'package:track_it_health/core/error/failure.dart';
 import 'package:track_it_health/features/auth/data/models/token_model.dart';
-import 'package:track_it_health/features/auth/data/sources/auth_api_service.dart';
+import 'package:track_it_health/features/auth/data/sources/auth_data_source.dart';
 import 'package:track_it_health/features/auth/domain/repository/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
-  final AuthApiService _authApiService;
+  final AuthDataSource _authApiService;
 
-  AuthRepositoryImpl(AuthApiService authApiService)
+  AuthRepositoryImpl(AuthDataSource authApiService)
     : _authApiService = authApiService;
 
   //===========================================
@@ -20,7 +20,7 @@ class AuthRepositoryImpl implements AuthRepository {
     Map<String, dynamic> data,
   ) async {
     try {
-      final tokenInfo = await _authApiService.login(data);
+      final tokenInfo = await _authApiService.loginDataSource(data);
 
       // Map TokenModel → TokenEntity or return message
       return Right(
@@ -40,7 +40,7 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<Either<Failure, String>> signup(Map<String, dynamic> data) async {
     try {
-      final succeededMessage = await _authApiService.signup(data);
+      final succeededMessage = await _authApiService.signupDataSource(data);
       return Right(succeededMessage);
     } on ServerExceptions catch (e) {
       return Left(Failure(e.message));
@@ -55,7 +55,7 @@ class AuthRepositoryImpl implements AuthRepository {
     Map<String, dynamic> data,
   ) async {
     try {
-      final tokenModel = await _authApiService.verifyAccount(data);
+      final tokenModel = await _authApiService.verifyAccountDataSource(data);
       return Right(tokenModel.toEntity());
     } on ServerExceptions catch (e) {
       return Left(Failure(e.message));

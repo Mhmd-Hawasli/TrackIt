@@ -1,8 +1,4 @@
 ﻿using AutoMapper;
-
-using Microsoft.AspNetCore.Localization;
-using System.Net.Http.Headers;
-using System.Runtime.CompilerServices;
 using TrackItApp.Application.Common;
 using TrackItApp.Application.DTOs.UserDto.Auth;
 using TrackItApp.Application.DTOs.UserDto.Auth.AccountActivation;
@@ -104,9 +100,12 @@ namespace TrackItApp.Application.Services
                 await _unitOfWork.CompleteAsync();
                 await _unitOfWork.CommitAsync();
 
-                //return response
-                var response = _mapper.Map<RegisterResponse>(userModel);
-                return new ApiResponse<RegisterResponse>(response, "User has been created successfully. A code has been sent to your email address.");
+                return new ApiResponse<RegisterResponse>(
+                    true,
+                    null,
+                    "User has been created successfully. A code has been sent to your email address.",
+                    null
+                );
             }
             catch (Exception ex)
             {
@@ -176,17 +175,23 @@ namespace TrackItApp.Application.Services
         public async Task<ApiResponse<object>> ResendActivationCodeAsync(ResendActivationCodeDto request, string currentDeviceId)
         {
             //get codeModel record from database via Email and DeviceId
-            var verificationCode = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(
+            var codeModel = await _unitOfWork.VerificationCodeRepository.FirstOrDefaultAsync(
             vc => vc.DeviceId == currentDeviceId &&
                   vc.CodeType == CodeType.ActivateAccount&&
                   (vc.User.Email == request.Input.ToLower() || vc.User.Username == request.Input)
                   , "User");
-            if (verificationCode == null)
+            if (codeModel == null )
             {
-                return new ApiResponse<object>("You don’t have any expired code to resend.");
+                return new ApiResponse<object>("Failed to resend verification code. Please log in again.");
             }
 
-            await _emailService.SendEmailVerificationCode(verificationCode.UserId, verificationCode.User.Email, currentDeviceId, verificationCode.CodeType);
+            if(codeModel.ExpiresAt.AddHours(-1).AddMinutes(1) > DateTime.UtcNow)
+            {
+                int waitingTime = codeModel.ExpiresAt.AddHours(-1).AddMinutes(1).Second - DateTime.UtcNow.Second;
+                return new ApiResponse<object>($"Please wait {waitingTime} seconds before requesting a new code.");
+            }
+
+            await _emailService.SendEmailVerificationCode(codeModel.UserId, codeModel.User.Email, currentDeviceId, codeModel.CodeType);
             await _unitOfWork.CompleteAsync();
 
             return new ApiResponse<object>(true, null, "The code has been re-sent to your email.", null);
@@ -208,7 +213,7 @@ namespace TrackItApp.Application.Services
 
             //check if codeModel is correct and it has the same type
             if (codeModel.CodeType != CodeType.ActivateAccount
-                    || !BCrypt.Net.BCrypt.Verify(request.Code, codeModel.Code))
+                    || request.Code != codeModel.Code)
             {
                 return new ApiResponse<LoginResponse>("The verification code you entered is invalid.");
             }
@@ -375,7 +380,7 @@ namespace TrackItApp.Application.Services
             }
             if (codeModel.ExpiresAt < DateTime.UtcNow
                     || codeModel.CodeType != CodeType.ResetPassword
-                    || !BCrypt.Net.BCrypt.Verify(request.Code, codeModel.Code))
+                    || request.Code != codeModel.Code)
             {
                 return new ApiResponse<object>("Your Verification code is not valid");
             }
@@ -400,7 +405,7 @@ namespace TrackItApp.Application.Services
             }
             if (codeModel.ExpiresAt < DateTime.UtcNow
                     || codeModel.CodeType != CodeType.ResetPassword
-                    || !BCrypt.Net.BCrypt.Verify(request.Code, codeModel.Code))
+                    || request.Code != codeModel.Code)
             {
                 return new ApiResponse<object>("Your Verification code is not valid");
             }
@@ -543,7 +548,7 @@ namespace TrackItApp.Application.Services
                 || codeModel.CodeType != CodeType.ChangeEmail
                 || codeModel.ExpiresAt < DateTime.UtcNow
                 || codeModel.Email != request.NewEmail
-                || !BCrypt.Net.BCrypt.Verify(request.Code, codeModel.Code))
+                || request.Code != codeModel.Code)
             {
                 return new ApiResponse<object>("verification code is not valid.");
             }
@@ -619,7 +624,7 @@ namespace TrackItApp.Application.Services
                 || codeModel.CodeType != CodeType.ChangeBackupEmail
                 || codeModel.ExpiresAt < DateTime.UtcNow
                 || codeModel.Email != request.BackupEmail
-                || !BCrypt.Net.BCrypt.Verify(request.Code, codeModel.Code))
+                || request.Code != codeModel.Code)
             {
                 return new ApiResponse<object>("verification code is not valid.");
             }
@@ -717,7 +722,7 @@ namespace TrackItApp.Application.Services
 
             //check if codeModel is correct and it has the same type
             if (codeModel.CodeType != CodeType.RecoverWithBackupEmail
-                    || !BCrypt.Net.BCrypt.Verify(request.Code, codeModel.Code)
+                    || request.Code != codeModel.Code
                     || codeModel.ExpiresAt < DateTime.UtcNow)
             {
                 return new ApiResponse<LoginResponse>("The verification code you entered is invalid.");
@@ -812,7 +817,7 @@ namespace TrackItApp.Application.Services
                 || codeModel.ExpiresAt < DateTime.UtcNow
                 || codeModel.Email != request.BackupEmail
                 || codeModel.CodeType != CodeType.ResetPasswordWithBackupEmail
-                || !BCrypt.Net.BCrypt.Verify(request.Code, codeModel.Code))
+                || request.Code != codeModel.Code)
             {
                 return new ApiResponse<object>("Invalid verification Code. Please submit the request again.");
             }
@@ -845,7 +850,7 @@ namespace TrackItApp.Application.Services
                     || codeModel.ExpiresAt < DateTime.UtcNow
                     || codeModel.Email != request.BackupEmail
                     || codeModel.CodeType != CodeType.ResetPasswordWithBackupEmail
-                    || !BCrypt.Net.BCrypt.Verify(request.Code, codeModel.Code))
+                    || request.Code != codeModel.Code)
                 {
                     await _unitOfWork.RollbackAsync();
                     return new ApiResponse<object>("Invalid verification Code. Please submit the request again.");

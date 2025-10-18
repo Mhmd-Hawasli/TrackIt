@@ -37,12 +37,12 @@ namespace TrackItApp.API.Controllers
         /// </summary>
         /// <param name="request">The registration details provided by the client (e.g., name, username, email, password).</param>
         /// <returns>
-        /// Returns 200 OK with the registration result if successful, 
+        /// Returns 200 OK if successful, 
         /// or 400 Bad Request with error details if validation fails or registration is unsuccessful.
         /// </returns>
         [HttpPost("register")]
         [AllowAnonymous]
-        [ProducesResponseType(typeof(ApiResponse<RegisterResponse>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
