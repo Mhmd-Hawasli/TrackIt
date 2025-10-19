@@ -8,6 +8,7 @@ using TrackItApp.Application.Common;
 using TrackItApp.Application.DTOs.DictionaryDto;
 using TrackItApp.Application.Interfaces;
 using TrackItApp.Application.Interfaces.Services;
+using TrackItApp.Domain.Entities;
 
 namespace TrackItApp.Application.Services
 {
@@ -20,9 +21,24 @@ namespace TrackItApp.Application.Services
             _mapper = mapper;
             _unitOfWork = unitOfWork;
         }
-        public Task<ApiResponse<DictionaryResponse>> AddDictionaryAsync(AddDictionaryRequest request, int userId)
+        #region AddDictionaryAsync
+        public async Task<ApiResponse<DictionaryResponse>> AddDictionaryAsync(AddDictionaryRequest request, int userId)
         {
+            var existDictionary = await _unitOfWork.DictionaryRepository.FirstOrDefaultAsNoTrackingAsync(d => d.CreatedByUserId == userId && d.DictionaryName == request.DictionaryName);
+            if (existDictionary != null)
+            {
+                return new ApiResponse<DictionaryResponse>("Dictionary name already exists. Please choose another name.");
+            }
+
+            var dictionary = new Dictionary 
+            {
+
+            };
+
+
+
             throw new NotImplementedException();
         }
+        #endregion
     }
 }
