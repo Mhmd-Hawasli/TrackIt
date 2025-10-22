@@ -37,16 +37,6 @@ namespace EnglishApp.Application.Interfaces.Services
         Task<ApiResponse<object>> RequestChangeEmailAsync(RequestChangeEmailDto request, int userId, string deviceId);
         Task<ApiResponse<object>> VerifyChangeEmailAsync(VerifyChangeEmailDto request, int userId, string deviceId);
 
-        //--------------------
-        //Backup Email
-        //--------------------
-        Task<ApiResponse<object>> RequestAddBackupEmailAsync(RequestAddBackupEmailDto request, int userId, string deviceId);
-        Task<ApiResponse<object>> VerifyAddBackupEmailAsync(VerifyAddBackupEmailDto request, int userId, string deviceId);
-        Task<ApiResponse<object>> RemoveBackupEmailAsync(int userId);
-        Task<ApiResponse<object>> RequestActivationWithBackupEmailAsync(RequestActivationWithBackupEmailDto request, string deviceId);
-        Task<ApiResponse<LoginResponse>> VerifyActivationWithBackupEmailAsync(VerifyActivationWithBackupEmailDto request, string deviceId);
-        Task<ApiResponse<object>> ForgetPasswordRequestWithBackupEmailAsync(ForgetPasswordRequestWithBackupEmailDto request, string deviceId);
-        Task<ApiResponse<object>> ForgetPasswordVerifyWithBackupEmailAsync(ForgetPasswordVerifyWithBackupEmailDto request, string deviceId);
-        Task<ApiResponse<object>> ForgetPasswordResetWithBackupEmailAsync(ForgetPasswordResetWithBackupEmailDto request, string deviceId);
+
     }
 }
