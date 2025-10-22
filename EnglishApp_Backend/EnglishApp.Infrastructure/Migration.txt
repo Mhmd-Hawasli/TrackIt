@@ -1,0 +1,8 @@
+dotnet ef migrations add Create04 --project EnglishApp.Infrastructure/EnglishApp.Infrastructure.csproj --startup-project EnglishApp.API
+
+
+dotnet ef database update --project EnglishApp.Infrastructure/EnglishApp.Infrastructure.csproj --startup-project EnglishApp.API/EnglishApp.API.csproj
+
+
+vecy ahta linh rrvs 
+
