@@ -20,7 +20,7 @@ namespace EnglishApp.API.Controllers
         [HttpPost]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> AddDictionary([FromBody] AddDictionaryRequest request)
+        public async Task<IActionResult> AddDictionary([FromBody] DictionaryRequest request)
         {
             //get userId from token 
             int userId = int.Parse(HttpContext.Items["UserId"]!.ToString()!);

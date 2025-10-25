@@ -33,7 +33,7 @@ namespace EnglishApp.Application.Common
         }
 
         //Default Response
-        public ApiResponse(bool succeeded, T? data, string? message, List<string>? errors)
+        public ApiResponse(bool succeeded, T? data, string? message, List<string>? errors = null)
         {
             var alternativeMessage = succeeded ? "Operation Successful" : "An error occurred.";
             Succeeded = succeeded;

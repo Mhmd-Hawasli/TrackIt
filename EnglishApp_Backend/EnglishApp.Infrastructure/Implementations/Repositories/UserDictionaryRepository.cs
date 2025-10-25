@@ -5,13 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using EnglishApp.Application.Interfaces.Repositories;
 using EnglishApp.Domain.Entities;
+using EnglishApp.Domain.Repositories;
 using EnglishApp.Infrastructure.Implementations.Persistence;
 
 namespace EnglishApp.Infrastructure.Implementations.Repositories
 {
-    public class DWConfidenceRepository : RepositoryBase<DWConfidence>
-        , IDWConfidenceRepository
+    public class UserDictionaryRepository : RepositoryBase<UserDictionary>, IUserDictionaryRepository
     {
-        public DWConfidenceRepository(AppDbContext context) : base(context) { }
+        public UserDictionaryRepository(AppDbContext context) : base(context) { }
     }
 }

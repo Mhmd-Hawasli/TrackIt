@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using EnglishApp.Application.Common;
 using EnglishApp.Application.DTOs.UserDto.Auth;
 using EnglishApp.Application.DTOs.UserDto.Auth.AccountActivation;
-using EnglishApp.Application.DTOs.UserDto.Auth.BackupEmail;
 using EnglishApp.Application.DTOs.UserDto.Auth.ChangeEmail;
 using EnglishApp.Application.DTOs.UserDto.Auth.ChangePassword;
 

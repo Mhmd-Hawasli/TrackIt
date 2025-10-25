@@ -5,13 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using EnglishApp.Application.Interfaces.Repositories;
 using EnglishApp.Domain.Entities;
-using EnglishApp.Domain.Repositories;
 using EnglishApp.Infrastructure.Implementations.Persistence;
 
 namespace EnglishApp.Infrastructure.Implementations.Repositories
 {
-    public class DictionaryRepository : RepositoryBase<Dictionary>, IDictionaryRepository
+    public class WordRepository : RepositoryBase<Word>
+        , IWordRepository
     {
-        public DictionaryRepository(AppDbContext context) : base(context) { }
+        public WordRepository(AppDbContext context) : base(context) { }
     }
 }

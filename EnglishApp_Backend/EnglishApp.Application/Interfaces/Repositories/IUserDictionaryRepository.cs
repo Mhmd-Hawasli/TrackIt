@@ -8,7 +8,7 @@ using EnglishApp.Domain.Repositories;
 
 namespace EnglishApp.Application.Interfaces.Repositories
 {
-    public interface IDWConfidenceRepository : IRepositoryBase<DWConfidence>
+    public interface IUserDictionaryRepository : IRepositoryBase<UserDictionary>
     {
     }
 }

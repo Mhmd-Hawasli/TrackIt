@@ -9,9 +9,9 @@ using EnglishApp.Infrastructure.Implementations.Persistence;
 
 namespace EnglishApp.Infrastructure.Implementations.Repositories
 {
-    public class DictionaryWordRepository : RepositoryBase<DictionaryWord>
-        , IDictionaryWordRepository
+    public class WordConfidenceRepository : RepositoryBase<WordConfidence>
+        , IWordConfidenceRepository
     {
-        public DictionaryWordRepository(AppDbContext context) : base(context) { }
+        public WordConfidenceRepository(AppDbContext context) : base(context) { }
     }
 }

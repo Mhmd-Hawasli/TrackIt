@@ -11,6 +11,6 @@ namespace EnglishApp.Application.Interfaces.Services
 {
     public interface IDictionaryService
     {
-        Task<ApiResponse<DictionaryResponse>> AddDictionaryAsync(AddDictionaryRequest request, int userId);
+        Task<ApiResponse<DictionaryResponse>> AddDictionaryAsync(DictionaryRequest request, int userId);
     }
 }

@@ -7,9 +7,11 @@ using EnglishApp.Domain.Entities;
 
 namespace EnglishApp.Application.DTOs.DictionaryDto
 {
-    public class AddDictionaryRequest
+    public class DictionaryRequest
     {
         public string DictionaryName { get; set; }
         public string DictionaryDescription { get; set; }
+        public List<int>? ConfidencePeriods { get; set; } = new();
     }
+   
 }

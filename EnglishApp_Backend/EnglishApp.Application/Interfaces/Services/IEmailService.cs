@@ -9,6 +9,6 @@ namespace EnglishApp.Application.Interfaces.Services
 {
     public interface IEmailService
     {
-        Task<string> SendEmailVerificationCode(int userId, string email, string deviceId, CodeType codeType);
+        Task SendEmailVerificationCode(int userId, string email, string deviceId, CodeType codeType);
     }
 }

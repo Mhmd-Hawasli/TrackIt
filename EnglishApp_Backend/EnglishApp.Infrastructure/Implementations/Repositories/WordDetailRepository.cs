@@ -6,13 +6,12 @@ using System.Threading.Tasks;
 using EnglishApp.Application.Interfaces.Repositories;
 using EnglishApp.Domain.Entities;
 using EnglishApp.Infrastructure.Implementations.Persistence;
-using EnglishApp.Infrastructure.Implementations.Repositories;
 
 namespace EnglishApp.Infrastructure.Implementations.Repositories
 {
-    public class DWReviewHistoryRepository : RepositoryBase<DWReviewHistory>, IDWReviewHistoryRepository
+    public class WordDetailRepository : RepositoryBase<WordDetail>
+        , IWordDetailRepository
     {
-        public DWReviewHistoryRepository(AppDbContext context) : base(context) { }
-
+        public WordDetailRepository(AppDbContext context) : base(context) { }
     }
 }

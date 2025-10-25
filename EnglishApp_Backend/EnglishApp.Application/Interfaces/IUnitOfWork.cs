@@ -14,11 +14,11 @@ namespace EnglishApp.Application.Interfaces
         IUserTypeRepository UserTypeRepository { get; }
         IVerificationCodeRepository VerificationCodeRepository { get; }
         IUserSessionRepository UserSessionRepository { get; }
-        IDictionaryRepository DictionaryRepository { get; }
-        IDictionaryWordRepository DictionaryWordRepository { get; }
-        IDWDetailRepository DWDetailRepository { get; }
-        IDWReviewHistoryRepository DWReviewHistoryRepository { get; }
-        IDWConfidenceRepository DWConfidenceRepository { get; }
+        IUserDictionaryRepository UserDictionaryRepository { get; }
+        IWordRepository WordRepository { get; }
+        IWordDetailRepository WordDetailRepository { get; }
+        IReviewHistoryRepository ReviewHistoryRepository { get; }
+        IWordConfidenceRepository WordConfidenceRepository { get; }
 
         //Method
         Task<int> CompleteAsync();

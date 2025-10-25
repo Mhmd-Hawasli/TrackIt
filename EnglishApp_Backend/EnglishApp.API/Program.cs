@@ -87,11 +87,11 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserSessionRepository, UserSessionRepository>();
 builder.Services.AddScoped<IUserAsOwnerService, UserAsOwnerService>();
 
-builder.Services.AddScoped<IDictionaryRepository, DictionaryRepository>();
-builder.Services.AddScoped<IDWDetailRepository, DWDetailRepository>();
-builder.Services.AddScoped<IDictionaryWordRepository, DictionaryWordRepository>();
-builder.Services.AddScoped<IDWConfidenceRepository, DWConfidenceRepository>();
-builder.Services.AddScoped<IDWReviewHistoryRepository, DWReviewHistoryRepository>();
+builder.Services.AddScoped<IUserDictionaryRepository, UserDictionaryRepository>();
+builder.Services.AddScoped<IWordDetailRepository, WordDetailRepository>();
+builder.Services.AddScoped<IWordRepository, WordRepository>();
+builder.Services.AddScoped<IWordConfidenceRepository, WordConfidenceRepository>();
+builder.Services.AddScoped<IReviewHistoryRepository, ReviewHistoryRepository>();
 builder.Services.AddScoped<IDictionaryService, DictionaryService>();
 #endregion 
 
@@ -112,7 +112,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "TrackIt Api Docs");
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "WordUp Api Docs");
         c.DefaultModelsExpandDepth(-1);
         c.DocExpansion(DocExpansion.None);
     });

@@ -117,7 +117,7 @@ namespace EnglishApp.API.Middlewares
             catch (Exception ex)
             {
                 var error = ex.InnerException?.Message ?? ex.Message;
-                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                 context.Response.ContentType = "application/json";
 
                 var response = new ApiResponse<object>(false, null, null, [error]);

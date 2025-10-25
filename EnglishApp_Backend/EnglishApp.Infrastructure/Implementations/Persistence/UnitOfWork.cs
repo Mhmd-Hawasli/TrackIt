@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using EnglishApp.Application.Interfaces;
+﻿using EnglishApp.Application.Interfaces;
 using EnglishApp.Application.Interfaces.Repositories;
 
 namespace EnglishApp.Infrastructure.Implementations.Persistence
@@ -18,12 +13,12 @@ namespace EnglishApp.Infrastructure.Implementations.Persistence
         public IVerificationCodeRepository VerificationCodeRepository { get; private set; }
         public IUserSessionRepository UserSessionRepository { get; private set; }
 
-        //Dictionary
-        public IDictionaryRepository DictionaryRepository { get; private set; }
-        public IDictionaryWordRepository DictionaryWordRepository { get; private set; }
-        public IDWDetailRepository DWDetailRepository { get; private set; }
-        public IDWConfidenceRepository DWConfidenceRepository { get; private set; }
-        public IDWReviewHistoryRepository DWReviewHistoryRepository { get; private set; }
+        //UserDictionary
+        public IUserDictionaryRepository UserDictionaryRepository { get; private set; }
+        public IWordRepository WordRepository { get; private set; }
+        public IWordDetailRepository WordDetailRepository { get; private set; }
+        public IWordConfidenceRepository WordConfidenceRepository { get; private set; }
+        public IReviewHistoryRepository ReviewHistoryRepository { get; private set; }
 
         public UnitOfWork(
             AppDbContext context,
@@ -31,11 +26,11 @@ namespace EnglishApp.Infrastructure.Implementations.Persistence
             IUserTypeRepository userTypeRepository,
             IVerificationCodeRepository verificationCodeRepository,
             IUserSessionRepository userSessionRepository,
-            IDictionaryRepository dictionaryRepository,
-            IDictionaryWordRepository dictionaryWordRepository,
-            IDWDetailRepository dWDetailRepository,
-            IDWConfidenceRepository dWConfidenceRepository,
-            IDWReviewHistoryRepository dWReviewHistoryRepository
+            IUserDictionaryRepository userDictionaryRepository,
+            IWordRepository wordRepository,
+            IWordDetailRepository wordDetailRepository,
+            IWordConfidenceRepository wordConfidenceRepository,
+            IReviewHistoryRepository reviewHistoryRepository
             )
         {
             _context = context;
@@ -43,11 +38,11 @@ namespace EnglishApp.Infrastructure.Implementations.Persistence
             UserTypeRepository = userTypeRepository;
             VerificationCodeRepository = verificationCodeRepository;
             UserSessionRepository = userSessionRepository;
-            DictionaryRepository = dictionaryRepository;
-            DictionaryWordRepository = dictionaryWordRepository;
-            DWDetailRepository = dWDetailRepository;
-            DWConfidenceRepository = dWConfidenceRepository;
-            DWReviewHistoryRepository = dWReviewHistoryRepository;
+            UserDictionaryRepository = userDictionaryRepository;
+            WordRepository = wordRepository;
+            WordDetailRepository = wordDetailRepository;
+            WordConfidenceRepository = wordConfidenceRepository;
+            ReviewHistoryRepository = reviewHistoryRepository;
         }
 
         //--------------------

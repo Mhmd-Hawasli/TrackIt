@@ -8,7 +8,7 @@ using EnglishApp.Domain.Repositories;
 
 namespace EnglishApp.Application.Interfaces.Repositories
 {
-    public interface IDWReviewHistoryRepository : IRepositoryBase<DWReviewHistory>
+    public interface IReviewHistoryRepository : IRepositoryBase<ReviewHistory>
     {
     }
 }

@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace EnglishApp.Domain.Entities
 {
-    public class DWDetail
+    public class WordDetail
     {
+        [Key]
         public int WordDetailId { get; set; }
         public string Title { get; set; }
         public string? WordImage { get; set; }
@@ -17,8 +20,9 @@ namespace EnglishApp.Domain.Entities
         public string Description { get; set; }
 
         //Relations
+        [ForeignKey("DictionaryWord")]
         public int WordId { get; set; }
-        public DictionaryWord DictionaryWord { get; set; }
+        public Word DictionaryWord { get; set; }
     }
 
     public enum WordType

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +11,7 @@ namespace EnglishApp.Domain.Entities
 {
     public class User : ISoftDelete
     {
+        [Key]
         public int UserId { get; set; }
         public string Name { get; set; }
         public string Username { get; set; }
@@ -20,10 +23,11 @@ namespace EnglishApp.Domain.Entities
         public bool IsDeleted { get; set; }
 
         //Relations
+        [ForeignKey("UserType")]
         public int UserTypeId { get; set; }
         public UserType UserType { get; set; }
-        public ICollection<UserSession> UserSessions { get; set; }
-        public ICollection<VerificationCode> VerificationCodes { get; set; }
-        public ICollection<Dictionary> Dictionaries { get; set; }
+        public List<UserSession> UserSessions { get; set; }
+        public List<VerificationCode> VerificationCodes { get; set; }
+        public List<UserDictionary> Dictionaries { get; set; }
     }
 }
