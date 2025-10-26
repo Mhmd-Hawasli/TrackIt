@@ -1,10 +1,3 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
-using Swashbuckle.AspNetCore.SwaggerUI;
-using System;
-using System.Text;
 using EnglishApp.API.Common;
 using EnglishApp.API.Middlewares;
 using EnglishApp.Application.Common;
@@ -16,6 +9,14 @@ using EnglishApp.Application.Services;
 using EnglishApp.Domain.Repositories;
 using EnglishApp.Infrastructure.Implementations.Persistence;
 using EnglishApp.Infrastructure.Implementations.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using Swashbuckle.AspNetCore.SwaggerUI;
+using System;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
@@ -31,46 +32,47 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connect
 
 
 // JWT Auth
-#region JWT Auth
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-})
-.AddJwtBearer(options =>
-{
-    var signingKey = builder.Configuration["JWT:SigningKey"]
-        ?? throw new InvalidOperationException("JWT:SigningKey is missing");
+//#region JWT Auth
+//builder.Services.AddAuthentication(options =>
+//{
+//    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+//    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+//    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+//})
+//.AddJwtBearer(options =>
+//{
+//    var signingKey = builder.Configuration["JWT:SigningKey"]
+//        ?? throw new InvalidOperationException("JWT:SigningKey is missing");
 
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ClockSkew = TimeSpan.Zero,
-        ValidateLifetime = true,
-        ValidateIssuer = true,
-        ValidIssuer = builder.Configuration["JWT:Issuer"],
-        ValidateAudience = true,
-        ValidAudience = builder.Configuration["JWT:Audience"],
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(signingKey))
-    };
-    options.Events = new JwtBearerEvents
-    {
-        OnAuthenticationFailed = context =>
-        {
-            if (context.Exception is SecurityTokenExpiredException)
-            {
-                context.Response.StatusCode = 401;
-                context.Response.ContentType = "application/json";
-                var result = System.Text.Json.JsonSerializer.Serialize(
-                    new ApiResponse<int>(false, 1, "Unauthorized: Token is expired", null));
-                return context.Response.WriteAsync(result);
-            }
-            return Task.CompletedTask;
-        }
-    };
-});
-#endregion
+//    options.TokenValidationParameters = new TokenValidationParameters
+//    {
+//        ClockSkew = TimeSpan.Zero,
+//        ValidateLifetime = true,
+//        ValidateIssuer = true,
+//        ValidIssuer = builder.Configuration["JWT:Issuer"],
+//        ValidateAudience = true,
+//        ValidAudience = builder.Configuration["JWT:Audience"],
+//        ValidateIssuerSigningKey = true,
+//        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(signingKey))
+//    };
+//    options.Events = new JwtBearerEvents
+//    {
+//        OnAuthenticationFailed = context =>
+//        {
+//            if (context.Exception is SecurityTokenExpiredException &&
+//                context.HttpContext.GetEndpoint()?.Metadata?.GetMetadata<IAllowAnonymous>() != null)
+//            {
+//                context.Response.StatusCode = 401;
+//                context.Response.ContentType = "application/json";
+//                var result = System.Text.Json.JsonSerializer.Serialize(
+//                    new ApiResponse<int>(false, 1, "Unauthorized: Token is expired", null));
+//                return context.Response.WriteAsync(result);
+//            }
+//            return Task.CompletedTask;
+//        }
+//    };
+//});
+//#endregion
 
 //DI
 #region DI
@@ -120,9 +122,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseAuthentication();
+//app.UseAuthentication();
 
-app.UseAuthorization();
+//app.UseAuthorization();
 
 app.UseMiddleware<AuthenticationMiddleware>();
 
