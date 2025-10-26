@@ -22,7 +22,7 @@ namespace EnglishApp.Application.Services
         public async Task<ApiResponse<UserGetByIdResponse>> GetUserInfoAsync(int userId)
         {
             //get user info
-            var user = await _unitOfWork.UserRepository.FirstOrDefaultAsNoTrackingAsync(u => u.UserId == userId);
+            var user = await _unitOfWork.UserRepository.FirstOrDefaultAsync(u => u.UserId == userId);
             if (user == null)
             {
                 return new ApiResponse<UserGetByIdResponse>("User Not Found.");

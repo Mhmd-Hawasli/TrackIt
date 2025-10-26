@@ -78,7 +78,7 @@ namespace EnglishApp.API.Middlewares
 
 
                 //get user session base on user id 
-                var session = await _unitOfWork.UserSessionRepository.FirstOrDefaultAsNoTrackingAsync(us => us.UserId == userId && us.DeviceId == deviceId, "User");
+                var session = await _unitOfWork.UserSessionRepository.FirstOrDefaultAsync(us => us.UserId == userId && us.DeviceId == deviceId, "User");
                 if (session == null || session.User == null)
                 {
                     await WriteErrorResponse(context, 401, "Unauthorized: No active session found.");

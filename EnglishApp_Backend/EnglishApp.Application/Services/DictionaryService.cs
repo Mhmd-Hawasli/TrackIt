@@ -26,7 +26,6 @@ namespace EnglishApp.Application.Services
         public async Task<ApiResponse<DictionaryResponse>> AddDictionaryAsync(DictionaryRequest request, int userId)
         {
             await _unitOfWork.BeginTransactionAsync();
-
             try
             {
                 // Check if a dictionary with the same name already exists for this user
@@ -37,6 +36,7 @@ namespace EnglishApp.Application.Services
 
                 if (existingDictionary != null)
                 {
+                    await _unitOfWork.RollbackAsync();
                     return new ApiResponse<DictionaryResponse>(
                         "A dictionary with the same name already exists. Please choose another name."
                     );
@@ -47,38 +47,39 @@ namespace EnglishApp.Application.Services
                 {
                     DictionaryName = request.DictionaryName.Trim(),
                     DictionaryDescription = request.DictionaryDescription.Trim(),
-                    CreatedByUserId = userId
+                    CreatedByUserId = userId,
+                    CreatedAt = DateTime.UtcNow
                 };
 
                 // Add word confidence periods if provided
                 if (request.ConfidencePeriods?.Any() == true)
                 {
-                    var confidences = request.ConfidencePeriods
-                        .Select((period, index) => new WordConfidence
+                    newDictionary.DictionaryWordConfidences = new List<WordConfidence>();
+                    int confidenceNumber = 0;
+                    foreach (var confidencePeriod in request.ConfidencePeriods)
+                    {
+                        confidenceNumber++;
+                        newDictionary.DictionaryWordConfidences.Add(new WordConfidence
                         {
-                            ConfidenceNumber = index + 1,
-                            ConfidencePeriod = period
-                        })
-                        .ToList();
+                            ConfidenceNumber = confidenceNumber,
+                            ConfidencePeriod = confidencePeriod
 
-                    newDictionary.DictionaryWordConfidences.AddRange(confidences);
+                        });
+                    }
+
                 }
-
                 await _unitOfWork.UserDictionaryRepository.AddAsync(newDictionary);
+
                 await _unitOfWork.CompleteAsync();
                 await _unitOfWork.CommitAsync();
 
-                var response = _mapper.Map<DictionaryResponse>(newDictionary);
 
-                return new ApiResponse<DictionaryResponse>(
-                    response,
-                    "Dictionary created successfully."
-                );
+                var response = _mapper.Map<DictionaryResponse>(newDictionary);
+                return new ApiResponse<DictionaryResponse>(response, "Dictionary created successfully.");
             }
             catch (Exception ex)
             {
                 await _unitOfWork.RollbackAsync();
-
                 return new ApiResponse<DictionaryResponse>(
                     "An error occurred while creating the dictionary.",
                     new List<string> { ex.Message }
@@ -86,8 +87,6 @@ namespace EnglishApp.Application.Services
             }
         }
         #endregion
-
-
 
         #region UpdateDictionaryAsync
         public async Task<ApiResponse<DictionaryResponse>> UpdateDictionaryAsync(DictionaryRequest request, int userId)
@@ -153,7 +152,7 @@ namespace EnglishApp.Application.Services
         #region GetAllDictionariesByUserAsync
         public async Task<ApiResponse<ICollection<DictionaryResponse>>> GetAllDictionariesByUserAsync(int userId)
         {
-            var dictionaries = await _unitOfWork.UserDictionaryRepository.FindAsync(d => d.CreatedByUserId == userId);
+            var dictionaries = await _unitOfWork.UserDictionaryRepository.GetAllAsync(d => d.CreatedByUserId == userId);
             var response = _mapper.Map<ICollection<DictionaryResponse>>(dictionaries);
 
             return new ApiResponse<ICollection<DictionaryResponse>>(response);

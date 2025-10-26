@@ -27,7 +27,7 @@ namespace EnglishApp.Application.Services
         #region GetAllUserAsync
         public async Task<ApiResponse<IEnumerable<UsersResponse>>> GetAllUserAsync(QueryParameters query)
         {
-            var userList = await _unitOfWork.UserRepository.GetAllAsNoTrackingAsync();
+            var userList = await _unitOfWork.UserRepository.GetAllAsync();
 
             var response = _mapper.Map<IEnumerable<UsersResponse>>(userList);
             return new ApiResponse<IEnumerable<UsersResponse>>(response);
@@ -87,7 +87,7 @@ namespace EnglishApp.Application.Services
             }
 
             //delete user form database 
-            _unitOfWork.UserRepository.Delete(user);
+            _unitOfWork.UserRepository.Remove(user);
             _unitOfWork.UserSessionRepository.RemoveRange(user.UserSessions);
             await _unitOfWork.CompleteAsync();
 

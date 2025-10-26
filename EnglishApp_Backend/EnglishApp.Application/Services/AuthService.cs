@@ -138,7 +138,7 @@ namespace EnglishApp.Application.Services
             }
 
             //check if user don't have active session
-            var session = await _unitOfWork.UserSessionRepository.FirstOrDefaultAsNoTrackingAsync(us => us.UserId == user.UserId && us.DeviceId == currentDeviceId);
+            var session = await _unitOfWork.UserSessionRepository.FirstOrDefaultAsync(us => us.UserId == user.UserId && us.DeviceId == currentDeviceId);
             if (session == null || session.LastUpdatedAt < DateTime.UtcNow.AddMonths(-2))
             {
                 if (session != null)
@@ -518,12 +518,6 @@ namespace EnglishApp.Application.Services
             if (existEmail != null)
             {
                 return new ApiResponse<object>("This email is already used by someone else. Please pick another email address.");
-            }
-
-            // Check if the new email is the same as the user's backup email
-            if (user.BackupEmail == request.NewEmail)
-            {
-                return new ApiResponse<object>("You cannot use your backup email as the new email. Please pick another email address.");
             }
 
             // Send verification code to the new email address

@@ -6,17 +6,19 @@ using System.Net.NetworkInformation;
 using EnglishApp.Application.Interfaces;
 using EnglishApp.Application.Interfaces.Services;
 using EnglishApp.Infrastructure.Implementations.Persistence;
+using Microsoft.AspNetCore.Authorization;
 
 namespace EnglishApp.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [AllowAnonymous]
     public class _TestController : ControllerBase
     {
         private readonly AppDbContext _context;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        public _TestController(AppDbContext context, IUnitOfWork unitOfWork,IMapper mapper)
+        public _TestController(AppDbContext context, IUnitOfWork unitOfWork, IMapper mapper)
         {
             _context = context;
             _unitOfWork = unitOfWork;
@@ -31,20 +33,22 @@ namespace EnglishApp.API.Controllers
                             .AsNoTracking()
                             .Where(c => c.ExpiresAt > DateTime.UtcNow)
                             .OrderByDescending(c => c.ExpiresAt)
-                            .Select(c => new {
+                            .Select(c => new
+                            {
                                 c.Code,
                                 c.DeviceId,
-                                User = new { 
+                                User = new
+                                {
                                     c.UserId,
                                     c.User.Username,
                                     c.User.Email,
                                 }
                             })
                             .ToListAsync();
-            return Ok("codeModel");
-        } 
+            return Ok(codeModel);
+        }
         #endregion
 
-        
+
     }
 }
