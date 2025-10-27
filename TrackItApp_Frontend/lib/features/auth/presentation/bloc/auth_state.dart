@@ -16,15 +16,12 @@ final class AuthLoadingState extends AuthState {
 }
 
 final class AuthSuccessState extends AuthState {
-  final TokenEntity tokenEntity;
+  final String accessToken;
 
-  const AuthSuccessState(this.tokenEntity);
+  const AuthSuccessState(this.accessToken);
 
   @override
-  List<Object?> get props => [
-    tokenEntity.accessToken,
-    tokenEntity.refreshToken,
-  ];
+  List<Object?> get props => [accessToken];
 }
 
 final class AuthFailureState extends AuthState {
@@ -44,9 +41,4 @@ final class AuthNeedVerifyState extends AuthState {
 
   @override
   List<Object?> get props => [input, message];
-}
-
-final class AuthSuccessResetPasswordState extends AuthState {
-  @override
-  List<Object?> get props => [];
 }

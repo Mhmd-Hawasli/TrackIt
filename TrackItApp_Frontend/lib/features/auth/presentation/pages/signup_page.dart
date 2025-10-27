@@ -1,6 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:track_it_health/common/widgets/loader.dart';
+import 'package:track_it_health/core/common/widgets/loader.dart';
 import 'package:track_it_health/core/theme/app_palette.dart';
 import 'package:track_it_health/core/utils/show_snakbar.dart';
 import 'package:track_it_health/features/auth/domain/usecases/signup_use_case.dart';

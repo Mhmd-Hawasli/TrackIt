@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:track_it_health/common/blocs/app_token/app_token_bloc.dart';
-import 'package:track_it_health/common/widgets/loader.dart';
+import 'package:track_it_health/core/common/blocs/app_user/app_user_bloc.dart';
+import 'package:track_it_health/core/common/widgets/loader.dart';
 import 'package:track_it_health/core/theme/app_palette.dart';
 import 'package:track_it_health/core/utils/show_snakbar.dart';
 import 'package:track_it_health/features/auth/domain/usecases/login_use_case.dart';
@@ -66,9 +66,9 @@ class _LoginPageState extends State<LoginPage> {
               context,
             ).pushReplacement(VerificationCodePage.route(input: state.input));
           } else if (state is AuthSuccessState) {
-            context.read<AppTokenBloc>().add(
-              SaveTokenEvent(tokenEntity: state.tokenEntity),
-            );
+            // context.read<AppUserBloc>().add(
+            //   SaveTokenEvent(tokenEntity: state.tokenEntity),
+            // );
             // Navigate to dashboard after successful login
             if (!mounted) return;
             Navigator.of(
