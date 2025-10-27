@@ -1,63 +1,59 @@
-﻿using System;
+﻿using EnglishApp.Domain.Common;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using EnglishApp.Domain.Common;
 
 namespace EnglishApp.Domain.Repositories
 {
     public interface IRepositoryBase<T> where T : class
     {
+        // ==========================================================
+        // Get All Operations  
+        // ==========================================================
+        IQueryable<T> GetQueryable();
+        Task<(List<T>, int count)> GetAllWithFilterAndCountAsync(QueryParameters filterModel, params string[] includes);
+        Task<List<T>> GetAllWithFilterAsync(QueryParameters filterModel, params string[] includes);
+        Task<(List<T>, int count)> ApplyFilterAsync(QueryParameters filterModel, IQueryable<T> query);
+        Task<IEnumerable<T>> GetAllAsync(params string[] includes);
+        Task<IEnumerable<T>> GetAllWithSoftDeleteAsync(params string[] includes);
+        Task<IEnumerable<T>> GetAllAsync(Expression<Func<T, bool>> predicate, params string[] includes);
+        Task<IEnumerable<T>> GetAllWithSoftDeleteAsync(Expression<Func<T, bool>> predicate, params string[] includes);
+        Task<IEnumerable<T>> FindAllWithCancellationTokenAsync(Expression<Func<T, bool>> predicate, CancellationToken cancellationToken);
 
-        //--------------------
-        // Get One Operation
-        //--------------------
+        // ==========================================================
+        // Special Get Operations 
+        // ==========================================================
+        Task<int> CountAsync(Expression<Func<T, bool>> predicate);
+        Task<bool> AnyAsync(Expression<Func<T, bool>> predicate);
+
+        // ==========================================================
+        // Get One Operations 
+        // ==========================================================
         Task<T?> GetByIdAsync(int id);
         Task<T?> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate, params string[] includes);
-        Task<T?> FirstOrDefaultAsNoTrackingAsync(Expression<Func<T, bool>> predicate, params string[] includes);
         Task<T?> FirstOrDefaultWithSoftDeleteAsync(Expression<Func<T, bool>> predicate, params string[] includes);
+        Task<TResult?> FirstOrDefaultWithSelectAsync<TResult>(Expression<Func<T, bool>> predicate, Expression<Func<T, TResult>> selectExpression) where TResult : class;
 
-
-        //--------------------
-        // Get All Operation
-        //--------------------
-        Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate, params string[] includes);
-        Task<IEnumerable<T>> FindAsNoTrackingAsync(Expression<Func<T, bool>> predicate, params string[] includes);
-        Task<IEnumerable<T>> FindWithSoftDeleteAsync(Expression<Func<T, bool>> predicate, params string[] includes);
-        Task<IEnumerable<T>> GetAllAsync(QueryParameters? filterModel = null, params string[] includes);
-        Task<IEnumerable<T>> GetAllAsNoTrackingAsync(QueryParameters? filterModel = null, params string[] includes);
-        Task<IEnumerable<T>> GetAllWithSoftDeleteAsync(QueryParameters? filterModel = null, params string[] includes);
-
-
-        //--------------------
-        // Check Operation
-        //--------------------
-        Task<int> CountAsync(Expression<Func<T, bool>> predicate);
-        Task<int> CountAsNoTrackingAsync(Expression<Func<T, bool>> predicate);
-        Task<int> CountWithSoftDeleteAsync(Expression<Func<T, bool>> predicate);
-
-
-        //--------------------
+        // ==========================================================
         // Add Operations
-        //--------------------
+        // ==========================================================
         Task AddAsync(T entity);
         Task AddRangeAsync(IEnumerable<T> entities);
 
-
-        //--------------------
+        // ==========================================================
         // Update Operations
-        //--------------------
+        // ==========================================================
         void Update(T entity);
-        void UpdateRange(IEnumerable<T> entities);
 
-        //--------------------
-        // Remove Operations
-        //--------------------
+        // ==========================================================
+        // Delete Operations
+        // ==========================================================
         void Remove(T entity);
+        void HardDelete(T entity);
         void RemoveRange(IEnumerable<T> entities);
-        void Delete(T entity);
-        void DeleteRange(IEnumerable<T> entities);
+        Task RemoveAllAsync(Expression<Func<T, bool>> predicate);
     }
 }

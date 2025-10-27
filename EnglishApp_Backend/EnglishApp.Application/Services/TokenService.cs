@@ -22,6 +22,39 @@ namespace EnglishApp.Application.Services
             _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT:SigningKey"]!));
         }
 
+
+
+        #region CreateToken
+        public string CreateToken(User user)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+                new Claim("role", user.UserType.UserTypeName.ToString().ToLower())
+
+            };
+
+
+            var Creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTime.UtcNow.AddDays(30),
+                SigningCredentials = Creds,
+                Issuer = _config["JWT:Issuer"],
+                Audience = _config["JWT:Audience"]
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var tokenString = tokenHandler.WriteToken(token); // هذا الـ string اللي ترسله للـ client
+
+
+
+            return tokenString;
+        }
+        #endregion
+
         #region ValidateExpiredAccessToken
         public int ValidateExpiredAccessToken(string accessToken)
         {
@@ -52,35 +85,6 @@ namespace EnglishApp.Application.Services
             {
                 throw;
             }
-        }
-        #endregion
-
-        #region CreateToken
-        public string CreateToken(User user)
-        {
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                new Claim("role", user.UserType.UserTypeName.ToString().ToLower())
-
-            };
-
-
-            var Creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
-
-            // The details of the token
-            var TokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddMinutes(30),
-                SigningCredentials = Creds,
-                Issuer = _config["JWT:Issuer"],
-                Audience = _config["JWT:Audience"]
-            };
-
-            var TokenHandler = new JwtSecurityTokenHandler();
-            var Token = TokenHandler.CreateToken(TokenDescriptor);
-            return TokenHandler.WriteToken(Token);
         }
         #endregion
 
