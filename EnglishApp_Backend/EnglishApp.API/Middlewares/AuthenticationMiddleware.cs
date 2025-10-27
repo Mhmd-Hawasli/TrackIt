@@ -83,25 +83,6 @@ namespace EnglishApp.API.Middlewares
                 var token = authHeader.Substring("Bearer ".Length).Trim();
                 var jwtToken = tokenHandler.ReadJwtToken(token);
 
-                var issuer = jwtToken.Issuer;
-                var audience = jwtToken.Audiences.FirstOrDefault();
-                var expiration = jwtToken.ValidTo;
-
-                Console.WriteLine($"Issuer: {issuer}");
-                Console.WriteLine($"Audience: {audience}");
-                Console.WriteLine($"Expires: {expiration}");
-
-                var handler = new JwtSecurityTokenHandler();
-                var jwt = handler.ReadJwtToken(token);
-
-                Console.WriteLine("== Claims ==");
-                foreach (var claim in jwt.Claims)
-                    Console.WriteLine($"{claim.Type}: {claim.Value}");
-
-                Console.WriteLine("== Audiences ==");
-                foreach (var aud in jwt.Audiences)
-                    Console.WriteLine(aud);
-
                 // 3. Set up validation parameters
                 var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
                 {

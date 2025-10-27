@@ -47,16 +47,6 @@ namespace EnglishApp.Application.Services
                 Audience = _config["JWT:Audience"]
             };
             var jwt = tokenHandler.CreateJwtSecurityToken(tokenDescriptor);
-            Console.WriteLine("== Raw JWT Audiences ==");
-            foreach (var a in jwt.Audiences)
-            {
-                Console.WriteLine(" - " + a);
-            }
-            Console.WriteLine("== Payload ==");
-            foreach (var kvp in jwt.Payload)
-            {
-                Console.WriteLine($"{kvp.Key}: {kvp.Value}");
-            }
             var token = tokenHandler.CreateJwtSecurityToken(tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token); // هذا الـ string اللي ترسله للـ client
 
