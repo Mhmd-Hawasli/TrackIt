@@ -1,9 +1,8 @@
 import 'package:dartz/dartz.dart';
-import 'package:track_it_health/common/entities/token_entity.dart';
 import 'package:track_it_health/core/error/exceptions.dart';
 import 'package:track_it_health/core/error/failure.dart';
-import 'package:track_it_health/features/auth/data/models/token_model.dart';
 import 'package:track_it_health/features/auth/data/sources/auth_data_source.dart';
+import 'package:track_it_health/features/auth/domain/entities/token_entity.dart';
 import 'package:track_it_health/features/auth/domain/repository/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {

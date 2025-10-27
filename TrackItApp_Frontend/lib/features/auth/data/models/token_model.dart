@@ -1,4 +1,4 @@
-import 'package:track_it_health/common/entities/token_entity.dart';
+import 'package:track_it_health/features/auth/domain/entities/token_entity.dart';
 
 class TokenModel extends TokenEntity {
   const TokenModel({required super.accessToken, required super.refreshToken});

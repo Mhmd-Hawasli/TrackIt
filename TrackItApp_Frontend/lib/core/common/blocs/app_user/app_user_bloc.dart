@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:meta/meta.dart';
-import 'package:track_it_health/common/entities/user_entity.dart';
+import 'package:track_it_health/core/common/entities/user_entity.dart';
 import 'package:track_it_health/core/utils/secure_local_storage.dart';
 import 'package:track_it_health/features/auth/data/sources/auth_data_source.dart';
 

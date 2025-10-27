@@ -4,6 +4,7 @@ import 'package:track_it_health/core/utils/secure_local_storage.dart';
 
 /// This interceptor is used to show request and response logs
 class LoggerInterceptor extends Interceptor {
+  final SecureLocalStorage _storage = SecureLocalStorage();
   Logger logger = Logger(
     printer: PrettyPrinter(methodCount: 0, colors: true, printEmojis: true),
   );
@@ -32,7 +33,7 @@ class LoggerInterceptor extends Interceptor {
     RequestInterceptorHandler handler,
   ) async {
     // Retrieve access token securely from local storage
-    final token = await SecureLocalStorage.getAccessToken();
+    final token = await _storage.getAccessToken();
 
     // Add Authorization header if token exists
     if (token != null && token.isNotEmpty) {
