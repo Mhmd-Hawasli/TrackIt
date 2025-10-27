@@ -109,10 +109,10 @@ namespace EnglishApp.API.Middlewares
                     IssuerSigningKey = new SymmetricSecurityKey(signingKeyBytes),
                     ValidateIssuer = true,
                     ValidIssuer = _configuration["JWT:Issuer"],
-                    ValidateAudience = true,
+                    ValidateAudience = false,
                     ValidAudience = _configuration["JWT:Audience"],
                     ClockSkew = TimeSpan.Zero,
-                    ValidateLifetime = false,
+                    ValidateLifetime = true,
                 },
                 out SecurityToken validatedToken);
                 context.User = principal;
