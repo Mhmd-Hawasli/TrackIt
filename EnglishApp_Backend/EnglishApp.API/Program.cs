@@ -32,7 +32,7 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connect
 
 
 // JWT Auth
-//#region JWT Auth
+#region JWT Auth
 //builder.Services.AddAuthentication(options =>
 //{
 //    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -55,24 +55,24 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connect
 //        ValidateIssuerSigningKey = true,
 //        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(signingKey))
 //    };
-//    options.Events = new JwtBearerEvents
-//    {
-//        OnAuthenticationFailed = context =>
-//        {
-//            if (context.Exception is SecurityTokenExpiredException &&
-//                context.HttpContext.GetEndpoint()?.Metadata?.GetMetadata<IAllowAnonymous>() != null)
-//            {
-//                context.Response.StatusCode = 401;
-//                context.Response.ContentType = "application/json";
-//                var result = System.Text.Json.JsonSerializer.Serialize(
-//                    new ApiResponse<int>(false, 1, "Unauthorized: Token is expired", null));
-//                return context.Response.WriteAsync(result);
-//            }
-//            return Task.CompletedTask;
-//        }
-//    };
+//    //options.Events = new JwtBearerEvents
+//    //{
+//    //    OnAuthenticationFailed = context =>
+//    //    {
+//    //        if (context.Exception is SecurityTokenExpiredException &&
+//    //            context.HttpContext.GetEndpoint()?.Metadata?.GetMetadata<IAllowAnonymous>() != null)
+//    //        {
+//    //            context.Response.StatusCode = 401;
+//    //            context.Response.ContentType = "application/json";
+//    //            var result = System.Text.Json.JsonSerializer.Serialize(
+//    //                new ApiResponse<int>(false, 1, "Unauthorized: Token is expired", null));
+//    //            return context.Response.WriteAsync(result);
+//    //        }
+//    //        return Task.CompletedTask;
+//    //    }
+//    //};
 //});
-//#endregion
+#endregion
 
 //DI
 #region DI
@@ -122,10 +122,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-//app.UseAuthentication();
+app.UseAuthentication();
 
-//app.UseAuthorization();
+app.UseAuthorization();
 
+//app.UseMiddleware<JwtValidationMiddleware>();
 app.UseMiddleware<AuthenticationMiddleware>();
 
 app.MapControllers();

@@ -30,23 +30,34 @@ namespace EnglishApp.Application.Services
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                new Claim("role", user.UserType.UserTypeName.ToString().ToLower())
+                //new Claim("role", user.UserType.UserTypeName.ToString().ToLower())
 
             };
 
 
             var Creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
             var tokenHandler = new JwtSecurityTokenHandler();
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),
-                Expires = DateTime.UtcNow.AddDays(30),
+                Expires = DateTime.UtcNow.AddMinutes(30),
                 SigningCredentials = Creds,
                 Issuer = _config["JWT:Issuer"],
                 Audience = _config["JWT:Audience"]
             };
-
-            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var jwt = tokenHandler.CreateJwtSecurityToken(tokenDescriptor);
+            Console.WriteLine("== Raw JWT Audiences ==");
+            foreach (var a in jwt.Audiences)
+            {
+                Console.WriteLine(" - " + a);
+            }
+            Console.WriteLine("== Payload ==");
+            foreach (var kvp in jwt.Payload)
+            {
+                Console.WriteLine($"{kvp.Key}: {kvp.Value}");
+            }
+            var token = tokenHandler.CreateJwtSecurityToken(tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token); // هذا الـ string اللي ترسله للـ client
 
 

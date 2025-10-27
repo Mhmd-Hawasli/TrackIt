@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Crypto.Parameters;
 using System;
 using System.IdentityModel.Tokens.Jwt;
@@ -80,7 +81,26 @@ namespace EnglishApp.API.Middlewares
 
                 // 2. Extract token
                 var token = authHeader.Substring("Bearer ".Length).Trim();
+                var jwtToken = tokenHandler.ReadJwtToken(token);
 
+                var issuer = jwtToken.Issuer;
+                var audience = jwtToken.Audiences.FirstOrDefault();
+                var expiration = jwtToken.ValidTo;
+
+                Console.WriteLine($"Issuer: {issuer}");
+                Console.WriteLine($"Audience: {audience}");
+                Console.WriteLine($"Expires: {expiration}");
+
+                var handler = new JwtSecurityTokenHandler();
+                var jwt = handler.ReadJwtToken(token);
+
+                Console.WriteLine("== Claims ==");
+                foreach (var claim in jwt.Claims)
+                    Console.WriteLine($"{claim.Type}: {claim.Value}");
+
+                Console.WriteLine("== Audiences ==");
+                foreach (var aud in jwt.Audiences)
+                    Console.WriteLine(aud);
 
                 // 3. Set up validation parameters
                 var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
@@ -91,8 +111,8 @@ namespace EnglishApp.API.Middlewares
                     ValidIssuer = _configuration["JWT:Issuer"],
                     ValidateAudience = true,
                     ValidAudience = _configuration["JWT:Audience"],
-                    ClockSkew = TimeSpan.FromMinutes(5),
-                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero,
+                    ValidateLifetime = false,
                 },
                 out SecurityToken validatedToken);
                 context.User = principal;
