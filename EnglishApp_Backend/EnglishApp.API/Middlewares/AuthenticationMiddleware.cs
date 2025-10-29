@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json.Linq;
 using Org.BouncyCastle.Crypto.Parameters;
 using System;
 using System.IdentityModel.Tokens.Jwt;
@@ -80,7 +81,7 @@ namespace EnglishApp.API.Middlewares
 
                 // 2. Extract token
                 var token = authHeader.Substring("Bearer ".Length).Trim();
-
+                var jwtToken = tokenHandler.ReadJwtToken(token);
 
                 // 3. Set up validation parameters
                 var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
@@ -89,9 +90,9 @@ namespace EnglishApp.API.Middlewares
                     IssuerSigningKey = new SymmetricSecurityKey(signingKeyBytes),
                     ValidateIssuer = true,
                     ValidIssuer = _configuration["JWT:Issuer"],
-                    ValidateAudience = true,
+                    ValidateAudience = false,
                     ValidAudience = _configuration["JWT:Audience"],
-                    ClockSkew = TimeSpan.FromMinutes(5),
+                    ClockSkew = TimeSpan.Zero,
                     ValidateLifetime = true,
                 },
                 out SecurityToken validatedToken);

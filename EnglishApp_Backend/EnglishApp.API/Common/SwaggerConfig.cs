@@ -38,7 +38,7 @@ namespace EnglishApp.API.Common
             services.AddSwaggerGen(c =>
             {
                 // Swagger doc
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "WordUp API", Version = "v1" });
 
                 // JWT Bearer
                 c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme

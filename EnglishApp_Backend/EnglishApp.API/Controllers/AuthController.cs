@@ -93,6 +93,7 @@ namespace EnglishApp.API.Controllers
             }
 
             //get DeviceId form request header
+            //string deviceId = "device_test";
             string deviceId = HttpContext.Items["DeviceId"]!.ToString()!;
 
             var result = await _authService.LoginAsync(request, deviceId);
