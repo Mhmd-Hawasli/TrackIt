@@ -19,93 +19,37 @@ class AppUserBloc extends Bloc<AppUserEvent, AppUserState> {
   }) : _authDataSource = authDataSource,
        _storage = storage,
        super(AppUserInitial()) {
-    on<AppUserSaveToken>(_onSaveToken);
-    on<AppUserLoadToken>(_onLoadToken);
-    on<AppUserSaveUser>(_onSaveUser);
-    on<AppUserLoadUser>(_onLoadUser);
+    on<AppUserEvent>((_, emit) => emit(AppUserLoading()));
+
+    on<AppUserSaveToStorage>(_onSaveUser);
+    on<AppUserStorageLoaded>(_onLoadUser);
+    on<AppUserFetchRequested>(_onFetchUser);
     on<AppUserLogout>(_onLogout);
   }
 
-  Future<void> _onSaveToken(
-    AppUserSaveToken event,
-    Emitter<AppUserState> emit,
-  ) async {
-    try {
-      emit(AppUserLoading());
-
-      // Save tokens locally
-      await _storage.saveTokens(
-        accessToken: event.accessToken,
-        refreshToken: event.refreshToken,
-      );
-
-      emit(
-        AppUserTokenUpdated(
-          accessToken: event.accessToken,
-          refreshToken: event.refreshToken,
-        ),
-      );
-
-      // Optionally fetch user info
-      if (event.fetchUserAfterSave) {
-        add(AppUserLoadUser());
-      }
-    } catch (e) {
-      emit(AppUserError(e.toString()));
-    }
-  }
-
-  Future<void> _onLoadToken(
-    AppUserLoadToken event,
-    Emitter<AppUserState> emit,
-  ) async {
-    try {
-      emit(AppUserLoading());
-
-      final accessToken = await _storage.getAccessToken();
-      final refreshToken = await _storage.getRefreshToken();
-
-      if (accessToken == null || refreshToken == null) {
-        emit(AppUserUnauthenticated());
-        return;
-      }
-
-      emit(
-        AppUserTokenUpdated(
-          accessToken: accessToken,
-          refreshToken: refreshToken,
-        ),
-      );
-
-      if (event.fetchUserAfterLoad) {
-        add(AppUserLoadUser());
-      }
-    } catch (e) {
-      emit(AppUserError(e.toString()));
-    }
-  }
-
+  /// -----------------------------
+  /// Save user to secure storage event
+  /// -----------------------------
   Future<void> _onSaveUser(
-    AppUserSaveUser event,
+    AppUserSaveToStorage event,
     Emitter<AppUserState> emit,
   ) async {
     try {
-      emit(AppUserLoading());
-
-      await _storage.saveUser(event.user);
-      emit(AppUserLoaded(event.user));
+      await _storage.saveUser(event.userEntity);
+      emit(AppUserLoaded(event.userEntity));
     } catch (e) {
       emit(AppUserError(e.toString()));
     }
   }
 
+  /// -----------------------------
+  /// Load user from secure storage event
+  /// -----------------------------
   Future<void> _onLoadUser(
-    AppUserLoadUser event,
+    AppUserStorageLoaded event,
     Emitter<AppUserState> emit,
   ) async {
     try {
-      emit(AppUserLoading());
-
       // Get user from storage
       var user = await _storage.getUser();
 
@@ -128,13 +72,30 @@ class AppUserBloc extends Bloc<AppUserEvent, AppUserState> {
     }
   }
 
+  /// -----------------------------
+  /// Fetch user data from api
+  /// -----------------------------
+  Future<void> _onFetchUser(
+    AppUserFetchRequested event,
+    Emitter<AppUserState> emit,
+  ) async {
+    try {
+      await _storage.clearAll();
+
+      emit(AppUserUnauthenticated());
+    } catch (e) {
+      emit(AppUserError(e.toString()));
+    }
+  }
+
+  /// -----------------------------
+  /// Logout user and delete his info
+  /// -----------------------------
   Future<void> _onLogout(
     AppUserLogout event,
     Emitter<AppUserState> emit,
   ) async {
     try {
-      emit(AppUserLoading());
-
       await _storage.clearAll();
 
       emit(AppUserUnauthenticated());

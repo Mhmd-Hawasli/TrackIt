@@ -15,12 +15,28 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    final currentState = context.read<AppUserBloc>().state;
+    if (currentState is AppUserInitial) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        Navigator.of(
+          context,
+        ).pushAndRemoveUntil(LoginPage.route(), (route) => false);
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MultiBlocListener(
       listeners: [
         BlocListener<AppUserBloc, AppUserState>(
           listener: (context, state) {
-            if (state is AppUserUnauthenticated) {
+            print('AppUserBloc state: $state');
+            if (state is AppUserInitial) {
               if (!mounted) return;
               Navigator.of(
                 context,
@@ -29,7 +45,7 @@ class _DashboardPageState extends State<DashboardPage> {
           },
         ),
       ],
-      child: Center(child: Text("Home Page")),
+      child: const Center(child: Text("Home Page")),
     );
   }
 }

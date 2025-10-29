@@ -25,17 +25,6 @@ final class AppUserLoaded extends AppUserState {
   List<Object?> get props => [user];
 }
 
-/// Token saved or updated successfully
-final class AppUserTokenUpdated extends AppUserState {
-  final String accessToken;
-  final String refreshToken;
-
-  AppUserTokenUpdated({required this.accessToken, required this.refreshToken});
-
-  @override
-  List<Object?> get props => [accessToken, refreshToken];
-}
-
 /// Error state
 final class AppUserError extends AppUserState {
   final String message;
