@@ -73,12 +73,17 @@ class DioClient {
   // ==========================================================
   Future<dynamic> get(
     String url, {
+    bool useToken = true,
     Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
     ProgressCallback? onReceiveProgress,
   }) async {
     try {
+      // Merge extra with useToken flag
+      options ??= Options();
+      options.extra = {...?options.extra, 'useToken': useToken};
+
       final response = await _dio.get(
         url,
         queryParameters: queryParameters,
@@ -98,6 +103,7 @@ class DioClient {
   Future<dynamic> post(
     String url, {
     dynamic data,
+    bool useToken = true,
     Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
@@ -105,6 +111,10 @@ class DioClient {
     ProgressCallback? onReceiveProgress,
   }) async {
     try {
+      // Merge extra with useToken flag
+      options ??= Options();
+      options.extra = {...?options.extra, 'useToken': useToken};
+
       final response = await _dio.post(
         url,
         data: data,
@@ -126,6 +136,7 @@ class DioClient {
   Future<dynamic> put(
     String url, {
     dynamic data,
+    bool useToken = true,
     Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
@@ -133,6 +144,10 @@ class DioClient {
     ProgressCallback? onReceiveProgress,
   }) async {
     try {
+      // Merge extra with useToken flag
+      options ??= Options();
+      options.extra = {...?options.extra, 'useToken': useToken};
+
       final response = await _dio.put(
         url,
         data: data,
@@ -154,11 +169,16 @@ class DioClient {
   Future<dynamic> delete(
     String url, {
     dynamic data,
+    bool useToken = true,
     Map<String, dynamic>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
   }) async {
     try {
+      // Merge extra with useToken flag
+      options ??= Options();
+      options.extra = {...?options.extra, 'useToken': useToken};
+
       final response = await _dio.delete(
         url,
         data: data,

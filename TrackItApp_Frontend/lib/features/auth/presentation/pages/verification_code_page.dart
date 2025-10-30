@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:track_it_health/core/common/blocs/app_user/app_user_bloc.dart';
 import 'package:track_it_health/core/theme/app_palette.dart';
 import 'package:track_it_health/features/auth/domain/usecases/verify_account_use_case.dart';
 import 'package:track_it_health/features/auth/presentation/bloc/auth_bloc.dart';
@@ -37,9 +38,7 @@ class _VerificationCodePageState extends State<VerificationCodePage> {
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
           if (state is AuthSuccessState) {
-            // context.read<AppTokenBloc>().add(
-            //   SaveTokenEvent(tokenEntity: state.tokenEntity),
-            // );
+            context.read<AppUserBloc>().add(AppUserFetchRequested());
             if (!mounted) return;
             Navigator.of(
               context,

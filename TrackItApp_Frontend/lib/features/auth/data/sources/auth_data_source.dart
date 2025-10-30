@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:dartz/dartz.dart';
 import 'package:track_it_health/core/constants/api_urls.dart';
 import 'package:track_it_health/core/network/dio_client.dart';
@@ -26,7 +28,11 @@ class AuthApiServiceImpl implements AuthDataSource {
   //===========================================
   @override
   Future<String> signupDataSource(Map<String, dynamic> data) async {
-    final responseData = await _dioClient.post(ApiUrls.register, data: data);
+    final responseData = await _dioClient.post(
+      ApiUrls.register,
+      data: data,
+      useToken: false,
+    );
     return responseData['message'];
   }
 
@@ -37,7 +43,11 @@ class AuthApiServiceImpl implements AuthDataSource {
   Future<Either<String, TokenModel>> loginDataSource(
     Map<String, dynamic> data,
   ) async {
-    final responseData = await _dioClient.post(ApiUrls.login, data: data);
+    final responseData = await _dioClient.post(
+      ApiUrls.login,
+      data: data,
+      useToken: false,
+    );
 
     if (responseData['data'] == null) {
       return left(responseData['message']);
@@ -53,6 +63,7 @@ class AuthApiServiceImpl implements AuthDataSource {
     final responseData = await _dioClient.post(
       ApiUrls.verifyAccount,
       data: data,
+      useToken: false,
     );
     if (responseData['data'] == null) {
       throw ServerExceptions(responseData['message'] ?? 'an error occurred.');
@@ -64,8 +75,11 @@ class AuthApiServiceImpl implements AuthDataSource {
   // getCurrentUser
   //===========================================
   @override
-  Future<UserModel> getCurrentUser() {
-    // TODO: implement getCurrentUser
-    throw UnimplementedError();
+  Future<UserModel> getCurrentUser() async {
+    final responseData = await _dioClient.get(ApiUrls.myAccount);
+    if (responseData['data'] == null) {
+      throw ServerExceptions(responseData['message'] ?? 'an error occurred');
+    }
+    return UserModel.fromJson(responseData['data']);
   }
 }

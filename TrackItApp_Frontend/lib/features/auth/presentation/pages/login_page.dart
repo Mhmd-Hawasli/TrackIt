@@ -66,10 +66,7 @@ class _LoginPageState extends State<LoginPage> {
               context,
             ).pushReplacement(VerificationCodePage.route(input: state.input));
           } else if (state is AuthSuccessState) {
-            // context.read<AppUserBloc>().add(
-            //   SaveTokenEvent(tokenEntity: state.tokenEntity),
-            // );
-            // Navigate to dashboard after successful login
+            context.read<AppUserBloc>().add(AppUserFetchRequested());
             if (!mounted) return;
             Navigator.of(
               context,
