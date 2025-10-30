@@ -17,7 +17,9 @@
       "applicationUrl": "http://localhost:55055",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+      },
+      "hotReloadProfile": "aspnetcore",
+      "liveReloadEnabled": false
     },
     "https": {
       "commandName": "Project",
@@ -27,7 +29,9 @@
       "applicationUrl": "https://localhost:55055;http://localhost:55055",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+      },
+      "hotReloadProfile": "aspnetcore",
+      "liveReloadEnabled": false
     },
     "IIS Express": {
       "commandName": "IISExpress",
@@ -35,7 +39,9 @@
       "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+      },
+      "hotReloadProfile": "aspnetcore",
+      "liveReloadEnabled": false
     }
   }
 }
