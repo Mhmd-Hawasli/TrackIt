@@ -12,7 +12,7 @@ namespace EnglishApp.API.Controllers
     /// </summary>
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize]
+
     public class DictionaryController : ControllerBase
     {
         private readonly IDictionaryService _dictionaryService;
