@@ -5,7 +5,7 @@ import 'package:track_it_health/core/constants/api_urls.dart';
 import 'package:track_it_health/core/network/dio_client.dart';
 import 'package:track_it_health/core/error/exceptions.dart';
 import 'package:track_it_health/features/auth/data/models/token_model.dart';
-import 'package:track_it_health/features/auth/data/models/user_model.dart';
+import 'package:track_it_health/features/user/data/models/user_model.dart';
 
 abstract interface class AuthDataSource {
   Future<String> signupDataSource(Map<String, dynamic> data);
