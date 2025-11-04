@@ -31,41 +31,31 @@ namespace EnglishApp.API.Controllers
             _config = config;
         }
 
-        #region generate-token
-        [HttpGet("generate-token")]
-        [ProducesResponseType(typeof(object), 200)]
-        public IActionResult GenerateToken()
+        #region GetLastCode
+        [HttpGet("get-all-user")]
+        public async Task<IActionResult> GetAllUsers()
         {
-            var issuer = _config["JWT:Issuer"];
-            var audience = _config["JWT:Audience"];
-            var signingKey = _config["JWT:SigningKey"];
-
-            var claims = new[]
-            {
-                new Claim(JwtRegisteredClaimNames.Sub, "testuser"),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim("role", "user")
-            };
-
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-            var token = new JwtSecurityToken(
-                issuer: issuer,
-                audience: audience,
-                claims: claims,
-                expires: DateTime.UtcNow.AddMinutes(30),
-                signingCredentials: creds
-            );
-
-            var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
-
-            return Ok(new
-            {
-                succeeded = true,
-                token = tokenString,
-                expiresAt = DateTime.UtcNow.AddMinutes(30)
-            });
+            var users = await _context.Users
+                            .AsNoTracking()
+                            .Include(u => u.UserType)
+                            .Include(u => u.Dictionaries)
+                            .Where(u => !u.IsDeleted)
+                            .Select(u => new
+                            {
+                                u.UserId,
+                                u.Name,
+                                u.Username,
+                                u.Email,
+                                u.UserTypeId,
+                                u.UserType.UserTypeName,
+                                Dictionaries = u.Dictionaries.Select(d => new
+                                {
+                                    d.DictionaryId,
+                                    d.DictionaryName
+                                })
+                            })
+                            .ToListAsync();
+            return Ok(users);
         }
         #endregion
 
